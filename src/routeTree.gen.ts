@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScreeningRouteImport } from './routes/screening'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as EducationRouteImport } from './routes/education'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const ScreeningRoute = ScreeningRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducationRoute = EducationRouteImport.update({
+  id: '/education',
+  path: '/education',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
+  '/education': typeof EducationRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
+  '/education': typeof EducationRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
 }
@@ -60,19 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
+  '/education': typeof EducationRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/checkin' | '/dashboard' | '/onboarding' | '/screening'
+  fullPaths:
+    | '/'
+    | '/checkin'
+    | '/dashboard'
+    | '/education'
+    | '/onboarding'
+    | '/screening'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkin' | '/dashboard' | '/onboarding' | '/screening'
+  to:
+    | '/'
+    | '/checkin'
+    | '/dashboard'
+    | '/education'
+    | '/onboarding'
+    | '/screening'
   id:
     | '__root__'
     | '/'
     | '/checkin'
     | '/dashboard'
+    | '/education'
     | '/onboarding'
     | '/screening'
   fileRoutesById: FileRoutesById
@@ -81,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckinRoute: typeof CheckinRoute
   DashboardRoute: typeof DashboardRoute
+  EducationRoute: typeof EducationRoute
   OnboardingRoute: typeof OnboardingRoute
   ScreeningRoute: typeof ScreeningRoute
 }
@@ -99,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/education': {
+      id: '/education'
+      path: '/education'
+      fullPath: '/education'
+      preLoaderRoute: typeof EducationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -129,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckinRoute: CheckinRoute,
   DashboardRoute: DashboardRoute,
+  EducationRoute: EducationRoute,
   OnboardingRoute: OnboardingRoute,
   ScreeningRoute: ScreeningRoute,
 }
