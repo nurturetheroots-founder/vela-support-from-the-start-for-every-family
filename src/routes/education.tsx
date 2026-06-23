@@ -18,19 +18,78 @@ export const Route = createFileRoute("/education")({
   component: EducationPage,
 });
 
+type SortOption = "relevance" | "week-asc" | "week-desc" | "time-asc" | "time-desc";
+
+function scoreRelevance(module: EducationModule, query: string): number {
+  const q = query.toLowerCase();
+  let score = 0;
+  if (module.title.toLowerCase().includes(q)) score += 3;
+  if (module.excerpt.toLowerCase().includes(q)) score += 2;
+  if (module.tags.some((t) => t.toLowerCase().includes(q))) score += 2;
+  if (module.body.some((p) => p.toLowerCase().includes(q))) score += 1;
+  return score;
+}
+
 function EducationPage() {
   const profile = useStore((s) => s.profile);
   const { week } = weekNumber(profile);
   const [openWeek, setOpenWeek] = useState<number | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("week-asc");
 
   const mvpModules = educationModules.filter((m) => m.week >= 1 && m.week <= 6);
   const allTags = Array.from(new Set(mvpModules.flatMap((m) => m.tags)));
-  const visibleModules = activeTag
-    ? mvpModules.filter((m) => m.tags.includes(activeTag))
-    : mvpModules;
+
+  const visibleModules = useMemo(() => {
+    let result = mvpModules;
+
+    if (activeTag) {
+      result = result.filter((m) => m.tags.includes(activeTag));
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter((m) =>
+        m.title.toLowerCase().includes(q) ||
+        m.excerpt.toLowerCase().includes(q) ||
+        m.tags.some((t) => t.toLowerCase().includes(q)) ||
+        m.body.some((p) => p.toLowerCase().includes(q))
+      );
+    }
+
+    const sorter = [...result];
+    switch (sortBy) {
+      case "relevance":
+        if (searchQuery.trim()) {
+          sorter.sort((a, b) => {
+            const sa = scoreRelevance(a, searchQuery.trim());
+            const sb = scoreRelevance(b, searchQuery.trim());
+            if (sb !== sa) return sb - sa;
+            return a.week - b.week;
+          });
+        } else {
+          sorter.sort((a, b) => a.week - b.week);
+        }
+        break;
+      case "week-desc":
+        sorter.sort((a, b) => b.week - a.week);
+        break;
+      case "time-asc":
+        sorter.sort((a, b) => a.readTime - b.readTime);
+        break;
+      case "time-desc":
+        sorter.sort((a, b) => b.readTime - a.readTime);
+        break;
+      default:
+        sorter.sort((a, b) => a.week - b.week);
+    }
+
+    return sorter;
+  }, [mvpModules, activeTag, searchQuery, sortBy]);
+
   const completedInScope = mvpModules.filter((m) =>
-    profile.completedModules.includes(m.week),
+    profile.completedModules.includes(week),
   ).length;
   const open = mvpModules.find((m) => m.week === openWeek);
 
