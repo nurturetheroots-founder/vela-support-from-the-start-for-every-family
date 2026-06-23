@@ -1,10 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
-import { educationModules } from "@/lib/education";
+import { educationModules, EducationModule } from "@/lib/education";
 import { getState, markModuleComplete, toggleBookmark, useStore, weekNumber } from "@/lib/store";
-import { Bookmark, BookmarkCheck, Check } from "lucide-react";
-import { useState } from "react";
+import { Bookmark, BookmarkCheck, Check, Search, ArrowUpDown } from "lucide-react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/education")({
   head: () => ({ meta: [{ title: "Learning — Vela" }] }),
