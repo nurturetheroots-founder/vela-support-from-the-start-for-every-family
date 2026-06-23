@@ -144,7 +144,7 @@ export function todayStr() {
 
 export function nextScreeningDue(p: Profile, screenings: ScreeningResult[]): { week: number; daysAway: number } | null {
   if (!p.birthDate) return null;
-  const milestones = [2, 6, 13, 26]; // weeks: 2wk, 6wk, 3mo (~13), 6mo (~26)
+  const milestones = [2, 6, 13, 17]; // weeks: 2wk, 6wk, 3mo (~13), 4mo (~17)
   const { week } = weekNumber(p);
   for (const m of milestones) {
     const done = screenings.some((s) => s.triggerWeek === m);
