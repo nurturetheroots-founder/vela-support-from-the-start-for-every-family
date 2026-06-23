@@ -6,16 +6,16 @@ import { getState } from "@/lib/store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Vela — Doula-first postpartum support" },
+      { title: "Vela — Fourth trimester support companion" },
       {
         name: "description",
         content:
-          "Vela walks families through pregnancy to month 12 postpartum with daily check-ins, weekly education, clinical screening, and human support.",
+          "Vela is a fourth-trimester support companion for birth through 4 months. Daily check-ins, weekly education, gentle screening, and human help when you need it.",
       },
-      { property: "og:title", content: "Vela — Doula-first postpartum support" },
+      { property: "og:title", content: "Vela — Fourth trimester support companion" },
       {
         property: "og:description",
-        content: "Pregnancy through month 12, with the support you actually need.",
+        content: "Birth through 4 months, with the support you actually need.",
       },
     ],
   }),
@@ -43,9 +43,9 @@ function Landing() {
       </header>
 
       <section className="max-w-3xl mx-auto px-6 pt-10 pb-16 text-center">
-        <p className="text-sm uppercase tracking-[0.18em] text-primary mb-5">Doula-first postpartum care</p>
+        <p className="text-sm uppercase tracking-[0.18em] text-primary mb-5">Fourth trimester support companion</p>
         <h1 className="text-4xl sm:text-5xl font-serif font-semibold leading-tight">
-          Tender, attuned support — from pregnancy through month 12.
+          Tender, attuned support — from birth through month 4.
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
           Daily check-ins, weekly learning, gentle screening, and human help when you need it. Built for the
@@ -65,7 +65,7 @@ function Landing() {
         {[
           { icon: Heart, title: "60-second daily check-in", body: "Mood, sleep, feeding, overall. We watch for patterns so you don't have to." },
           { icon: BookOpen, title: "Weekly learning, by your week", body: "Short, plain-language modules — newborn care, recovery, mental health." },
-          { icon: ShieldCheck, title: "Gentle clinical screening", body: "EPDS at 2wk, 6wk, 3mo, 6mo. Results come with a warm next step." },
+          { icon: ShieldCheck, title: "Gentle clinical screening", body: "EPDS at 2wk, 6wk, 3mo, and 4mo. Results come with a warm next step." },
           { icon: MessageCircleHeart, title: "Real human support", body: "Peer community, doula sessions, and therapist referrals on a sliding scale." },
         ].map(({ icon: Icon, title, body }) => (
           <div key={title} className="rounded-2xl bg-secondary p-6">
