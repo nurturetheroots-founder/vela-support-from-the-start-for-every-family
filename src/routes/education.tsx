@@ -90,7 +90,7 @@ function EducationPage() {
           );
         })}
       </ul>
-      <p className="mt-8 text-xs text-muted-foreground text-center">Weeks 7–52 unlock as you go.</p>
+      <p className="mt-8 text-xs text-muted-foreground text-center">Weeks 7–16 unlock as you go.</p>
     </AppShell>
   );
 }

@@ -17,32 +17,26 @@ export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
 });
 
-type Mode = "due" | "born";
-
 function Onboarding() {
   const nav = useNavigate();
   const [step, setStep] = useState(1);
-  const [mode, setMode] = useState<Mode>("due");
-  const [dueDate, setDueDate] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [name, setName] = useState("");
   const [zip, setZip] = useState("");
   const [insurance, setInsurance] = useState<Insurance>("Private");
   const [tier, setTier] = useState<Tier>(10);
 
-  const total = 5;
+  const total = 4;
   const canNext =
-    (step === 1 && ((mode === "due" && dueDate) || (mode === "born" && birthDate))) ||
+    (step === 1 && birthDate) ||
     (step === 2 && name.trim() && /^\d{5}$/.test(zip)) ||
     step === 3 ||
-    step === 4 ||
-    step === 5;
+    step === 4;
 
   function finish() {
     setProfile({
       name: name.trim(),
-      dueDate: mode === "due" ? dueDate : undefined,
-      birthDate: mode === "born" ? birthDate : undefined,
+      birthDate,
       zip,
       insurance,
       tier,
@@ -52,12 +46,12 @@ function Onboarding() {
   }
 
   function next() {
-    if (step === 4 && tier !== 0) {
+    if (step === 3 && tier !== 0) {
       // Stripe checkout placeholder
-      setStep(5);
+      setStep(4);
       return;
     }
-    if (step === 5) return finish();
+    if (step === 4) return finish();
     setStep(step + 1);
   }
 
@@ -79,24 +73,11 @@ function Onboarding() {
       <main className="flex-1 max-w-xl w-full mx-auto px-5 py-10">
         {step === 1 && (
           <div>
-            <h1 className="text-3xl font-serif">When is your baby coming — or when did they arrive?</h1>
-            <p className="mt-3 text-muted-foreground">We use this to tune your check-ins and learning to your week.</p>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <ToggleCard active={mode === "due"} onClick={() => setMode("due")} title="Expecting" subtitle="Pregnancy due date" />
-              <ToggleCard active={mode === "born"} onClick={() => setMode("born")} title="Baby is here" subtitle="Birth date" />
-            </div>
-            <div className="mt-5">
-              {mode === "due" ? (
-                <>
-                  <Label htmlFor="due">Due date</Label>
-                  <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="mt-2 h-12" />
-                </>
-              ) : (
-                <>
-                  <Label htmlFor="bd">Birth date</Label>
-                  <Input id="bd" type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="mt-2 h-12" />
-                </>
-              )}
+            <h1 className="text-3xl font-serif">When did your baby arrive?</h1>
+            <p className="mt-3 text-muted-foreground">We use this to tune your check-ins and learning to your week in the fourth trimester.</p>
+            <div className="mt-6">
+              <Label htmlFor="bd">Birth date</Label>
+              <Input id="bd" type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="mt-2 h-12" />
             </div>
           </div>
         )}
@@ -153,28 +134,6 @@ function Onboarding() {
 
         {step === 4 && (
           <div>
-            <h1 className="text-3xl font-serif">{tier === 0 ? "You're all set." : "Confirm your tier."}</h1>
-            <p className="mt-3 text-muted-foreground">
-              {tier === 0
-                ? "No payment needed. We'll set up your dashboard next."
-                : `You chose $${tier}/month. We'd hand off to Stripe checkout here in production.`}
-            </p>
-            {tier !== 0 && (
-              <div className="mt-6 rounded-2xl border border-border p-5 bg-card">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Monthly</span>
-                  <span className="font-serif text-2xl">${tier}</span>
-                </div>
-                <div className="mt-4 rounded-xl bg-secondary p-4 text-sm text-muted-foreground">
-                  Stripe checkout placeholder. Tap continue to simulate a successful subscription.
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 5 && (
-          <div>
             <h1 className="text-3xl font-serif">Welcome, {name || "friend"}.</h1>
             <p className="mt-3 text-muted-foreground leading-relaxed">
               Here's what to expect: a quick check-in each day, one short learning module each week, and gentle
@@ -182,7 +141,7 @@ function Onboarding() {
               gate, always as an offering.
             </p>
             <ul className="mt-6 space-y-3 text-sm">
-              {["60-second daily check-in", "Weekly learning by your week", "EPDS screening at 2wk, 6wk, 3mo, 6mo", "Doula and therapist support when you want it"].map((t) => (
+              {["60-second daily check-in", "Weekly learning by your week", "EPDS screening at 2wk, 6wk, 3mo, and 4mo", "Doula and therapist support when you want it"].map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <span className="mt-0.5 grid place-items-center h-5 w-5 rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" /></span>
                   {t}
@@ -197,27 +156,11 @@ function Onboarding() {
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center justify-between gap-3">
           <Button variant="ghost" disabled={step === 1} onClick={() => setStep(step - 1)}>Back</Button>
           <Button size="lg" className="rounded-full px-7" disabled={!canNext} onClick={next}>
-            {step === 5 ? "Go to my dashboard" : step === 4 ? (tier === 0 ? "Continue" : "Simulate checkout") : "Continue"}
+            {step === 4 ? "Go to my dashboard" : step === 3 ? (tier === 0 ? "Continue" : "Simulate checkout") : "Continue"}
           </Button>
         </div>
       </footer>
     </div>
-  );
-}
-
-function ToggleCard({ active, onClick, title, subtitle }: { active: boolean; onClick: () => void; title: string; subtitle: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "text-left rounded-2xl border p-4 transition-colors min-h-16",
-        active ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30",
-      )}
-    >
-      <div className="font-medium">{title}</div>
-      <div className="text-xs text-muted-foreground mt-0.5">{subtitle}</div>
-    </button>
   );
 }
 

@@ -22,7 +22,6 @@ export interface ScreeningResult {
 
 export interface Profile {
   name: string;
-  dueDate?: string;
   birthDate?: string;
   zip: string;
   insurance: Insurance;
@@ -128,21 +127,15 @@ export function useStore<T>(selector: (s: State) => T): T {
 }
 
 // Helpers
-export function weekNumber(p: Profile): { label: string; week: number; phase: "pregnancy" | "postpartum" } {
+export function weekNumber(p: Profile): { label: string; week: number } {
   const now = new Date();
   if (p.birthDate) {
     const birth = new Date(p.birthDate);
     const days = Math.floor((now.getTime() - birth.getTime()) / 86400000);
     const week = Math.max(1, Math.floor(days / 7) + 1);
-    return { label: `Week ${week} Postpartum`, week, phase: "postpartum" };
+    return { label: `Week ${week}`, week };
   }
-  if (p.dueDate) {
-    const due = new Date(p.dueDate);
-    const daysUntil = Math.floor((due.getTime() - now.getTime()) / 86400000);
-    const weeksPregnant = Math.max(1, 40 - Math.floor(daysUntil / 7));
-    return { label: `Week ${weeksPregnant} Pregnant`, week: weeksPregnant, phase: "pregnancy" };
-  }
-  return { label: "Welcome", week: 0, phase: "pregnancy" };
+  return { label: "Welcome", week: 0 };
 }
 
 export function todayStr() {
@@ -151,7 +144,7 @@ export function todayStr() {
 
 export function nextScreeningDue(p: Profile, screenings: ScreeningResult[]): { week: number; daysAway: number } | null {
   if (!p.birthDate) return null;
-  const milestones = [2, 6, 13, 26]; // weeks: 2wk, 6wk, 3mo (~13), 6mo (~26)
+  const milestones = [2, 6, 13, 17]; // weeks: 2wk, 6wk, 3mo (~13), 4mo (~17)
   const { week } = weekNumber(p);
   for (const m of milestones) {
     const done = screenings.some((s) => s.triggerWeek === m);
