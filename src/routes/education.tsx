@@ -20,7 +20,17 @@ function EducationPage() {
   const profile = useStore((s) => s.profile);
   const { week } = weekNumber(profile);
   const [openWeek, setOpenWeek] = useState<number | null>(null);
-  const open = educationModules.find((m) => m.week === openWeek);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+
+  const mvpModules = educationModules.filter((m) => m.week >= 1 && m.week <= 6);
+  const allTags = Array.from(new Set(mvpModules.flatMap((m) => m.tags)));
+  const visibleModules = activeTag
+    ? mvpModules.filter((m) => m.tags.includes(activeTag))
+    : mvpModules;
+  const completedInScope = mvpModules.filter((m) =>
+    profile.completedModules.includes(m.week),
+  ).length;
+  const open = mvpModules.find((m) => m.week === openWeek);
 
   if (open) {
     const isBookmarked = profile.bookmarks.includes(open.week);
@@ -59,14 +69,43 @@ function EducationPage() {
       <h1 className="font-serif text-3xl">Learning</h1>
       <p className="mt-2 text-muted-foreground">Short modules, tuned to your week. Read in the order that fits — there's no test.</p>
       <div className="mt-5 text-sm text-muted-foreground">
-        {profile.completedModules.length} of {educationModules.length} this season
+        {completedInScope} of {mvpModules.length} weeks read
       </div>
       <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
-        <div className="h-full bg-primary" style={{ width: `${(profile.completedModules.length / educationModules.length) * 100}%` }} />
+        <div
+          className="h-full bg-primary transition-all"
+          style={{ width: `${(completedInScope / mvpModules.length) * 100}%` }}
+        />
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        <button
+          onClick={() => setActiveTag(null)}
+          className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${
+            activeTag === null
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-card text-muted-foreground border-border/60 hover:border-primary/40"
+          }`}
+        >
+          All
+        </button>
+        {allTags.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => setActiveTag(tag)}
+            className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${
+              activeTag === tag
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-card text-muted-foreground border-border/60 hover:border-primary/40"
+            }`}
+          >
+            {tag}
+          </button>
+        ))}
       </div>
 
       <ul className="mt-8 space-y-3">
-        {educationModules.map((m) => {
+        {visibleModules.map((m) => {
           const isCurrent = m.week === Math.min(Math.max(week, 1), 6);
           const isComplete = profile.completedModules.includes(m.week);
           const isBookmarked = profile.bookmarks.includes(m.week);
@@ -89,6 +128,11 @@ function EducationPage() {
             </li>
           );
         })}
+        {visibleModules.length === 0 && (
+          <li className="rounded-2xl border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
+            No modules match that filter yet.
+          </li>
+        )}
       </ul>
       <p className="mt-8 text-xs text-muted-foreground text-center">Weeks 7–16 unlock as you go.</p>
     </AppShell>
