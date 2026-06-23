@@ -89,7 +89,7 @@ function EducationPage() {
   }, [mvpModules, activeTag, searchQuery, sortBy]);
 
   const completedInScope = mvpModules.filter((m) =>
-    profile.completedModules.includes(week),
+    profile.completedModules.includes(m.week),
   ).length;
   const open = mvpModules.find((m) => m.week === openWeek);
 
