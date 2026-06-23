@@ -139,7 +139,35 @@ function EducationPage() {
         />
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search modules..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 rounded-full"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+            <SelectTrigger className="w-40 rounded-full text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="week-asc">Week: earliest</SelectItem>
+              <SelectItem value="week-desc">Week: latest</SelectItem>
+              <SelectItem value="time-asc">Time: shortest</SelectItem>
+              <SelectItem value="time-desc">Time: longest</SelectItem>
+              <SelectItem value="relevance">Relevance</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
         <button
           onClick={() => setActiveTag(null)}
           className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${
