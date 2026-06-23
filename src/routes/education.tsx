@@ -1,10 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
-import { educationModules } from "@/lib/education";
+import { educationModules, EducationModule } from "@/lib/education";
 import { getState, markModuleComplete, toggleBookmark, useStore, weekNumber } from "@/lib/store";
-import { Bookmark, BookmarkCheck, Check } from "lucide-react";
-import { useState } from "react";
+import { Bookmark, BookmarkCheck, Check, Search, ArrowUpDown } from "lucide-react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/education")({
   head: () => ({ meta: [{ title: "Learning — Vela" }] }),
@@ -16,17 +18,76 @@ export const Route = createFileRoute("/education")({
   component: EducationPage,
 });
 
+type SortOption = "relevance" | "week-asc" | "week-desc" | "time-asc" | "time-desc";
+
+function scoreRelevance(module: EducationModule, query: string): number {
+  const q = query.toLowerCase();
+  let score = 0;
+  if (module.title.toLowerCase().includes(q)) score += 3;
+  if (module.excerpt.toLowerCase().includes(q)) score += 2;
+  if (module.tags.some((t) => t.toLowerCase().includes(q))) score += 2;
+  if (module.body.some((p) => p.toLowerCase().includes(q))) score += 1;
+  return score;
+}
+
 function EducationPage() {
   const profile = useStore((s) => s.profile);
   const { week } = weekNumber(profile);
   const [openWeek, setOpenWeek] = useState<number | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("week-asc");
 
   const mvpModules = educationModules.filter((m) => m.week >= 1 && m.week <= 6);
   const allTags = Array.from(new Set(mvpModules.flatMap((m) => m.tags)));
-  const visibleModules = activeTag
-    ? mvpModules.filter((m) => m.tags.includes(activeTag))
-    : mvpModules;
+
+  const visibleModules = useMemo(() => {
+    let result = mvpModules;
+
+    if (activeTag) {
+      result = result.filter((m) => m.tags.includes(activeTag));
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter((m) =>
+        m.title.toLowerCase().includes(q) ||
+        m.excerpt.toLowerCase().includes(q) ||
+        m.tags.some((t) => t.toLowerCase().includes(q)) ||
+        m.body.some((p) => p.toLowerCase().includes(q))
+      );
+    }
+
+    const sorter = [...result];
+    switch (sortBy) {
+      case "relevance":
+        if (searchQuery.trim()) {
+          sorter.sort((a, b) => {
+            const sa = scoreRelevance(a, searchQuery.trim());
+            const sb = scoreRelevance(b, searchQuery.trim());
+            if (sb !== sa) return sb - sa;
+            return a.week - b.week;
+          });
+        } else {
+          sorter.sort((a, b) => a.week - b.week);
+        }
+        break;
+      case "week-desc":
+        sorter.sort((a, b) => b.week - a.week);
+        break;
+      case "time-asc":
+        sorter.sort((a, b) => a.readTime - b.readTime);
+        break;
+      case "time-desc":
+        sorter.sort((a, b) => b.readTime - a.readTime);
+        break;
+      default:
+        sorter.sort((a, b) => a.week - b.week);
+    }
+
+    return sorter;
+  }, [mvpModules, activeTag, searchQuery, sortBy]);
+
   const completedInScope = mvpModules.filter((m) =>
     profile.completedModules.includes(m.week),
   ).length;
@@ -78,7 +139,35 @@ function EducationPage() {
         />
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search modules..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 rounded-full"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+            <SelectTrigger className="w-40 rounded-full text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="week-asc">Week: earliest</SelectItem>
+              <SelectItem value="week-desc">Week: latest</SelectItem>
+              <SelectItem value="time-asc">Time: shortest</SelectItem>
+              <SelectItem value="time-desc">Time: longest</SelectItem>
+              <SelectItem value="relevance">Relevance</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
         <button
           onClick={() => setActiveTag(null)}
           className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${
