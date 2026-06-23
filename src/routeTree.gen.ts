@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as ScreeningRouteImport } from './routes/screening'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as EducationRouteImport } from './routes/education'
@@ -16,6 +17,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScreeningRoute = ScreeningRouteImport.update({
   id: '/screening',
   path: '/screening',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/education': typeof EducationRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
+  '/support': typeof SupportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/education': typeof EducationRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
+  '/support': typeof SupportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/education': typeof EducationRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
+  '/support': typeof SupportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/onboarding'
     | '/screening'
+    | '/support'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/onboarding'
     | '/screening'
+    | '/support'
   id:
     | '__root__'
     | '/'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/onboarding'
     | '/screening'
+    | '/support'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,10 +118,18 @@ export interface RootRouteChildren {
   EducationRoute: typeof EducationRoute
   OnboardingRoute: typeof OnboardingRoute
   ScreeningRoute: typeof ScreeningRoute
+  SupportRoute: typeof SupportRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/screening': {
       id: '/screening'
       path: '/screening'
@@ -162,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   EducationRoute: EducationRoute,
   OnboardingRoute: OnboardingRoute,
   ScreeningRoute: ScreeningRoute,
+  SupportRoute: SupportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
