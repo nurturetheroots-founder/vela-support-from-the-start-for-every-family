@@ -43,7 +43,7 @@ function Landing() {
       </header>
 
       <section className="max-w-3xl mx-auto px-6 pt-10 pb-16 text-center">
-        <p className="text-sm uppercase tracking-[0.18em] text-primary mb-5">Fourth trimester support companion</p>
+        <p className="text-sm uppercase tracking-[0.18em] text-primary mb-5">Support from the start. For every Family.</p>
         <h1 className="text-4xl sm:text-5xl font-serif font-semibold leading-tight">
           Tender, attuned support — from birth through month 4.
         </h1>
