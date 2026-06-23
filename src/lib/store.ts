@@ -22,7 +22,6 @@ export interface ScreeningResult {
 
 export interface Profile {
   name: string;
-  dueDate?: string;
   birthDate?: string;
   zip: string;
   insurance: Insurance;
