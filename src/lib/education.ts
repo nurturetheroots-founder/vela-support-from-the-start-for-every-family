@@ -1,4 +1,5 @@
 export interface EducationModule {
+  id: string;
   week: number;
   title: string;
   readTime: number;
@@ -9,6 +10,7 @@ export interface EducationModule {
 
 export const educationModules: EducationModule[] = [
   {
+    id: "w1",
     week: 1,
     title: "The first week: settling in together",
     readTime: 4,
@@ -21,6 +23,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w2",
     week: 2,
     title: "Feeding rhythms: what 'going well' actually looks like",
     readTime: 5,
@@ -33,6 +36,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w3",
     week: 3,
     title: "Postpartum hormones and your mood",
     readTime: 4,
@@ -45,6 +49,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w4",
     week: 4,
     title: "Sleep without sleep training",
     readTime: 5,
@@ -57,6 +62,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w5",
     week: 5,
     title: "Your body, five weeks in",
     readTime: 4,
@@ -69,6 +75,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w6",
     week: 6,
     title: "The six-week mark: what it actually means",
     readTime: 5,
@@ -81,6 +88,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w7",
     week: 7,
     title: "Building rhythms that fit your family",
     readTime: 4,
@@ -93,6 +101,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w8",
     week: 8,
     title: "Your changing body, eight weeks in",
     readTime: 4,
@@ -105,6 +114,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w9",
     week: 9,
     title: "The social shift: visitors, boundaries, and isolation",
     readTime: 5,
@@ -117,6 +127,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w10",
     week: 10,
     title: "Sleep evolution at two months",
     readTime: 4,
@@ -129,6 +140,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w11",
     week: 11,
     title: "Feeding at two and a half months",
     readTime: 4,
@@ -141,6 +153,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w12",
     week: 12,
     title: "The three-month turning point",
     readTime: 5,
@@ -153,6 +166,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w13",
     week: 13,
     title: "Returning to work, or not",
     readTime: 5,
@@ -165,6 +179,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w14",
     week: 14,
     title: "Your relationship, fourteen weeks in",
     readTime: 4,
@@ -177,6 +192,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w15",
     week: 15,
     title: "Movement and mood",
     readTime: 4,
@@ -189,6 +205,7 @@ export const educationModules: EducationModule[] = [
     ],
   },
   {
+    id: "w16",
     week: 16,
     title: "Closing the fourth trimester",
     readTime: 5,
