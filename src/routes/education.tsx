@@ -20,13 +20,62 @@ export const Route = createFileRoute("/education")({
 
 type SortOption = "relevance" | "week-asc" | "week-desc" | "time-asc" | "time-desc";
 
+function tokenize(query: string): string[] {
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .map((t) => t.replace(/[^a-z0-9]/g, ""))
+    .filter((t) => t.length >= 2);
+}
+
 function scoreRelevance(module: EducationModule, query: string): number {
-  const q = query.toLowerCase();
+  const raw = query.trim().toLowerCase();
+  const keywords = tokenize(query);
+  if (!raw || keywords.length === 0) return 0;
+
+  const title = module.title.toLowerCase();
+  const excerpt = module.excerpt.toLowerCase();
+  const tagText = module.tags.join(" ").toLowerCase();
+  const bodyText = module.body.join(" ").toLowerCase();
+
   let score = 0;
-  if (module.title.toLowerCase().includes(q)) score += 3;
-  if (module.excerpt.toLowerCase().includes(q)) score += 2;
-  if (module.tags.some((t) => t.toLowerCase().includes(q))) score += 2;
-  if (module.body.some((p) => p.toLowerCase().includes(q))) score += 1;
+
+  // Exact phrase matches (full query as typed)
+  if (title.includes(raw)) score += 10;
+  if (excerpt.includes(raw)) score += 5;
+  if (tagText.includes(raw)) score += 5;
+  if (bodyText.includes(raw)) score += 2;
+
+  for (const kw of keywords) {
+    const inTitle = title.includes(kw);
+    const inExcerpt = excerpt.includes(kw);
+    const inTags = tagText.includes(kw);
+    const inBody = bodyText.includes(kw);
+
+    if (inTitle) score += 3;
+    if (inExcerpt) score += 2;
+    if (inTags) score += 2;
+    if (inBody) score += 1;
+
+    // Word-boundary bonus: keyword appears as a whole word
+    const boundary = new RegExp(
+      "\\b" + kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b",
+      "i"
+    );
+    if (boundary.test(module.title)) score += 2;
+    if (boundary.test(module.excerpt)) score += 1;
+  }
+
+  // Coverage bonus: more distinct keywords matched = higher relevance
+  const matched = keywords.filter(
+    (kw) =>
+      title.includes(kw) ||
+      excerpt.includes(kw) ||
+      tagText.includes(kw) ||
+      bodyText.includes(kw)
+  ).length;
+  score += matched * 2;
+
   return score;
 }
 
@@ -49,13 +98,13 @@ function EducationPage() {
     }
 
     if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter((m) =>
-        m.title.toLowerCase().includes(q) ||
-        m.excerpt.toLowerCase().includes(q) ||
-        m.tags.some((t) => t.toLowerCase().includes(q)) ||
-        m.body.some((p) => p.toLowerCase().includes(q))
-      );
+      const keywords = tokenize(searchQuery);
+      if (keywords.length > 0) {
+        result = result.filter((m) => {
+          const hay = `${m.title} ${m.excerpt} ${m.tags.join(" ")} ${m.body.join(" ")}`.toLowerCase();
+          return keywords.some((kw) => hay.includes(kw));
+        });
+      }
     }
 
     const sorter = [...result];
