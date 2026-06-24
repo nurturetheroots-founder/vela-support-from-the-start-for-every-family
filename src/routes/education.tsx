@@ -248,7 +248,7 @@ function EducationPage() {
           const isComplete = profile.completedModules.includes(m.week);
           const isBookmarked = profile.bookmarks.includes(m.week);
           return (
-            <li key={m.week}>
+            <li key={m.id}>
               <button
                 onClick={() => setOpenWeek(m.week)}
                 className="w-full text-left rounded-2xl border border-border/60 bg-card p-5 hover:border-primary/40 transition-colors"
