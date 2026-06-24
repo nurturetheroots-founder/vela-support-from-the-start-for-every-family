@@ -98,13 +98,13 @@ function EducationPage() {
     }
 
     if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter((m) =>
-        m.title.toLowerCase().includes(q) ||
-        m.excerpt.toLowerCase().includes(q) ||
-        m.tags.some((t) => t.toLowerCase().includes(q)) ||
-        m.body.some((p) => p.toLowerCase().includes(q))
-      );
+      const keywords = tokenize(searchQuery);
+      if (keywords.length > 0) {
+        result = result.filter((m) => {
+          const hay = `${m.title} ${m.excerpt} ${m.tags.join(" ")} ${m.body.join(" ")}`.toLowerCase();
+          return keywords.some((kw) => hay.includes(kw));
+        });
+      }
     }
 
     const sorter = [...result];
