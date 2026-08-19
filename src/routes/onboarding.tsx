@@ -458,6 +458,7 @@ function Onboarding() {
         </div>
       </footer>
     </div>
+    )
   );
 }
 
