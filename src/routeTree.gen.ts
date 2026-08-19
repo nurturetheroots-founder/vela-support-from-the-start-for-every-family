@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SymptomsRouteImport } from './routes/symptoms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as ScreeningRouteImport } from './routes/screening'
+import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MetaPreviewRouteImport } from './routes/meta-preview'
 import { Route as EducationRouteImport } from './routes/education'
@@ -32,6 +33,11 @@ const SupportRoute = SupportRouteImport.update({
 const ScreeningRoute = ScreeningRouteImport.update({
   id: '/screening',
   path: '/screening',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProvidersRoute = ProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/education': typeof EducationRoute
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
+  '/providers': typeof ProvidersRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/education': typeof EducationRoute
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
+  '/providers': typeof ProvidersRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/education': typeof EducationRoute
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
+  '/providers': typeof ProvidersRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/meta-preview'
     | '/onboarding'
+    | '/providers'
     | '/screening'
     | '/support'
     | '/symptoms'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/meta-preview'
     | '/onboarding'
+    | '/providers'
     | '/screening'
     | '/support'
     | '/symptoms'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/education'
     | '/meta-preview'
     | '/onboarding'
+    | '/providers'
     | '/screening'
     | '/support'
     | '/symptoms'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   EducationRoute: typeof EducationRoute
   MetaPreviewRoute: typeof MetaPreviewRoute
   OnboardingRoute: typeof OnboardingRoute
+  ProvidersRoute: typeof ProvidersRoute
   ScreeningRoute: typeof ScreeningRoute
   SupportRoute: typeof SupportRoute
   SymptomsRoute: typeof SymptomsRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/screening'
       fullPath: '/screening'
       preLoaderRoute: typeof ScreeningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/providers': {
+      id: '/providers'
+      path: '/providers'
+      fullPath: '/providers'
+      preLoaderRoute: typeof ProvidersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   EducationRoute: EducationRoute,
   MetaPreviewRoute: MetaPreviewRoute,
   OnboardingRoute: OnboardingRoute,
+  ProvidersRoute: ProvidersRoute,
   ScreeningRoute: ScreeningRoute,
   SupportRoute: SupportRoute,
   SymptomsRoute: SymptomsRoute,
