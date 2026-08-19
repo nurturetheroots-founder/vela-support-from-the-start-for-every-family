@@ -1,6 +1,6 @@
+import { useState } from "react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Heart, ShieldCheck, MessageCircleHeart, BookOpen } from "lucide-react";
 import { getState } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
