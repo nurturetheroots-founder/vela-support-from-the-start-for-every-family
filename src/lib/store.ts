@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 export type Tier = 0 | 10 | 25 | 50;
 export type Insurance = "Medicaid" | "Private" | "Uninsured";
+export type Stage = "expecting" | "postpartum";
 
 export interface Checkin {
   date: string; // YYYY-MM-DD
@@ -22,7 +23,10 @@ export interface ScreeningResult {
 
 export interface Profile {
   name: string;
+  stage?: Stage;
+  dueDate?: string;
   birthDate?: string;
+  focuses: string[];
   zip: string;
   insurance: Insurance;
   tier: Tier;
@@ -42,6 +46,8 @@ const KEY = "vela.state.v1";
 const initial: State = {
   profile: {
     name: "",
+    stage: undefined,
+    focuses: [],
     zip: "",
     insurance: "Private",
     tier: 10,
