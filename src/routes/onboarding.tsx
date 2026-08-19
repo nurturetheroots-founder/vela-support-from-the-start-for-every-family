@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { legal } from "@/lib/microcopy";
 import { setProfile, type Insurance, type Stage, type Tier } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { ExpectTimeline } from "@/components/expect-timeline";
@@ -67,6 +69,7 @@ function Onboarding() {
   const [zip, setZip] = useState("");
   const [insurance, setInsurance] = useState<Insurance>("Private");
   const [tier, setTier] = useState<Tier>(10);
+  const [consent, setConsent] = useState(false);
 
   const total = 7;
   const [showErrors, setShowErrors] = useState(false);
@@ -450,6 +453,21 @@ function Onboarding() {
                 </li>
               ))}
             </ul>
+
+          <div className="mt-8 rounded-2xl border border-border/70 bg-secondary/60 p-5">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <Checkbox
+                checked={consent}
+                onCheckedChange={(v) => setConsent(v === true)}
+                className="mt-0.5"
+                aria-describedby="consent-copy"
+              />
+              <span id="consent-copy" className="text-sm leading-relaxed text-foreground/90">
+                {legal.onboardingConsent}
+              </span>
+            </label>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{legal.disclaimer}</p>
+          </div>
           </div>
         )}
       </main>
@@ -466,7 +484,12 @@ function Onboarding() {
           >
             Back
           </Button>
-          <Button size="lg" className="rounded-full px-7" onClick={next}>
+          <Button
+            size="lg"
+            className="rounded-full px-7"
+            disabled={step === total && !consent}
+            onClick={next}
+          >
             {step === total ? "Complete setup" : step === 5 && tier !== 0 ? "Simulate checkout" : "Continue"}
           </Button>
         </div>
