@@ -1,3 +1,4 @@
+import { affirm, cta } from "@/lib/microcopy";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
@@ -36,7 +37,7 @@ function CheckinPage() {
         <h1 className="text-3xl font-serif">Already checked in today.</h1>
         <p className="mt-3 text-muted-foreground">Rest easy — today is already noted. We'll be here again tomorrow.</p>
         <Link to="/dashboard" className="inline-block mt-6">
-          <Button className="rounded-full">Back to home</Button>
+          <Button className="rounded-full">{cta.backHome}</Button>
         </Link>
       </AppShell>
     );
@@ -48,16 +49,16 @@ function CheckinPage() {
         <div className="grid place-items-center h-14 w-14 rounded-full bg-primary/10 text-primary">
           <Heart className="h-6 w-6" fill="currentColor" />
         </div>
-        <h1 className="text-3xl font-serif mt-5">Thank you for checking in.</h1>
+        <h1 className="text-3xl font-serif mt-5">{affirm.checkinSaved}</h1>
         <p className="mt-3 text-muted-foreground leading-relaxed">
           {submitted.flagged
-            ? "We've noticed a few harder days in a row. There's nothing wrong with you — and you don't have to ride this out alone. A doula or screening might help."
-            : "Showing up for yourself, even for a minute, is care. We'll be here tomorrow."}
+            ? affirm.checkinFlaggedBody
+            : affirm.checkinSavedBody}
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link to="/dashboard"><Button className="rounded-full">Back to home</Button></Link>
+          <Link to="/dashboard"><Button className="rounded-full">{cta.backHome}</Button></Link>
           {submitted.flagged && (
-            <Link to="/support"><Button variant="outline" className="rounded-full">See support options</Button></Link>
+            <Link to="/support"><Button variant="outline" className="rounded-full">{cta.seeSupport}</Button></Link>
           )}
         </div>
       </AppShell>

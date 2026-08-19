@@ -1,3 +1,4 @@
+import { empty } from "@/lib/microcopy";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { educationModules, EducationModule } from "@/lib/education";
@@ -268,7 +269,7 @@ function EducationPage() {
         })}
         {visibleModules.length === 0 && (
           <li className="rounded-2xl border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
-            Nothing here matches yet. Try another word, or clear the filter.
+            {empty.noGuideMatches}
           </li>
         )}
       </ul>

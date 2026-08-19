@@ -1,3 +1,4 @@
+import { empty, cta } from "@/lib/microcopy";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { useStore, weekNumber, todayStr, nextScreeningDue, getState } from "@/lib/store";
@@ -80,7 +81,7 @@ function Dashboard() {
               {didToday
                 ? "Done for today — thank you."
                 : checkins.length === 0
-                  ? "Nothing logged yet, and that's a fine place to start. Sixty seconds, whenever you have them."
+                  ? empty.noCheckinsYet
                   : "Sixty seconds. Mood, sleep, feeding, overall."}
             </p>
           </div>
@@ -88,7 +89,7 @@ function Dashboard() {
         <div className="mt-4">
           <Link to="/checkin">
             <Button className="rounded-full" disabled={didToday}>
-              {didToday ? "Check back tomorrow" : "Start check-in"}
+              {didToday ? "Check back tomorrow" : cta.start}
             </Button>
           </Link>
         </div>

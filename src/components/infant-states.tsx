@@ -1,3 +1,4 @@
+import { empty } from "@/lib/microcopy";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,7 @@ export function InfantStatesModule() {
         </Button>
         {todayCount === 0 && (
           <span className="text-xs text-muted-foreground">
-            Nothing logged yet today — no rush.
+            {empty.noStatesToday}
           </span>
         )}
         {todayCount > 0 && (
