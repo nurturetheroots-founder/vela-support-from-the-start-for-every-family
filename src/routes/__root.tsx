@@ -16,7 +16,10 @@ import { problem, cta } from "@/lib/microcopy";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+      style={{ backgroundImage: "var(--gradient-welcome)", backgroundAttachment: "fixed" }}
+    >
       <div className="max-w-md text-center">
         <p className="text-xs uppercase tracking-[0.28em] text-primary">Vela</p>
         <h1 className="mt-4 font-serif text-3xl text-foreground">{problem.notFoundTitle}</h1>
@@ -44,7 +47,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+      style={{ backgroundImage: "var(--gradient-welcome)", backgroundAttachment: "fixed" }}
+    >
       <div className="max-w-md text-center">
         <h1 className="font-serif text-2xl text-foreground">
           {problem.errorTitle}
