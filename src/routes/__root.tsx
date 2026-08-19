@@ -46,11 +46,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+        <h1 className="font-serif text-2xl text-foreground">
+          This didn't load — and that's on us.
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Something hiccuped on our side, not yours. Your check-ins and notes are safe. Try once more, or
+          head home and come back whenever.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
