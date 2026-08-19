@@ -79,6 +79,7 @@ function load(): State {
       ...initial,
       ...parsed,
       profile: { ...initial.profile, ...(parsed.profile ?? {}) },
+      infantStates: parsed.infantStates ?? [],
     };
   } catch {
     return initial;
