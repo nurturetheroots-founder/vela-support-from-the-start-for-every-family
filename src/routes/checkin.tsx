@@ -34,7 +34,7 @@ function CheckinPage() {
     return (
       <AppShell>
         <h1 className="text-3xl font-serif">Already checked in today.</h1>
-        <p className="mt-3 text-muted-foreground">Come back tomorrow. We'll keep tracking patterns in the background.</p>
+        <p className="mt-3 text-muted-foreground">Rest easy — today is already noted. We'll be here again tomorrow.</p>
         <Link to="/dashboard" className="inline-block mt-6">
           <Button className="rounded-full">Back to home</Button>
         </Link>
@@ -82,7 +82,7 @@ function CheckinPage() {
   return (
     <AppShell>
       <h1 className="text-3xl font-serif">How's today?</h1>
-      <p className="mt-2 text-muted-foreground">Sixty seconds. No wrong answers.</p>
+      <p className="mt-2 text-muted-foreground">Sixty seconds, whenever you can. There are no wrong answers here.</p>
 
       <section className="mt-8">
         <Label>Mood right now</Label>
@@ -140,7 +140,7 @@ function CheckinPage() {
       </section>
 
       <section className="mt-8">
-        <Label htmlFor="note">Anything else? (optional)</Label>
+        <Label htmlFor="note">Anything you want to name? (optional)</Label>
         <textarea
           id="note"
           value={note}
@@ -153,11 +153,11 @@ function CheckinPage() {
 
       <div className="mt-8">
         <Button size="lg" className="rounded-full w-full" disabled={!canSubmit} onClick={submit}>
-          Submit check-in
+          Save today's check-in
         </Button>
       </div>
       <p className="mt-3 text-xs text-muted-foreground text-center">
-        We watch quietly for patterns — three harder days in a row will surface a gentle offer of support.
+        We hold your check-ins gently. If a few heavy days gather in a row, we'll quietly offer a hand — never a diagnosis.
       </p>
     </AppShell>
   );
