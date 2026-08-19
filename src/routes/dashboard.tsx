@@ -44,7 +44,7 @@ function Dashboard() {
 
       {flagged && (
         <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3" style={{ ['--tw-bg-opacity' as any]: 1 }}>
-          <AlertTriangle className="h-5 w-5 text-[oklch(0.66_0.12_45)] mt-0.5" />
+          <AlertTriangle className="h-5 w-5 text-clay mt-0.5" />
           <div className="text-sm">
             <div className="font-medium">We're noticing a few hard days in a row.</div>
             <p className="text-muted-foreground mt-1">That's worth honoring. Would it feel okay to take the EPDS screening, or to reach out to a doula?</p>
@@ -104,7 +104,7 @@ function Dashboard() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h2 className="font-serif text-xl">EPDS screening</h2>
-                <span className="text-xs rounded-full bg-clay/15 text-[oklch(0.5_0.12_45)] px-2 py-0.5">
+                <span className="text-xs rounded-full bg-clay/15 text-clay px-2 py-0.5">
                   Week {due.week} milestone
                 </span>
               </div>

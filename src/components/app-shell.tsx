@@ -27,13 +27,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-background flex flex-col">
+    <div
+      className="min-h-dvh bg-background flex flex-col"
+      style={{ backgroundImage: "var(--gradient-welcome)", backgroundAttachment: "fixed" }}
+    >
       {offline && (
         <div role="status" className="bg-secondary text-foreground text-center text-sm px-5 py-2 leading-relaxed">
           {problem.offline}
         </div>
       )}
-      <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-10">
+      <header className="border-b border-border/50 bg-welcome-base/70 backdrop-blur sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
             <span className="grid place-items-center h-8 w-8 rounded-full bg-primary text-primary-foreground">
@@ -44,7 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="flex-1 max-w-2xl w-full mx-auto px-5 py-6 pb-28">{children}</main>
-      <nav className="fixed bottom-0 inset-x-0 border-t border-border/60 bg-background/95 backdrop-blur">
+      <nav className="fixed bottom-0 inset-x-0 border-t border-border/50 bg-welcome-base/90 backdrop-blur">
         <div className="max-w-2xl mx-auto grid grid-cols-4">
           {nav.map((n) => {
             const active = pathname.startsWith(n.to);
