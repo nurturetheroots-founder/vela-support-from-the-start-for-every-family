@@ -172,7 +172,10 @@ function Onboarding() {
 
   return (
     finishing ? (
-      <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-5">
+      <div
+        className="min-h-dvh bg-background flex flex-col items-center justify-center px-5"
+        style={{ backgroundImage: "var(--gradient-welcome)", backgroundAttachment: "fixed" }}
+      >
         <div className="max-w-md w-full text-center">
           <span className="mx-auto grid place-items-center h-12 w-12 rounded-full bg-primary/10 text-primary">
             <Loader2 className="h-6 w-6 animate-spin" />
@@ -204,7 +207,10 @@ function Onboarding() {
         </div>
       </div>
     ) : (
-    <div className="min-h-dvh bg-background flex flex-col">
+    <div
+      className="min-h-dvh bg-background flex flex-col"
+      style={{ backgroundImage: "var(--gradient-welcome)", backgroundAttachment: "fixed" }}
+    >
       <header className="px-5 py-5 max-w-xl w-full mx-auto flex items-center gap-2">
         <span className="grid place-items-center h-8 w-8 rounded-full bg-primary text-primary-foreground">
           <Heart className="h-4 w-4" fill="currentColor" />
@@ -472,7 +478,7 @@ function Onboarding() {
         )}
       </main>
 
-      <footer className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border/60">
+      <footer className="sticky bottom-0 bg-welcome-base/90 backdrop-blur border-t border-border/50">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center justify-between gap-3">
           <Button
             variant="ghost"
