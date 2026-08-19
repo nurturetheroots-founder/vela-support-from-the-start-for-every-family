@@ -4,6 +4,7 @@ import { useStore, weekNumber, todayStr, nextScreeningDue, getState } from "@/li
 import { Button } from "@/components/ui/button";
 import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight } from "lucide-react";
 import { educationModules } from "@/lib/education";
+import { InfantStatesModule } from "@/components/infant-states";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Home — Vela" }] }),
