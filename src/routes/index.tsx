@@ -6,16 +6,17 @@ import { getState } from "@/lib/store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Vela — Fourth trimester support companion" },
+      { title: "Vela — Fourth Trimester Care, Birth to 4 Months" },
       {
         name: "description",
         content:
-          "Vela is a fourth-trimester support companion for birth through 4 months. Daily check-ins, weekly education, gentle screening, and human help when you need it.",
+          "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it.",
       },
-      { property: "og:title", content: "Vela — Fourth trimester support companion" },
+      { property: "og:title", content: "Vela — Fourth Trimester Care, Birth to 4 Months" },
       {
         property: "og:description",
-        content: "Birth through 4 months, with the support you actually need.",
+        content:
+          "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it.",
       },
     ],
   }),
