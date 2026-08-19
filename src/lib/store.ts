@@ -64,7 +64,12 @@ function load(): State {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return initial;
-    return { ...initial, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw) as Partial<State>;
+    return {
+      ...initial,
+      ...parsed,
+      profile: { ...initial.profile, ...(parsed.profile ?? {}) },
+    };
   } catch {
     return initial;
   }
