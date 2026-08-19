@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { setProfile, type Insurance, type Stage, type Tier } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Check, Heart, Sparkles } from "lucide-react";
+import { CalendarIcon, Check, Heart, Sparkles, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -30,6 +30,22 @@ const FOCUS_OPTIONS = [
 ];
 
 const MAX_FOCUS = 3;
+const MAX_WEEKS = 17; // fourth trimester runs to about 4 months
+
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function FieldError({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <p id={id} role="alert" className="mt-2 flex items-start gap-1.5 text-sm text-destructive">
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+      <span>{children}</span>
+    </p>
+  );
+}
 
 function Onboarding() {
   const nav = useNavigate();
@@ -45,16 +61,50 @@ function Onboarding() {
   const [tier, setTier] = useState<Tier>(10);
 
   const total = 6;
-  const timingValid =
-    stage === "expecting" ? !!dueDate : ageWeeks !== "" && Number(ageWeeks) >= 0;
+  const [showErrors, setShowErrors] = useState(false);
 
-  const canNext =
-    (step === 1 && !!stage) ||
-    (step === 2 && timingValid) ||
-    (step === 3 && name.trim() !== "" && /^\d{5}$/.test(zip)) ||
-    (step === 4 && focuses.length > 0) ||
-    step === 5 ||
-    step === 6;
+  const errors: Record<string, string> = {};
+  if (step === 1 && !stage) {
+    errors.stage = "Choose where you are right now so we can tune what comes next.";
+  }
+  if (step === 2 && stage === "expecting") {
+    if (!dueDate) {
+      errors.dueDate = "Please pick an estimated due date — a rough guess is fine.";
+    } else {
+      const today = startOfToday();
+      const latest = new Date(today);
+      latest.setDate(latest.getDate() + 300);
+      if (dueDate < today) {
+        errors.dueDate =
+          "That date has already passed. If baby is here, go back and choose Postpartum.";
+      } else if (dueDate > latest) {
+        errors.dueDate = "That's more than 10 months away — please double-check the date.";
+      }
+    }
+  }
+  if (step === 2 && stage === "postpartum") {
+    if (ageWeeks.trim() === "") {
+      errors.ageWeeks = "Let us know how many weeks old your baby is — 0 is perfect for a newborn.";
+    } else if (Number(ageWeeks) > MAX_WEEKS) {
+      errors.ageWeeks = `Vela companions birth through ${MAX_WEEKS} weeks. You're welcome to stay, but content ends at 4 months.`;
+    }
+    if (ageDays !== "" && (Number(ageDays) < 0 || Number(ageDays) > 6)) {
+      errors.ageDays = "Days can be 0 through 6.";
+    }
+  }
+  if (step === 3) {
+    if (name.trim().length < 2) errors.name = "Please enter the name you'd like us to use.";
+    if (!/^\d{5}$/.test(zip)) errors.zip = "Enter a 5-digit zip code so we can find local support.";
+  }
+  if (step === 4 && focuses.length === 0) {
+    errors.focuses = "Choose at least one priority — you can change these later.";
+  }
+
+  const stepValid = Object.keys(errors).length === 0;
+  // The weeks message at exactly the cap is guidance, not a blocker.
+  const blocking = Object.keys(errors).filter(
+    (k) => !(k === "ageWeeks" && Number(ageWeeks) > MAX_WEEKS && ageWeeks.trim() !== ""),
+  );
 
   function toggleFocus(id: string) {
     setFocuses((cur) => {
@@ -88,6 +138,11 @@ function Onboarding() {
   }
 
   function next() {
+    if (!stepValid) {
+      setShowErrors(true);
+      if (blocking.length > 0) return;
+    }
+    setShowErrors(false);
     if (step === total) return finish();
     setStep(step + 1);
   }
@@ -126,6 +181,7 @@ function Onboarding() {
                 desc="Baby is here. We'll tune everything to your week."
               />
             </div>
+            {showErrors && errors.stage && <FieldError id="err-stage">{errors.stage}</FieldError>}
           </div>
         )}
 
@@ -150,6 +206,7 @@ function Onboarding() {
                   <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus className={cn("p-3 pointer-events-auto")} />
                 </PopoverContent>
               </Popover>
+              {showErrors && errors.dueDate && <FieldError id="err-due">{errors.dueDate}</FieldError>}
             </div>
           </div>
         )}
@@ -163,20 +220,26 @@ function Onboarding() {
                 <Label htmlFor="weeks">Weeks</Label>
                 <Input
                   id="weeks" inputMode="numeric" placeholder="6" className="mt-2 h-12"
+                  aria-invalid={showErrors && !!errors.ageWeeks}
+                  aria-describedby={showErrors && errors.ageWeeks ? "err-weeks" : undefined}
                   value={ageWeeks}
                   onChange={(e) => setAgeWeeks(e.target.value.replace(/\D/g, "").slice(0, 2))}
                 />
+                {showErrors && errors.ageWeeks && <FieldError id="err-weeks">{errors.ageWeeks}</FieldError>}
               </div>
               <div>
                 <Label htmlFor="days">Days</Label>
                 <Input
                   id="days" inputMode="numeric" placeholder="3" className="mt-2 h-12"
+                  aria-invalid={showErrors && !!errors.ageDays}
+                  aria-describedby={showErrors && errors.ageDays ? "err-days" : undefined}
                   value={ageDays}
                   onChange={(e) => {
                     const v = e.target.value.replace(/\D/g, "").slice(0, 1);
                     setAgeDays(v === "" ? "" : String(Math.min(6, Number(v))));
                   }}
                 />
+                {showErrors && errors.ageDays && <FieldError id="err-days">{errors.ageDays}</FieldError>}
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">Days are optional — weeks alone is enough.</p>
@@ -190,11 +253,31 @@ function Onboarding() {
             <div className="mt-6 space-y-4">
               <div>
                 <Label htmlFor="name">Your name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="mt-2 h-12" placeholder="First name" />
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-2 h-12"
+                  placeholder="First name"
+                  aria-invalid={showErrors && !!errors.name}
+                  aria-describedby={showErrors && errors.name ? "err-name" : undefined}
+                />
+                {showErrors && errors.name && <FieldError id="err-name">{errors.name}</FieldError>}
               </div>
               <div>
                 <Label htmlFor="zip">Zip code</Label>
-                <Input id="zip" inputMode="numeric" maxLength={5} value={zip} onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))} className="mt-2 h-12" placeholder="94110" />
+                <Input
+                  id="zip"
+                  inputMode="numeric"
+                  maxLength={5}
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
+                  className="mt-2 h-12"
+                  placeholder="94110"
+                  aria-invalid={showErrors && !!errors.zip}
+                  aria-describedby={showErrors && errors.zip ? "err-zip" : undefined}
+                />
+                {showErrors && errors.zip && <FieldError id="err-zip">{errors.zip}</FieldError>}
               </div>
               <div>
                 <Label>Insurance</Label>
@@ -266,6 +349,7 @@ function Onboarding() {
                 That's {MAX_FOCUS} — deselect one to swap in something else.
               </p>
             )}
+            {showErrors && errors.focuses && <FieldError id="err-focuses">{errors.focuses}</FieldError>}
           </div>
         )}
 
@@ -306,8 +390,17 @@ function Onboarding() {
 
       <footer className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border/60">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center justify-between gap-3">
-          <Button variant="ghost" disabled={step === 1} onClick={() => setStep(step - 1)}>Back</Button>
-          <Button size="lg" className="rounded-full px-7" disabled={!canNext} onClick={next}>
+          <Button
+            variant="ghost"
+            disabled={step === 1}
+            onClick={() => {
+              setShowErrors(false);
+              setStep(step - 1);
+            }}
+          >
+            Back
+          </Button>
+          <Button size="lg" className="rounded-full px-7" onClick={next}>
             {step === total ? "Complete setup" : step === 5 && tier !== 0 ? "Simulate checkout" : "Continue"}
           </Button>
         </div>
