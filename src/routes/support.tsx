@@ -1,8 +1,8 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { getState } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Users, MessageCircleHeart, Stethoscope, Globe2 } from "lucide-react";
+import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/support")({
   head: () => ({ meta: [{ title: "Support — Vela" }] }),
@@ -25,6 +25,19 @@ function SupportPage() {
     <AppShell>
       <h1 className="font-serif text-3xl">Support</h1>
       <p className="mt-2 text-muted-foreground">Three ways to be held. Use one, use all — at whatever pace feels right.</p>
+
+      <Link
+        to="/providers"
+        className="mt-6 flex items-center justify-between rounded-2xl bg-secondary p-4 min-h-14 hover:bg-sand-deep transition-colors"
+      >
+        <div>
+          <div className="text-sm font-medium">Provider &amp; specialist directory</div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Lactation, mental health, pelvic floor, and doula care near you.
+          </p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+      </Link>
 
       <div className="mt-7 space-y-4">
         <TierCard
