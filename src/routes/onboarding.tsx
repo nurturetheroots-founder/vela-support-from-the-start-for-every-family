@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { setProfile, type Insurance, type Stage, type Tier } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Check, Heart, Sparkles } from "lucide-react";
+import { CalendarIcon, Check, Heart, Sparkles, AlertCircle } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -30,6 +30,22 @@ const FOCUS_OPTIONS = [
 ];
 
 const MAX_FOCUS = 3;
+const MAX_WEEKS = 17; // fourth trimester runs to about 4 months
+
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function FieldError({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <p id={id} role="alert" className="mt-2 flex items-start gap-1.5 text-sm text-destructive">
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+      <span>{children}</span>
+    </p>
+  );
+}
 
 function Onboarding() {
   const nav = useNavigate();
@@ -45,16 +61,50 @@ function Onboarding() {
   const [tier, setTier] = useState<Tier>(10);
 
   const total = 6;
-  const timingValid =
-    stage === "expecting" ? !!dueDate : ageWeeks !== "" && Number(ageWeeks) >= 0;
+  const [showErrors, setShowErrors] = useState(false);
 
-  const canNext =
-    (step === 1 && !!stage) ||
-    (step === 2 && timingValid) ||
-    (step === 3 && name.trim() !== "" && /^\d{5}$/.test(zip)) ||
-    (step === 4 && focuses.length > 0) ||
-    step === 5 ||
-    step === 6;
+  const errors: Record<string, string> = {};
+  if (step === 1 && !stage) {
+    errors.stage = "Choose where you are right now so we can tune what comes next.";
+  }
+  if (step === 2 && stage === "expecting") {
+    if (!dueDate) {
+      errors.dueDate = "Please pick an estimated due date — a rough guess is fine.";
+    } else {
+      const today = startOfToday();
+      const latest = new Date(today);
+      latest.setDate(latest.getDate() + 300);
+      if (dueDate < today) {
+        errors.dueDate =
+          "That date has already passed. If baby is here, go back and choose Postpartum.";
+      } else if (dueDate > latest) {
+        errors.dueDate = "That's more than 10 months away — please double-check the date.";
+      }
+    }
+  }
+  if (step === 2 && stage === "postpartum") {
+    if (ageWeeks.trim() === "") {
+      errors.ageWeeks = "Let us know how many weeks old your baby is — 0 is perfect for a newborn.";
+    } else if (Number(ageWeeks) > MAX_WEEKS) {
+      errors.ageWeeks = `Vela companions birth through ${MAX_WEEKS} weeks. You're welcome to stay, but content ends at 4 months.`;
+    }
+    if (ageDays !== "" && (Number(ageDays) < 0 || Number(ageDays) > 6)) {
+      errors.ageDays = "Days can be 0 through 6.";
+    }
+  }
+  if (step === 3) {
+    if (name.trim().length < 2) errors.name = "Please enter the name you'd like us to use.";
+    if (!/^\d{5}$/.test(zip)) errors.zip = "Enter a 5-digit zip code so we can find local support.";
+  }
+  if (step === 4 && focuses.length === 0) {
+    errors.focuses = "Choose at least one priority — you can change these later.";
+  }
+
+  const stepValid = Object.keys(errors).length === 0;
+  // The weeks message at exactly the cap is guidance, not a blocker.
+  const blocking = Object.keys(errors).filter(
+    (k) => !(k === "ageWeeks" && Number(ageWeeks) > MAX_WEEKS && ageWeeks.trim() !== ""),
+  );
 
   function toggleFocus(id: string) {
     setFocuses((cur) => {
@@ -88,6 +138,11 @@ function Onboarding() {
   }
 
   function next() {
+    if (!stepValid) {
+      setShowErrors(true);
+      if (blocking.length > 0) return;
+    }
+    setShowErrors(false);
     if (step === total) return finish();
     setStep(step + 1);
   }
