@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { setProfile, type Insurance, type Stage, type Tier } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Check, Heart, Sparkles, AlertCircle } from "lucide-react";
+import { CalendarIcon, Check, Heart, Sparkles, AlertCircle, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -31,6 +31,13 @@ const FOCUS_OPTIONS = [
 
 const MAX_FOCUS = 3;
 const MAX_WEEKS = 17; // fourth trimester runs to about 4 months
+
+const PREPARING_STEPS = [
+  "Decoding infant cues & sleep states",
+  "Customizing feeding & lactation support",
+  "Preparing maternal wellness check-ins",
+  "Connecting Bay Area support resources",
+];
 
 function startOfToday() {
   const d = new Date();
@@ -62,6 +69,18 @@ function Onboarding() {
 
   const total = 6;
   const [showErrors, setShowErrors] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  const [preparedCount, setPreparedCount] = useState(0);
+
+  useEffect(() => {
+    if (!finishing) return;
+    if (preparedCount >= PREPARING_STEPS.length) {
+      const done = setTimeout(() => nav({ to: "/dashboard" }), 600);
+      return () => clearTimeout(done);
+    }
+    const t = setTimeout(() => setPreparedCount((c) => c + 1), 750);
+    return () => clearTimeout(t);
+  }, [finishing, preparedCount, nav]);
 
   const errors: Record<string, string> = {};
   if (step === 1 && !stage) {
@@ -134,7 +153,7 @@ function Onboarding() {
       tier,
       onboarded: true,
     });
-    nav({ to: "/dashboard" });
+    setFinishing(true);
   }
 
   function next() {
@@ -148,6 +167,39 @@ function Onboarding() {
   }
 
   return (
+    finishing ? (
+      <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-5">
+        <div className="max-w-md w-full text-center">
+          <span className="mx-auto grid place-items-center h-12 w-12 rounded-full bg-primary/10 text-primary">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </span>
+          <h1 className="mt-5 font-serif text-3xl">Crafting your family's rhythm…</h1>
+          <p className="mt-3 text-muted-foreground leading-relaxed">
+            Tailoring newborn developmental insights and recovery support for you and baby.
+          </p>
+          <ul className="mt-8 space-y-3 text-left">
+            {PREPARING_STEPS.map((s, i) => (
+              <li
+                key={s}
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl bg-secondary px-4 py-3 text-sm transition-opacity",
+                  i < preparedCount ? "opacity-100" : i === preparedCount ? "opacity-90" : "opacity-45",
+                )}
+              >
+                {i < preparedCount ? (
+                  <Check className="h-4 w-4 shrink-0 text-primary" />
+                ) : i === preparedCount ? (
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
+                ) : (
+                  <span className="h-4 w-4 shrink-0 rounded-full border border-border" />
+                )}
+                <span>{s}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    ) : (
     <div className="min-h-dvh bg-background flex flex-col">
       <header className="px-5 py-5 max-w-xl w-full mx-auto flex items-center gap-2">
         <span className="grid place-items-center h-8 w-8 rounded-full bg-primary text-primary-foreground">
