@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { setProfile, type Insurance, type Stage, type Tier } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { ExpectTimeline } from "@/components/expect-timeline";
 import { CalendarIcon, Check, Heart, Sparkles, AlertCircle, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
@@ -67,7 +68,7 @@ function Onboarding() {
   const [insurance, setInsurance] = useState<Insurance>("Private");
   const [tier, setTier] = useState<Tier>(10);
 
-  const total = 6;
+  const total = 7;
   const [showErrors, setShowErrors] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [preparedCount, setPreparedCount] = useState(0);
@@ -421,6 +422,19 @@ function Onboarding() {
         )}
 
         {step === 6 && (
+          <div>
+            <h1 className="text-3xl font-serif">What to expect next.</h1>
+            <p className="mt-3 text-muted-foreground leading-relaxed">
+              A gentle map of the fourth trimester, week by week. Tap any moment to see how Vela walks it with you —
+              nothing here is a schedule you have to keep.
+            </p>
+            <ExpectTimeline
+              currentWeek={stage === "postpartum" ? Number(ageWeeks || 0) : 0}
+            />
+          </div>
+        )}
+
+        {step === 7 && (
           <div>
             <h1 className="text-3xl font-serif">Welcome, {name || "friend"}.</h1>
             <p className="mt-3 text-muted-foreground leading-relaxed">
