@@ -49,8 +49,8 @@ function Landing() {
           Tender, attuned support — from birth through month 4.
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          Daily check-ins, weekly learning, gentle screening, and human help when you need it. Built for the
-          2am moments, not the clinic.
+          Daily check-ins, weekly learning, gentle screening, and human help when you need it. Expert support
+          when you need it most. Built for your nursery, your living room, and those 2:00 AM moments.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link to="/onboarding">
