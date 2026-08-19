@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { ArrowRight, BookHeart, HeartHandshake, Sparkles, type LucideIcon } from "lucide-react";
 import { getState } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
@@ -28,11 +29,16 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+type Card = { icon: LucideIcon; title: string; body: string; tone: "clay" | "sage" };
+
 type Slide = {
   eyebrow: string;
   headLead: string;
   headAccent: string;
   body: string;
+  orb?: boolean;
+  cards?: Card[];
+  cta: string;
 };
 
 const slides: Slide[] = [
@@ -42,20 +48,44 @@ const slides: Slide[] = [
     headAccent: "and that matters.",
     body:
       "Whether you are expecting, just had your baby, or somewhere in the middle of the beautiful chaos — Vela is here to walk alongside you. Not to tell you what to do, but to make sure you never feel like you are doing it alone.",
+    orb: true,
+    cta: "Let us begin",
   },
   {
-    eyebrow: "What Vela is",
-    headLead: "A companion,",
-    headAccent: "not a checklist.",
-    body:
-      "A 60-second daily check-in, short weekly learning made for the week you are actually in, and gentle mood screening along the way. Small moments of noticing, so nothing quietly slips by.",
+    eyebrow: "How Vela works",
+    headLead: "Small moments of",
+    headAccent: "support, every day.",
+    body: "Three layers of care, designed to meet you wherever you are today.",
+    cards: [
+      {
+        icon: Sparkles,
+        tone: "clay",
+        title: "Daily check-ins",
+        body: "60 seconds. No judgment. Every feeling is the right feeling.",
+      },
+      {
+        icon: BookHeart,
+        tone: "sage",
+        title: "Weekly guides",
+        body: "Tailored to your stage — emotions, recovery, sleep, identity.",
+      },
+      {
+        icon: HeartHandshake,
+        tone: "clay",
+        title: "Human support",
+        body: "Peer community, doula sessions, and therapist referrals on a sliding scale.",
+      },
+    ],
+    cta: "Continue",
   },
   {
-    eyebrow: "How we walk with you",
+    eyebrow: "What comes next",
     headLead: "From birth",
     headAccent: "through month four.",
     body:
-      "And when you want a person, there is one — peer community, doula sessions, and therapist referrals on a sliding scale. Support from the start, for every family.",
+      "We will ask a few gentle questions about you and your baby, then shape Vela around your days. You can change anything, anytime.",
+    orb: true,
+    cta: "Begin with Vela",
   },
 ];
 
@@ -90,51 +120,75 @@ function Landing() {
         </div>
       </header>
 
-      <main className="flex-1 px-7 pt-10 pb-8 max-w-xl w-full">
-        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">
-          {slide.eyebrow}
-        </p>
-        <h1 className="mt-6 font-serif text-[2.65rem] sm:text-6xl leading-[1.08] font-normal">
-          {slide.headLead}
-          <br />
+      <main className="flex-1 px-7 pt-10 pb-6 max-w-xl w-full">
+        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">{slide.eyebrow}</p>
+        <h1 className="mt-6 font-serif text-[2.6rem] sm:text-5xl leading-[1.1] font-normal">
+          {slide.headLead}{" "}
           <span className="italic text-clay">{slide.headAccent}</span>
         </h1>
-        <p className="mt-9 text-lg leading-[1.75] text-muted-foreground">{slide.body}</p>
+        <p className="mt-7 text-lg leading-[1.7] text-muted-foreground">{slide.body}</p>
+
+        {slide.orb ? (
+          <div className="mt-12 flex justify-center" aria-hidden="true">
+            <div className="relative h-52 w-52 grid place-items-center">
+              <div
+                className="absolute inset-0 rounded-full blur-2xl opacity-70"
+                style={{
+                  background:
+                    "radial-gradient(circle, color-mix(in oklab, var(--clay) 35%, transparent) 0%, transparent 70%)",
+                }}
+              />
+              <div className="relative h-44 w-44 rounded-full bg-accent/60" />
+              <div className="absolute h-28 w-28 rounded-full bg-welcome-blush/50 -translate-y-3" />
+            </div>
+          </div>
+        ) : null}
+
+        {slide.cards ? (
+          <div className="mt-8 space-y-4">
+            {slide.cards.map(({ icon: Icon, title, body, tone }) => (
+              <div key={title} className="rounded-3xl bg-card/70 border border-border/60 p-5 flex gap-4">
+                <span
+                  className={`grid place-items-center h-12 w-12 shrink-0 rounded-2xl ${
+                    tone === "clay" ? "bg-clay/12 text-clay" : "bg-primary/12 text-primary"
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="font-sans text-lg font-medium">{title}</h2>
+                  <p className="mt-1 text-[0.95rem] leading-relaxed text-muted-foreground">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </main>
 
-      <footer className="px-7 pb-12 max-w-xl w-full">
+      <footer className="px-7 pb-12 pt-2 max-w-xl w-full space-y-4">
         {last ? (
-          <div className="space-y-4">
-            <Link to="/onboarding" className="block">
-              <Button size="lg" className="w-full rounded-full h-13 text-base">
-                Begin with Vela
-              </Button>
-            </Link>
-            <Link
-              to="/onboarding"
-              className="block text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
-            >
-              I already have an account
-            </Link>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between gap-4">
-            <Link
-              to="/onboarding"
-              className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-            >
-              Skip
-            </Link>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="rounded-full px-8 bg-clay text-primary-foreground hover:bg-clay/90"
-              onClick={() => setI((n) => Math.min(n + 1, slides.length - 1))}
-            >
-              Continue
+          <Link to="/onboarding" className="block">
+            <Button size="lg" className="w-full rounded-2xl h-14 text-base bg-clay text-primary-foreground hover:bg-clay/90">
+              {slide.cta}
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-          </div>
+          </Link>
+        ) : (
+          <Button
+            size="lg"
+            className="w-full rounded-2xl h-14 text-base bg-clay text-primary-foreground hover:bg-clay/90"
+            onClick={() => setI((n) => Math.min(n + 1, slides.length - 1))}
+          >
+            {slide.cta}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
         )}
+        <Link
+          to="/onboarding"
+          className="block text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+        >
+          I already have an account
+        </Link>
       </footer>
     </div>
   );
