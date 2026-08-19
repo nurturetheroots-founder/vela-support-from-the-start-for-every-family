@@ -114,6 +114,20 @@ export const screeningBand = {
   high: "You deserve a real person alongside you today.",
 } as const;
 
+/** Safety, medical, and crisis disclosures. Same words everywhere. */
+export const legal = {
+  disclaimer:
+    "Vela is a supportive companion, not a clinician or medical provider. If you are experiencing a medical emergency or mental health crisis, call 911, 988, or your healthcare provider immediately.",
+  termsLink: "Terms of Service & Medical Disclaimer",
+  onboardingConsent:
+    "I understand that Vela is a support tool and does not provide medical or psychiatric advice, diagnosis, or treatment. I agree to the Terms of Service.",
+  epdsNudge:
+    "Your well-being matters. The EPDS is a screening tool, not a diagnosis. If you are feeling overwhelmed or in crisis, please call or text 988 (Suicide & Crisis Lifeline) or the National Maternal Mental Health Hotline at 1-833-TLC-MAMA.",
+  crisisTitle: "Let's get a person alongside you right now.",
+  crisisBody:
+    "What you shared points to more than a hard week. You are not failing, and you don't have to hold this alone. Please reach out to one of these lines now, or seek immediate medical attention if you feel unsafe.",
+} as const;
+
 export const microcopy = {
   greeting,
   greetName,
@@ -124,4 +138,5 @@ export const microcopy = {
   problem,
   affirm,
   screeningBand,
+  legal,
 } as const;
