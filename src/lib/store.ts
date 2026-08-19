@@ -21,6 +21,14 @@ export interface ScreeningResult {
   responses: number[];
 }
 
+export interface InfantStateLog {
+  id: string;
+  date: string; // YYYY-MM-DD
+  at: string; // ISO timestamp
+  stateId: string;
+  stateLabel: string;
+}
+
 export interface Profile {
   name: string;
   stage?: Stage;
@@ -39,6 +47,7 @@ export interface State {
   profile: Profile;
   checkins: Checkin[];
   screenings: ScreeningResult[];
+  infantStates: InfantStateLog[];
 }
 
 const KEY = "vela.state.v1";
@@ -57,6 +66,7 @@ const initial: State = {
   },
   checkins: [],
   screenings: [],
+  infantStates: [],
 };
 
 function load(): State {
@@ -69,6 +79,7 @@ function load(): State {
       ...initial,
       ...parsed,
       profile: { ...initial.profile, ...(parsed.profile ?? {}) },
+      infantStates: parsed.infantStates ?? [],
     };
   } catch {
     return initial;
@@ -107,6 +118,20 @@ export function addCheckin(c: Checkin) {
 export function addScreening(s: ScreeningResult) {
   state = { ...state, screenings: [...state.screenings, s] };
   emit();
+}
+
+export function addInfantStateLog(stateId: string, stateLabel: string) {
+  const now = new Date();
+  const log: InfantStateLog = {
+    id: `${now.getTime()}-${stateId}`,
+    date: now.toISOString().slice(0, 10),
+    at: now.toISOString(),
+    stateId,
+    stateLabel,
+  };
+  state = { ...state, infantStates: [...state.infantStates, log] };
+  emit();
+  return log;
 }
 
 export function toggleBookmark(week: number) {

@@ -4,6 +4,7 @@ import { useStore, weekNumber, todayStr, nextScreeningDue, getState } from "@/li
 import { Button } from "@/components/ui/button";
 import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight } from "lucide-react";
 import { educationModules } from "@/lib/education";
+import { InfantStatesModule } from "@/components/infant-states";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Home — Vela" }] }),
@@ -111,6 +112,8 @@ function Dashboard() {
           <Link to="/education"><Button variant="outline" className="rounded-full">Open module</Button></Link>
         </div>
       </Card>
+
+      <InfantStatesModule />
 
       <div className="grid grid-cols-2 gap-3">
         <QuickLink to="/support" icon={MessageCircleHeart} label="Peer community" />
