@@ -50,18 +50,17 @@ function SymptomsPage() {
     <AppShell>
       <HelpBanner />
 
-      <h1 className="font-serif text-3xl mt-6">Symptom checker &amp; red flags</h1>
+      <h1 className="font-serif text-3xl mt-6">Your safety &amp; care always come first</h1>
       <p className="mt-2 text-muted-foreground leading-relaxed">
-        A calm map of what needs attention now, what deserves a call today, and what's a normal part of recovery. When
-        something feels wrong, trust that — you know your body.
+        If you feel something isn't right, trust your instincts. Here is a clear guide on when to call your care team.
       </p>
 
       <section className="mt-8">
         <SectionHead
           icon={AlertTriangle}
-          eyebrow="Immediate medical attention"
-          title="Call 911"
-          note="Don't wait, don't drive yourself if you can help it."
+          eyebrow="Urgent red flags"
+          title="Seek immediate medical care (call 911)"
+          note="Don't wait, and don't drive yourself if you can help it."
         />
         <ul className="mt-4 space-y-3">
           {emergency.map((item) => (
@@ -82,8 +81,8 @@ function SymptomsPage() {
       <section className="mt-12">
         <SectionHead
           icon={Stethoscope}
-          eyebrow="Call your provider today"
-          title="Same-day check"
+          eyebrow="Needs attention"
+          title="Call your doctor or midwife (within 24h)"
           note="These are treatable — and much easier treated early."
         />
         <ul className="mt-4 space-y-3">
