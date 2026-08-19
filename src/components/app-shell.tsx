@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { problem } from "@/lib/microcopy";
 
 const nav = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -12,8 +13,26 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [offline, setOffline] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setOffline(!navigator.onLine);
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    return () => {
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
+    };
+  }, []);
+
   return (
     <div className="min-h-dvh bg-background flex flex-col">
+      {offline && (
+        <div role="status" className="bg-secondary text-foreground text-center text-sm px-5 py-2 leading-relaxed">
+          {problem.offline}
+        </div>
+      )}
       <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
