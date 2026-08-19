@@ -119,7 +119,7 @@ export function InfantStatesModule() {
   }
 
   return (
-    <div className="rounded-2xl bg-card border border-border/60 p-5 mb-4 shadow-sm">
+    <div className="rounded-2xl bg-card/70 border border-border/60 p-5 mb-4 shadow-sm">
       <div className="flex items-start gap-3">
         <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
           <Moon className="h-5 w-5" />

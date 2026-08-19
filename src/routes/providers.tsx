@@ -108,7 +108,7 @@ function ProvidersPage() {
         commitment — we'll help you find the right fit whenever you're ready.
       </p>
 
-      <div className="mt-6 rounded-2xl bg-card border border-border/60 p-4 space-y-4">
+      <div className="mt-6 rounded-2xl bg-card/70 border border-border/60 p-4 space-y-4">
         <div className="relative">
           <Search className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
           <Input
@@ -141,7 +141,7 @@ function ProvidersPage() {
       {results.length > 0 ? (
         <div className="mt-3 grid sm:grid-cols-2 gap-3">
           {results.map((p) => (
-            <article key={p.id} className="rounded-2xl bg-card border border-border/60 p-5">
+            <article key={p.id} className="rounded-2xl bg-card/70 border border-border/60 p-5">
               <div className="flex items-start gap-3">
                 <span className="h-11 w-11 shrink-0 rounded-full bg-primary/10 text-primary grid place-items-center font-serif text-lg">
                   {p.name.charAt(0)}
@@ -169,7 +169,7 @@ function ProvidersPage() {
           ))}
         </div>
       ) : (
-        <div className="mt-3 rounded-2xl bg-card border border-border/60 p-8 text-center">
+        <div className="mt-3 rounded-2xl bg-card/70 border border-border/60 p-8 text-center">
           <img
             src={emptyIllustration}
             alt="Illustration of cupped hands holding a small sprouting plant"

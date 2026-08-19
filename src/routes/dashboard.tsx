@@ -163,7 +163,7 @@ function Dashboard() {
 }
 
 function Card({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-2xl bg-card border border-border/60 p-5 mb-4 shadow-sm">{children}</div>;
+  return <div className="rounded-2xl bg-card/70 border border-border/60 p-5 mb-4 shadow-sm">{children}</div>;
 }
 
 function QuickLink({ to, icon: Icon, label }: { to: string; icon: React.ComponentType<{ className?: string }>; label: string }) {
