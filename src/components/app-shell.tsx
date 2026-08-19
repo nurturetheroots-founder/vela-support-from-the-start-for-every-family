@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { problem } from "@/lib/microcopy";
+import { LegalFooter } from "@/components/legal-footer";
 
 const nav = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -47,6 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="flex-1 max-w-2xl w-full mx-auto px-5 py-6 pb-28">{children}</main>
+      <LegalFooter className="max-w-2xl w-full mx-auto pb-28" />
       <nav className="fixed bottom-0 inset-x-0 border-t border-border/50 bg-welcome-base/90 backdrop-blur">
         <div className="max-w-2xl mx-auto grid grid-cols-4">
           {nav.map((n) => {
