@@ -82,7 +82,7 @@ function SupportPage() {
         <h2 className="font-serif text-2xl">Meet a few of our doulas</h2>
         <div className="mt-4 grid sm:grid-cols-3 gap-3">
           {doulas.map((d) => (
-            <div key={d.name} className="rounded-2xl bg-card border border-border/60 p-5">
+            <div key={d.name} className="rounded-2xl bg-card/70 border border-border/60 p-5">
               <div className="h-12 w-12 rounded-full bg-primary/10 text-primary grid place-items-center font-serif text-xl">
                 {d.initial}
               </div>
@@ -108,7 +108,7 @@ function TierCard({
   tone: "default" | "primary";
 }) {
   return (
-    <div className="rounded-2xl border border-border/60 bg-card p-5">
+    <div className="rounded-2xl border border-border/60 bg-card/70 p-5">
       <div className="flex items-start gap-3">
         <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />

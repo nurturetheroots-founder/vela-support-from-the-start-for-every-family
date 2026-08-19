@@ -43,7 +43,7 @@ function Dashboard() {
       </div>
 
       {flagged && (
-        <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3" style={{ ['--tw-bg-opacity' as any]: 1 }}>
+        <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3">
           <AlertTriangle className="h-5 w-5 text-clay mt-0.5" />
           <div className="text-sm">
             <div className="font-medium">We're noticing a few hard days in a row.</div>
@@ -163,7 +163,7 @@ function Dashboard() {
 }
 
 function Card({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-2xl bg-card border border-border/60 p-5 mb-4 shadow-sm">{children}</div>;
+  return <div className="rounded-2xl bg-card/70 border border-border/60 p-5 mb-4 shadow-sm">{children}</div>;
 }
 
 function QuickLink({ to, icon: Icon, label }: { to: string; icon: React.ComponentType<{ className?: string }>; label: string }) {

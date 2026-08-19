@@ -122,7 +122,10 @@ function MetaPreview() {
   const host = origin.replace(/^https?:\/\//, "");
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div
+      className="min-h-dvh bg-background"
+      style={{ backgroundImage: "var(--gradient-welcome)", backgroundAttachment: "fixed" }}
+    >
       <div className="max-w-3xl mx-auto px-5 py-10 space-y-8">
         <header className="space-y-2">
           <Badge variant="secondary" className="rounded-full">Internal tool</Badge>
