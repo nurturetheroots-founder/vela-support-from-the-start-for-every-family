@@ -127,7 +127,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="mt-4">
-          <Link to="/education"><Button variant="outline" className="rounded-full">Open module</Button></Link>
+          <Link to="/education"><Button variant="outline" className="rounded-full">Read this week's guide</Button></Link>
         </div>
       </Card>
 

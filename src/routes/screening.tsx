@@ -65,7 +65,7 @@ function ScreeningPage() {
         </div>
       </div>
       <p className="text-sm text-muted-foreground">
-        There are no right answers. Pick what feels closest. We'll share what your score means at the end.
+        There are no right answers. Pick whatever feels closest to your last seven days, and we'll talk through what it means together at the end.
       </p>
 
       <ol className="mt-8 space-y-7">
@@ -111,12 +111,12 @@ function Result({ score, q10 }: { score: number; q10: number }) {
 
   const copy = {
     low: {
-      title: "Your score suggests you're doing okay this week.",
+      title: "This week looks steady, and that's worth noticing.",
       body: "Keep going with your daily check-ins. They're how we catch shifts early — together.",
       cta: { label: "Back to home", to: "/dashboard" as const },
     },
     mid: {
-      title: "Your score suggests some heaviness right now.",
+      title: "There's some heaviness sitting with you right now.",
       body: "That's worth honoring, not pushing past. Other parents are talking about exactly this in the peer community — and a doula session can help you get your bearings.",
       cta: { label: "See support options", to: "/support" as const },
     },

@@ -147,7 +147,7 @@ function EducationPage() {
     const isComplete = profile.completedModules.includes(open.week);
     return (
       <AppShell>
-        <button onClick={() => setOpenWeek(null)} className="text-sm text-muted-foreground hover:text-foreground">← Back to all modules</button>
+        <button onClick={() => setOpenWeek(null)} className="text-sm text-muted-foreground hover:text-foreground">← Back to all guides</button>
         <p className="text-xs uppercase tracking-wider text-primary mt-5">Week {open.week} · {open.readTime} min read</p>
         <h1 className="font-serif text-3xl mt-2 leading-snug">{open.title}</h1>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -176,8 +176,8 @@ function EducationPage() {
 
   return (
     <AppShell>
-      <h1 className="font-serif text-3xl">Learning</h1>
-      <p className="mt-2 text-muted-foreground">Short modules, tuned to your week. Read in the order that fits — there's no test.</p>
+      <h1 className="font-serif text-3xl">Weekly guides</h1>
+      <p className="mt-2 text-muted-foreground">Short reads that meet you where your week is. Take them in any order, or skip one entirely — nothing here is homework.</p>
       <div className="mt-5 text-sm text-muted-foreground">
         {completedInScope} of {mvpModules.length} weeks read
       </div>
@@ -193,7 +193,7 @@ function EducationPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search modules..."
+            placeholder="Search by topic, feeling, or week"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 rounded-full"
@@ -268,7 +268,7 @@ function EducationPage() {
         })}
         {visibleModules.length === 0 && (
           <li className="rounded-2xl border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
-            No modules match that filter yet.
+            Nothing here matches yet. Try another word, or clear the filter.
           </li>
         )}
       </ul>
