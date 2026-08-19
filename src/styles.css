@@ -70,29 +70,29 @@
 
 :root {
   --radius: 1rem;
-  /* off-white #FAFAF8 */
-  --background: oklch(0.985 0.004 95);
+  /* warm welcome cream — matches the onboarding canvas */
+  --background: oklch(0.975 0.008 75);
   /* deep charcoal #2D2D2D */
   --foreground: oklch(0.28 0.005 0);
-  --card: oklch(1 0 0);
+  --card: oklch(0.992 0.005 75);
   --card-foreground: oklch(0.28 0.005 0);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.992 0.005 75);
   --popover-foreground: oklch(0.28 0.005 0);
-  /* soft teal #3D9B8F */
-  --primary: oklch(0.63 0.08 178);
+  /* clay — the onboarding accent, now the app-wide primary */
+  --primary: oklch(0.66 0.12 45);
   --primary-foreground: oklch(0.99 0 0);
   /* warm sand #F5EFE6 */
   --secondary: oklch(0.95 0.012 80);
   --secondary-foreground: oklch(0.28 0.005 0);
   --muted: oklch(0.95 0.012 80);
   --muted-foreground: oklch(0.48 0.01 60);
-  --accent: oklch(0.92 0.025 178);
+  --accent: oklch(0.93 0.045 45);
   --accent-foreground: oklch(0.28 0.005 0);
   --destructive: oklch(0.6 0.18 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.012 80);
-  --input: oklch(0.9 0.012 80);
-  --ring: oklch(0.63 0.08 178);
+  --border: oklch(0.9 0.016 70);
+  --input: oklch(0.9 0.016 70);
+  --ring: oklch(0.66 0.12 45);
   /* brand extras */
   --sand: oklch(0.95 0.012 80);
   --sand-deep: oklch(0.9 0.018 75);
