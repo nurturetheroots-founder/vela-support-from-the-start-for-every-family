@@ -116,7 +116,7 @@ function ScreeningPage() {
             </a>
           </div>
         </div>
-        <Button size="lg" className="rounded-full w-full" disabled={!allAnswered} onClick={submit}>
+        <Button size="lg" className="rounded-full w-full mt-5" disabled={!allAnswered} onClick={submit}>
           See my result
         </Button>
       </div>
