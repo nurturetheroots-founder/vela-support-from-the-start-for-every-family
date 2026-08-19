@@ -189,6 +189,9 @@ function Landing() {
         >
           I already have an account
         </Link>
+        <p className="pt-2 text-center text-xs leading-relaxed text-muted-foreground/80">
+          {legal.disclaimer}
+        </p>
       </footer>
     </div>
   );
