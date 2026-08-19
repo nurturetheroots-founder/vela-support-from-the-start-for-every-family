@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 export type Tier = 0 | 10 | 25 | 50;
 export type Insurance = "Medicaid" | "Private" | "Uninsured";
+export type Stage = "expecting" | "postpartum";
 
 export interface Checkin {
   date: string; // YYYY-MM-DD
@@ -22,7 +23,10 @@ export interface ScreeningResult {
 
 export interface Profile {
   name: string;
+  stage?: Stage;
+  dueDate?: string;
   birthDate?: string;
+  focuses: string[];
   zip: string;
   insurance: Insurance;
   tier: Tier;
@@ -42,6 +46,8 @@ const KEY = "vela.state.v1";
 const initial: State = {
   profile: {
     name: "",
+    stage: undefined,
+    focuses: [],
     zip: "",
     insurance: "Private",
     tier: 10,
@@ -58,7 +64,12 @@ function load(): State {
   try {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return initial;
-    return { ...initial, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw) as Partial<State>;
+    return {
+      ...initial,
+      ...parsed,
+      profile: { ...initial.profile, ...(parsed.profile ?? {}) },
+    };
   } catch {
     return initial;
   }
