@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as ScreeningRouteImport } from './routes/screening'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as MetaPreviewRouteImport } from './routes/meta-preview'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckinRouteImport } from './routes/checkin'
@@ -30,6 +31,11 @@ const ScreeningRoute = ScreeningRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetaPreviewRoute = MetaPreviewRouteImport.update({
+  id: '/meta-preview',
+  path: '/meta-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EducationRoute = EducationRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
+  '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
+  '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
+  '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/education'
+    | '/meta-preview'
     | '/onboarding'
     | '/screening'
     | '/support'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/education'
+    | '/meta-preview'
     | '/onboarding'
     | '/screening'
     | '/support'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/education'
+    | '/meta-preview'
     | '/onboarding'
     | '/screening'
     | '/support'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   CheckinRoute: typeof CheckinRoute
   DashboardRoute: typeof DashboardRoute
   EducationRoute: typeof EducationRoute
+  MetaPreviewRoute: typeof MetaPreviewRoute
   OnboardingRoute: typeof OnboardingRoute
   ScreeningRoute: typeof ScreeningRoute
   SupportRoute: typeof SupportRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meta-preview': {
+      id: '/meta-preview'
+      path: '/meta-preview'
+      fullPath: '/meta-preview'
+      preLoaderRoute: typeof MetaPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/education': {
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckinRoute: CheckinRoute,
   DashboardRoute: DashboardRoute,
   EducationRoute: EducationRoute,
+  MetaPreviewRoute: MetaPreviewRoute,
   OnboardingRoute: OnboardingRoute,
   ScreeningRoute: ScreeningRoute,
   SupportRoute: SupportRoute,
