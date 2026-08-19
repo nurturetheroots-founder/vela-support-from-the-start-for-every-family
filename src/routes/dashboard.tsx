@@ -79,7 +79,7 @@ function Dashboard() {
             <h2 className="font-serif text-xl">Daily check-in</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {didToday
-                ? "Done for today — thank you."
+                ? empty.checkedInToday
                 : checkins.length === 0
                   ? empty.noCheckinsYet
                   : "Sixty seconds. Mood, sleep, feeding, overall."}
@@ -115,6 +115,22 @@ function Dashboard() {
           </div>
           <div className="mt-4">
             <Link to="/screening"><Button variant="outline" className="rounded-full">Take screening</Button></Link>
+          </div>
+        </Card>
+      )}
+
+      {!due && screenings.length === 0 && (
+        <Card>
+          <div className="flex items-start gap-3">
+            <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
+              <ShieldCheck className="h-5 w-5" />
+            </span>
+            <div className="flex-1">
+              <h2 className="font-serif text-xl">Mood screening</h2>
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                {empty.noScreeningsYet}
+              </p>
+            </div>
           </div>
         </Card>
       )}
