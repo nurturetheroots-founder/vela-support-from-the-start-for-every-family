@@ -135,6 +135,11 @@ export function InfantStatesModule() {
         <Button className="rounded-full" onClick={() => setPicking((p) => !p)}>
           Log current state
         </Button>
+        {todayCount === 0 && (
+          <span className="text-xs text-muted-foreground">
+            Nothing logged yet today — no rush.
+          </span>
+        )}
         {todayCount > 0 && (
           <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />

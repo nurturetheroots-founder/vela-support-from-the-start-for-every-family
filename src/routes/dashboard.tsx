@@ -77,7 +77,11 @@ function Dashboard() {
           <div className="flex-1">
             <h2 className="font-serif text-xl">Daily check-in</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {didToday ? "Done for today — thank you." : "Sixty seconds. Mood, sleep, feeding, overall."}
+              {didToday
+                ? "Done for today — thank you."
+                : checkins.length === 0
+                  ? "Nothing logged yet, and that's a fine place to start. Sixty seconds, whenever you have them."
+                  : "Sixty seconds. Mood, sleep, feeding, overall."}
             </p>
           </div>
         </div>
