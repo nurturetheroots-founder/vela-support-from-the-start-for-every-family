@@ -4,24 +4,24 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { getState } from "@/lib/store";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Globe2, BadgeCheck } from "lucide-react";
+import { Search, MapPin, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import emptyIllustration from "@/assets/empty-providers.jpg";
 
 export const Route = createFileRoute("/providers")({
   head: () => ({
     meta: [
-      { title: "Provider Directory — Vela" },
+      { title: "Find Perinatal Support — Vela" },
       {
         name: "description",
         content:
-          "Find perinatal providers near you: IBCLC lactation consultants, perinatal mental health clinicians, pelvic floor PTs, and postpartum doulas.",
+          "A small, hand-picked look at the kinds of perinatal support near you — feeding help, someone to talk with, body recovery, and postpartum doula care.",
       },
-      { property: "og:title", content: "Provider Directory — Vela" },
+      { property: "og:title", content: "Find Perinatal Support — Vela" },
       {
         property: "og:description",
         content:
-          "Search perinatal specialists by type, coverage, name, or city — lactation, mental health, pelvic floor, and postpartum doula care.",
+          "A few examples of the perinatal professionals families work with — feeding support, emotional support, body recovery, and doula care.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -37,20 +37,12 @@ export const Route = createFileRoute("/providers")({
 
 const TYPES = [
   "All",
-  "IBCLC Lactation",
-  "Perinatal Mental Health",
-  "Pelvic Floor PT",
-  "Postpartum Doula",
-] as const;
-
-const COVERAGES = [
-  "Carrot Fertility Approved",
-  "Insurance/Superbill",
-  "Private Pay",
+  "Feeding support",
+  "Emotional support",
+  "Body recovery",
 ] as const;
 
 type ProviderType = (typeof TYPES)[number];
-type Coverage = (typeof COVERAGES)[number];
 
 interface Provider {
   id: string;
@@ -60,7 +52,6 @@ interface Provider {
   city: string;
   languages: string;
   blurb: string;
-  coverage: Coverage[];
 }
 
 const providers: Provider[] = [
@@ -68,108 +59,53 @@ const providers: Provider[] = [
     id: "p1",
     name: "Maya Reyes",
     credential: "IBCLC",
-    type: "IBCLC Lactation",
+    type: "Feeding support",
     city: "San Francisco, CA",
     languages: "English · Spanish",
-    blurb: "Home and video visits for latch, supply, and weaning at your own pace.",
-    coverage: ["Insurance/Superbill", "Carrot Fertility Approved"],
+    blurb:
+      "Sits with you at home or on video while feeding finds its rhythm — latch, supply, or easing into a new routine.",
   },
   {
     id: "p2",
     name: "Dana Whitfield",
     credential: "LCSW, PMH-C",
-    type: "Perinatal Mental Health",
+    type: "Emotional support",
     city: "Oakland, CA",
     languages: "English",
-    blurb: "Therapy for postpartum anxiety, intrusive thoughts, and birth processing.",
-    coverage: ["Insurance/Superbill", "Private Pay"],
+    blurb:
+      "A steady place to talk through the tender parts of new parenthood — worry, big feelings, or your birth story.",
   },
   {
     id: "p3",
     name: "Priya Nair",
     credential: "DPT",
-    type: "Pelvic Floor PT",
+    type: "Body recovery",
     city: "Berkeley, CA",
     languages: "English · Hindi",
-    blurb: "Core and pelvic floor recovery after vaginal birth or cesarean.",
-    coverage: ["Insurance/Superbill"],
-  },
-  {
-    id: "p4",
-    name: "Aisha Okafor",
-    credential: "CPD",
-    type: "Postpartum Doula",
-    city: "Oakland, CA",
-    languages: "English · Yoruba",
-    blurb: "Overnight and daytime support with a focus on Black maternal health.",
-    coverage: ["Private Pay", "Carrot Fertility Approved"],
-  },
-  {
-    id: "p5",
-    name: "Linh Tran",
-    credential: "IBCLC, RN",
-    type: "IBCLC Lactation",
-    city: "San Jose, CA",
-    languages: "English · Vietnamese",
-    blurb: "NICU graduates, bottle refusal, and pumping plans that fit real life.",
-    coverage: ["Insurance/Superbill", "Private Pay"],
-  },
-  {
-    id: "p6",
-    name: "Sam Okonkwo",
-    credential: "PMHNP",
-    type: "Perinatal Mental Health",
-    city: "San Francisco, CA",
-    languages: "English",
-    blurb: "Medication consults for perinatal mood, including while breastfeeding.",
-    coverage: ["Insurance/Superbill", "Carrot Fertility Approved"],
-  },
-  {
-    id: "p7",
-    name: "Renata Alves",
-    credential: "DPT",
-    type: "Pelvic Floor PT",
-    city: "Daly City, CA",
-    languages: "English · Portuguese",
-    blurb: "Diastasis, leaking, and returning to movement without pushing through pain.",
-    coverage: ["Private Pay"],
-  },
-  {
-    id: "p8",
-    name: "Jordan Kim",
-    credential: "CPD, CLC",
-    type: "Postpartum Doula",
-    city: "Berkeley, CA",
-    languages: "English · Korean",
-    blurb: "Daytime care for twins and second-time families, with sibling support.",
-    coverage: ["Private Pay", "Insurance/Superbill"],
+    blurb:
+      "Gentle, unhurried work on core and pelvic floor as your body settles after birth, however yours arrived.",
   },
 ];
 
 function ProvidersPage() {
   const [type, setType] = useState<ProviderType>("All");
-  const [coverage, setCoverage] = useState<Coverage[]>([]);
   const [query, setQuery] = useState("");
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     return providers.filter((p) => {
       if (type !== "All" && p.type !== type) return false;
-      if (coverage.length && !coverage.every((c) => p.coverage.includes(c))) return false;
       if (q && !`${p.name} ${p.city}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [type, coverage, query]);
-
-  function toggleCoverage(c: Coverage) {
-    setCoverage((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
-  }
+  }, [type, query]);
 
   return (
     <AppShell>
-      <h1 className="font-serif text-3xl">Provider &amp; specialist directory</h1>
+      <h1 className="font-serif text-3xl">A few people who can help</h1>
       <p className="mt-2 text-muted-foreground">
-        Perinatal-trained care near you. Filter by what you need and how you'd like to pay.
+        A small sample of the perinatal professionals families lean on. Have a look, no
+        commitment — we'll help you find the right fit whenever you're ready.
       </p>
 
       <div className="mt-6 rounded-2xl bg-card border border-border/60 p-4 space-y-4">
@@ -178,14 +114,16 @@ function ProvidersPage() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name or city — e.g. San Francisco, Oakland"
+            placeholder="Look by name or city — e.g. San Francisco, Oakland"
             aria-label="Search providers by name or city"
             className="pl-9 rounded-full bg-background"
           />
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-wider text-primary mb-2">Type</p>
+          <p className="text-xs uppercase tracking-wider text-primary mb-2">
+            What you're looking for
+          </p>
           <div className="flex flex-wrap gap-2">
             {TYPES.map((t) => (
               <Chip key={t} active={type === t} onClick={() => setType(t)}>
@@ -194,21 +132,10 @@ function ProvidersPage() {
             ))}
           </div>
         </div>
-
-        <div>
-          <p className="text-xs uppercase tracking-wider text-primary mb-2">Coverage</p>
-          <div className="flex flex-wrap gap-2">
-            {COVERAGES.map((c) => (
-              <Chip key={c} active={coverage.includes(c)} onClick={() => toggleCoverage(c)}>
-                {c}
-              </Chip>
-            ))}
-          </div>
-        </div>
       </div>
 
       <p className="mt-5 text-sm text-muted-foreground">
-        {results.length} {results.length === 1 ? "provider" : "providers"}
+        {results.length} {results.length === 1 ? "example" : "examples"}
       </p>
 
       {results.length > 0 ? (
@@ -238,18 +165,6 @@ function ProvidersPage() {
                   <Globe2 className="h-3 w-3" /> {p.languages}
                 </div>
               </div>
-
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {p.coverage.map((c) => (
-                  <span
-                    key={c}
-                    className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px]"
-                  >
-                    <BadgeCheck className="h-3 w-3 text-primary" />
-                    {c}
-                  </span>
-                ))}
-              </div>
             </article>
           ))}
         </div>
@@ -270,7 +185,6 @@ function ProvidersPage() {
           <button
             onClick={() => {
               setType("All");
-              setCoverage([]);
               setQuery("");
             }}
             className="mt-5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium min-h-11"
