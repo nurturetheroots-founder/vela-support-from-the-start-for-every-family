@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SymptomsRouteImport } from './routes/symptoms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as ScreeningRouteImport } from './routes/screening'
@@ -20,6 +21,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SymptomsRoute = SymptomsRouteImport.update({
   id: '/symptoms',
   path: '/symptoms',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/screening'
     | '/support'
     | '/symptoms'
+    | '/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/screening'
     | '/support'
     | '/symptoms'
+    | '/terms'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/screening'
     | '/support'
     | '/symptoms'
+    | '/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,10 +170,18 @@ export interface RootRouteChildren {
   ScreeningRoute: typeof ScreeningRoute
   SupportRoute: typeof SupportRoute
   SymptomsRoute: typeof SymptomsRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/symptoms': {
       id: '/symptoms'
       path: '/symptoms'
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScreeningRoute: ScreeningRoute,
   SupportRoute: SupportRoute,
   SymptomsRoute: SymptomsRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -4,7 +4,8 @@ import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { addScreening, getState, nextScreeningDue, todayStr, useStore, weekNumber } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Phone, LifeBuoy } from "lucide-react";
+import { legal } from "@/lib/microcopy";
 
 export const Route = createFileRoute("/screening")({
   head: () => ({ meta: [{ title: "EPDS screening — Vela" }] }),
@@ -51,7 +52,13 @@ function ScreeningPage() {
     setResult({ score });
   }
 
-  if (result) return <Result score={result.score} q10={answers[9]!} />;
+  if (result) {
+    const q10 = answers[9]!;
+    // reverse-scored: anything other than "Never" is a positive self-harm answer
+    const selfHarm = q10 !== 3;
+    if (result.score >= 10 || selfHarm) return <CrisisSupport score={result.score} />;
+    return <Result score={result.score} q10={q10} />;
+  }
 
   return (
     <AppShell>
@@ -94,9 +101,70 @@ function ScreeningPage() {
       </ol>
 
       <div className="mt-10">
-        <Button size="lg" className="rounded-full w-full" disabled={!allAnswered} onClick={submit}>
+        <div className="rounded-2xl border border-border/70 bg-secondary/70 p-5">
+          <p className="text-sm leading-relaxed text-foreground/90">{legal.epdsNudge}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a href="tel:988">
+              <Button variant="outline" size="sm" className="rounded-full">
+                <Phone className="mr-2 h-3.5 w-3.5" /> Call or text 988
+              </Button>
+            </a>
+            <a href="tel:18338526262">
+              <Button variant="outline" size="sm" className="rounded-full">
+                <Phone className="mr-2 h-3.5 w-3.5" /> 1-833-TLC-MAMA
+              </Button>
+            </a>
+          </div>
+        </div>
+        <Button size="lg" className="rounded-full w-full mt-5" disabled={!allAnswered} onClick={submit}>
           See my result
         </Button>
+      </div>
+    </AppShell>
+  );
+}
+
+function CrisisSupport({ score }: { score: number }) {
+  return (
+    <AppShell>
+      <div className="rounded-2xl border-2 border-clay bg-clay/10 p-6">
+        <span className="grid h-11 w-11 place-items-center rounded-full bg-clay text-primary-foreground">
+          <LifeBuoy className="h-5 w-5" />
+        </span>
+        <h1 className="mt-4 font-serif text-3xl leading-snug">{legal.crisisTitle}</h1>
+        <p className="mt-3 leading-relaxed text-foreground/90">{legal.crisisBody}</p>
+
+        <div className="mt-6 grid gap-3">
+          <a href="tel:988">
+            <Button size="lg" className="h-14 w-full rounded-2xl bg-clay text-base text-primary-foreground hover:bg-clay/90">
+              <Phone className="mr-2 h-4 w-4" /> Call or text 988 — Suicide &amp; Crisis Lifeline
+            </Button>
+          </a>
+          <a href="tel:18338526262">
+            <Button size="lg" variant="outline" className="h-14 w-full rounded-2xl border-clay text-base">
+              <Phone className="mr-2 h-4 w-4" /> Call 1-833-TLC-MAMA — Maternal Mental Health
+            </Button>
+          </a>
+          <a href="tel:911">
+            <Button size="lg" variant="outline" className="h-14 w-full rounded-2xl text-base">
+              <Phone className="mr-2 h-4 w-4" /> Call 911 if you feel unsafe right now
+            </Button>
+          </a>
+        </div>
+      </div>
+
+      <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+        Your score was {score} of 30. A screening score isn't a diagnosis — but it is a good reason to be seen by a
+        clinician soon. Please contact your healthcare provider as well.
+      </p>
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link to="/support">
+          <Button variant="secondary" size="lg" className="rounded-full">Talk with a doula</Button>
+        </Link>
+        <Link to="/dashboard">
+          <Button variant="ghost" size="lg" className="rounded-full">Home</Button>
+        </Link>
       </div>
     </AppShell>
   );

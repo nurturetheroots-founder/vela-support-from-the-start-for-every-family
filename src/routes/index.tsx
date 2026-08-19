@@ -3,6 +3,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookHeart, HeartHandshake, Sparkles, type LucideIcon } from "lucide-react";
 import { getState } from "@/lib/store";
+import { legal } from "@/lib/microcopy";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -189,6 +190,9 @@ function Landing() {
         >
           I already have an account
         </Link>
+        <p className="pt-2 text-center text-xs leading-relaxed text-muted-foreground/80">
+          {legal.disclaimer}
+        </p>
       </footer>
     </div>
   );

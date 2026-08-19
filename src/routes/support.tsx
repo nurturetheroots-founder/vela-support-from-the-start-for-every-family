@@ -3,6 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { getState } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight } from "lucide-react";
+import { legal } from "@/lib/microcopy";
 
 export const Route = createFileRoute("/support")({
   head: () => ({ meta: [{ title: "Support — Vela" }] }),
@@ -35,6 +36,17 @@ function SupportPage() {
           <p className="text-xs text-muted-foreground mt-0.5">
             Lactation, mental health, pelvic floor, and doula care near you.
           </p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+      </Link>
+
+      <Link
+        to="/terms"
+        className="mt-3 flex items-center justify-between rounded-2xl border border-border/60 p-4 min-h-14 hover:bg-secondary transition-colors"
+      >
+        <div>
+          <div className="text-sm font-medium">{legal.termsLink}</div>
+          <p className="text-xs text-muted-foreground mt-0.5">What Vela is, what it isn't, and where to turn in a crisis.</p>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
       </Link>
