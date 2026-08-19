@@ -98,7 +98,7 @@ function MetaPreview() {
       setTags(parseTags(await res.text()));
     } catch (e) {
       setTags(null);
-      setError(e instanceof Error ? e.message : "Could not fetch that page.");
+      setError(e instanceof Error ? e.message : "We couldn't reach that page just now. Try again in a moment.");
     } finally {
       setLoading(false);
     }
