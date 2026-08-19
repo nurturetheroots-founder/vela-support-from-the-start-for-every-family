@@ -1,3 +1,4 @@
+import { empty, cta } from "@/lib/microcopy";
 import { useMemo, useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
@@ -262,10 +263,9 @@ function ProvidersPage() {
             height={576}
             className="mx-auto w-56 max-w-full rounded-2xl"
           />
-          <h2 className="font-serif text-xl mt-5">No matches yet</h2>
+          <h2 className="font-serif text-xl mt-5">{empty.noProviderMatchesTitle}</h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-            We haven't added a provider that fits this combination. Try a nearby city or fewer
-            filters — and our care team can help you look further.
+            {empty.noProviderMatches}
           </p>
           <button
             onClick={() => {
@@ -275,7 +275,7 @@ function ProvidersPage() {
             }}
             className="mt-5 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium min-h-11"
           >
-            Clear filters
+            {cta.clearFilters}
           </button>
         </div>
       )}

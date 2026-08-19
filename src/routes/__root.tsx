@@ -12,23 +12,23 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { problem, cta } from "@/lib/microcopy";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <p className="text-xs uppercase tracking-[0.28em] text-primary">Vela</p>
-        <h1 className="mt-4 font-serif text-3xl text-foreground">This page isn't here.</h1>
+        <h1 className="mt-4 font-serif text-3xl text-foreground">{problem.notFoundTitle}</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Nothing is broken on your end — this path just doesn't exist anymore. Let's get you back to
-          somewhere steady.
+          {problem.notFound}
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Back to home
+            {cta.backHome}
           </Link>
         </div>
       </div>
@@ -47,11 +47,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="font-serif text-2xl text-foreground">
-          This didn't load — and that's on us.
+          {problem.errorTitle}
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Something hiccuped on our side, not yours. Your check-ins and notes are safe. Try once more, or
-          head home and come back whenever.
+          {problem.error}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
