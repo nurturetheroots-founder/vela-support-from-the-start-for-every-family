@@ -2,7 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { useStore, weekNumber, todayStr, nextScreeningDue, getState } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight } from "lucide-react";
+import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight, Sun } from "lucide-react";
 import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
 
@@ -50,6 +50,24 @@ function Dashboard() {
           </div>
         </div>
       )}
+
+      <Card>
+        <div className="flex items-start gap-3">
+          <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
+            <Sun className="h-5 w-5" />
+          </span>
+          <div className="flex-1">
+            <h2 className="font-serif text-xl">Your {Math.max(week, 1)}-week rhythm &amp; wake windows</h2>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              At {Math.max(week, 1)} weeks, your baby is just beginning to explore active alert moments. Look for gentle
+              wake windows around 45–60 minutes — focusing on quiet connection rather than a rigid clock.
+            </p>
+          </div>
+        </div>
+        <div className="mt-4">
+          <Link to="/education"><Button variant="outline" className="rounded-full">Explore today's cues &amp; flow</Button></Link>
+        </div>
+      </Card>
 
       <Card>
         <div className="flex items-start gap-3">
