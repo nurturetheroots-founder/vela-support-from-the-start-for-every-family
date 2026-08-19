@@ -62,6 +62,8 @@
   --color-sand: var(--sand);
   --color-sand-deep: var(--sand-deep);
   --color-clay: var(--clay);
+  --color-welcome-base: var(--welcome-base);
+  --color-welcome-blush: var(--welcome-blush);
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 }
@@ -95,6 +97,20 @@
   --sand: oklch(0.95 0.012 80);
   --sand-deep: oklch(0.9 0.018 75);
   --clay: oklch(0.66 0.12 45);
+  /* warm welcome canvas */
+  --welcome-base: oklch(0.975 0.008 75);
+  --welcome-blush: oklch(0.93 0.045 45);
+  --gradient-welcome: radial-gradient(
+      120% 60% at 78% 0%,
+      color-mix(in oklab, var(--welcome-blush) 70%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      100% 45% at 45% 100%,
+      color-mix(in oklab, var(--welcome-blush) 55%, transparent) 0%,
+      transparent 60%
+    ),
+    linear-gradient(180deg, var(--welcome-base), var(--welcome-base));
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
