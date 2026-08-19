@@ -115,6 +115,7 @@ function SymptomsPage() {
         This page is educational and doesn't replace care from your clinician.
       </p>
 
+      <div className="h-16 sm:hidden" />
       <MobileHelpBar />
     </AppShell>
   );

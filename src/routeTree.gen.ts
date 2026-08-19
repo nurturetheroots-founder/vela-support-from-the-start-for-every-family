@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SymptomsRouteImport } from './routes/symptoms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as ScreeningRouteImport } from './routes/screening'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -18,6 +19,11 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SymptomsRoute = SymptomsRouteImport.update({
+  id: '/symptoms',
+  path: '/symptoms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
+  '/symptoms': typeof SymptomsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
+  '/symptoms': typeof SymptomsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/screening': typeof ScreeningRoute
   '/support': typeof SupportRoute
+  '/symptoms': typeof SymptomsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/screening'
     | '/support'
+    | '/symptoms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/screening'
     | '/support'
+    | '/symptoms'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/screening'
     | '/support'
+    | '/symptoms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,10 +144,18 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   ScreeningRoute: typeof ScreeningRoute
   SupportRoute: typeof SupportRoute
+  SymptomsRoute: typeof SymptomsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/symptoms': {
+      id: '/symptoms'
+      path: '/symptoms'
+      fullPath: '/symptoms'
+      preLoaderRoute: typeof SymptomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/support': {
       id: '/support'
       path: '/support'
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   ScreeningRoute: ScreeningRoute,
   SupportRoute: SupportRoute,
+  SymptomsRoute: SymptomsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
