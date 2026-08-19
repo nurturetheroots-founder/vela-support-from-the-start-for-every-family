@@ -181,6 +181,7 @@ function Onboarding() {
                 desc="Baby is here. We'll tune everything to your week."
               />
             </div>
+            {showErrors && errors.stage && <FieldError id="err-stage">{errors.stage}</FieldError>}
           </div>
         )}
 
@@ -205,6 +206,7 @@ function Onboarding() {
                   <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus className={cn("p-3 pointer-events-auto")} />
                 </PopoverContent>
               </Popover>
+              {showErrors && errors.dueDate && <FieldError id="err-due">{errors.dueDate}</FieldError>}
             </div>
           </div>
         )}
@@ -218,20 +220,26 @@ function Onboarding() {
                 <Label htmlFor="weeks">Weeks</Label>
                 <Input
                   id="weeks" inputMode="numeric" placeholder="6" className="mt-2 h-12"
+                  aria-invalid={showErrors && !!errors.ageWeeks}
+                  aria-describedby={showErrors && errors.ageWeeks ? "err-weeks" : undefined}
                   value={ageWeeks}
                   onChange={(e) => setAgeWeeks(e.target.value.replace(/\D/g, "").slice(0, 2))}
                 />
+                {showErrors && errors.ageWeeks && <FieldError id="err-weeks">{errors.ageWeeks}</FieldError>}
               </div>
               <div>
                 <Label htmlFor="days">Days</Label>
                 <Input
                   id="days" inputMode="numeric" placeholder="3" className="mt-2 h-12"
+                  aria-invalid={showErrors && !!errors.ageDays}
+                  aria-describedby={showErrors && errors.ageDays ? "err-days" : undefined}
                   value={ageDays}
                   onChange={(e) => {
                     const v = e.target.value.replace(/\D/g, "").slice(0, 1);
                     setAgeDays(v === "" ? "" : String(Math.min(6, Number(v))));
                   }}
                 />
+                {showErrors && errors.ageDays && <FieldError id="err-days">{errors.ageDays}</FieldError>}
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">Days are optional — weeks alone is enough.</p>
@@ -245,11 +253,31 @@ function Onboarding() {
             <div className="mt-6 space-y-4">
               <div>
                 <Label htmlFor="name">Your name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="mt-2 h-12" placeholder="First name" />
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-2 h-12"
+                  placeholder="First name"
+                  aria-invalid={showErrors && !!errors.name}
+                  aria-describedby={showErrors && errors.name ? "err-name" : undefined}
+                />
+                {showErrors && errors.name && <FieldError id="err-name">{errors.name}</FieldError>}
               </div>
               <div>
                 <Label htmlFor="zip">Zip code</Label>
-                <Input id="zip" inputMode="numeric" maxLength={5} value={zip} onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))} className="mt-2 h-12" placeholder="94110" />
+                <Input
+                  id="zip"
+                  inputMode="numeric"
+                  maxLength={5}
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
+                  className="mt-2 h-12"
+                  placeholder="94110"
+                  aria-invalid={showErrors && !!errors.zip}
+                  aria-describedby={showErrors && errors.zip ? "err-zip" : undefined}
+                />
+                {showErrors && errors.zip && <FieldError id="err-zip">{errors.zip}</FieldError>}
               </div>
               <div>
                 <Label>Insurance</Label>
@@ -321,6 +349,7 @@ function Onboarding() {
                 That's {MAX_FOCUS} — deselect one to swap in something else.
               </p>
             )}
+            {showErrors && errors.focuses && <FieldError id="err-focuses">{errors.focuses}</FieldError>}
           </div>
         )}
 
@@ -361,8 +390,17 @@ function Onboarding() {
 
       <footer className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border/60">
         <div className="max-w-xl mx-auto px-5 py-4 flex items-center justify-between gap-3">
-          <Button variant="ghost" disabled={step === 1} onClick={() => setStep(step - 1)}>Back</Button>
-          <Button size="lg" className="rounded-full px-7" disabled={!canNext} onClick={next}>
+          <Button
+            variant="ghost"
+            disabled={step === 1}
+            onClick={() => {
+              setShowErrors(false);
+              setStep(step - 1);
+            }}
+          >
+            Back
+          </Button>
+          <Button size="lg" className="rounded-full px-7" onClick={next}>
             {step === total ? "Complete setup" : step === 5 && tier !== 0 ? "Simulate checkout" : "Continue"}
           </Button>
         </div>
