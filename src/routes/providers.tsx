@@ -4,7 +4,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { getState } from "@/lib/store";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Globe2, BadgeCheck } from "lucide-react";
+import { Search, MapPin, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import emptyIllustration from "@/assets/empty-providers.jpg";
 
