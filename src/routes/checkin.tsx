@@ -169,10 +169,13 @@ function CheckinPage() {
       </section>
 
       <div className="mt-8">
-        <Button size="lg" className="rounded-full w-full" disabled={!canSubmit} onClick={submit}>
+        <Button size="lg" className="rounded-full w-full" disabled={!canSubmit || saving} onClick={submit}>
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save today's check-in
         </Button>
       </div>
+      {saveError && <p role="alert" className="mt-3 text-xs text-destructive text-center">{saveError}</p>}
+
       <p className="mt-3 text-xs text-muted-foreground text-center">
         We hold your check-ins gently. If a few heavy days gather in a row, we'll quietly offer a hand — never a diagnosis.
       </p>
