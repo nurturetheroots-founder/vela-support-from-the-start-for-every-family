@@ -20,7 +20,12 @@ export const Route = createFileRoute("/onboarding")({
       { name: "description", content: "Set up your Vela profile in a few gentle steps." },
     ],
   }),
-  component: Onboarding,
+  component: () => (
+    <AuthGate>
+      <Onboarding />
+    </AuthGate>
+  ),
+
 });
 
 const FOCUS_OPTIONS = [
