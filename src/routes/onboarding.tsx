@@ -67,6 +67,7 @@ function FieldError({ id, children }: { id: string; children: React.ReactNode })
 
 function Onboarding() {
   const nav = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [stage, setStage] = useState<Stage | null>(null);
   const [dueDate, setDueDate] = useState<Date | undefined>();
