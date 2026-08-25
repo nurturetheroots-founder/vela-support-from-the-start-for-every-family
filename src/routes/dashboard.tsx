@@ -1,7 +1,8 @@
 import { empty, cta } from "@/lib/microcopy";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
-import { useStore, weekNumber, todayStr, nextScreeningDue, getState } from "@/lib/store";
+import { AuthGate } from "@/components/auth-gate";
+import { useStore, weekNumber, todayStr, nextScreeningDue } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight, Sun } from "lucide-react";
 import { educationModules } from "@/lib/education";
