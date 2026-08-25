@@ -1,20 +1,22 @@
 import { affirm, cta } from "@/lib/microcopy";
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { AuthGate } from "@/components/auth-gate";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { addCheckin, getState, todayStr, useStore } from "@/lib/store";
+import { addCheckin, todayStr, useStore } from "@/lib/store";
+import { saveCheckin } from "@/lib/vela-db";
 import { cn } from "@/lib/utils";
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/checkin")({
   head: () => ({ meta: [{ title: "Daily check-in — Vela" }] }),
-  beforeLoad: () => {
-    if (typeof window !== "undefined" && !getState().profile.onboarded) {
-      throw redirect({ to: "/onboarding" });
-    }
-  },
-  component: CheckinPage,
+  component: () => (
+    <AuthGate requireOnboarded>
+      <CheckinPage />
+    </AuthGate>
+  ),
 });
 
 const moods = ["😞", "😕", "😐", "🙂", "😊"];
@@ -22,6 +24,7 @@ const overall = ["Rough", "Hard", "Okay", "Good", "Steady"];
 
 function CheckinPage() {
   const nav = useNavigate();
+  const { user } = useAuth();
   const today = todayStr();
   const existing = useStore((s) => s.checkins.find((c) => c.date === today));
   const [mood, setMood] = useState<number | null>(null);
@@ -29,7 +32,10 @@ function CheckinPage() {
   const [feeding, setFeeding] = useState<"struggling" | "okay" | "going well" | null>(null);
   const [over, setOver] = useState<number | null>(null);
   const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<null | { flagged: boolean }>(null);
+
 
   if (existing && !submitted) {
     return (
