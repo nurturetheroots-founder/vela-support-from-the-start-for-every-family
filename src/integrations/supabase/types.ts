@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      parent_daily_checkins: {
+        Row: {
+          checkin_id: string
+          created_at: string
+          feeding_status: string | null
+          logged_date: string
+          mood_score: number | null
+          overall_score: number | null
+          parent_health_notes: string | null
+          parent_id: string
+          requires_support_flag: boolean
+          sleep_quality: string | null
+        }
+        Insert: {
+          checkin_id?: string
+          created_at?: string
+          feeding_status?: string | null
+          logged_date?: string
+          mood_score?: number | null
+          overall_score?: number | null
+          parent_health_notes?: string | null
+          parent_id: string
+          requires_support_flag?: boolean
+          sleep_quality?: string | null
+        }
+        Update: {
+          checkin_id?: string
+          created_at?: string
+          feeding_status?: string | null
+          logged_date?: string
+          mood_score?: number | null
+          overall_score?: number | null
+          parent_health_notes?: string | null
+          parent_id?: string
+          requires_support_flag?: boolean
+          sleep_quality?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_daily_checkins_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "parents"
+            referencedColumns: ["parent_id"]
+          },
+        ]
+      }
+      parents: {
+        Row: {
+          birth_date: string | null
+          consented_at: string | null
+          created_at: string
+          display_name: string
+          due_date: string | null
+          focuses: string[]
+          insurance: string | null
+          parent_id: string
+          stage: string | null
+          updated_at: string
+          zip: string | null
+        }
+        Insert: {
+          birth_date?: string | null
+          consented_at?: string | null
+          created_at?: string
+          display_name?: string
+          due_date?: string | null
+          focuses?: string[]
+          insurance?: string | null
+          parent_id: string
+          stage?: string | null
+          updated_at?: string
+          zip?: string | null
+        }
+        Update: {
+          birth_date?: string | null
+          consented_at?: string | null
+          created_at?: string
+          display_name?: string
+          due_date?: string | null
+          focuses?: string[]
+          insurance?: string | null
+          parent_id?: string
+          stage?: string | null
+          updated_at?: string
+          zip?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
