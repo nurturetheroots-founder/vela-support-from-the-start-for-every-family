@@ -154,9 +154,9 @@ function Onboarding() {
   }
 
   function finish() {
-    setProfile({
+    const profile = {
       name: name.trim(),
-      stage: stage ?? "postpartum",
+      stage: (stage ?? "postpartum") as Stage,
       dueDate: stage === "expecting" && dueDate ? format(dueDate, "yyyy-MM-dd") : undefined,
       birthDate: derivedBirthDate(),
       focuses,
@@ -164,9 +164,16 @@ function Onboarding() {
       insurance,
       tier,
       onboarded: true,
-    });
+    };
+    setProfile(profile);
     setFinishing(true);
+    if (user) {
+      void saveParent(user.id, { ...profile, consented: true }).catch(() => {
+        // Saved locally; we'll sync again next time there's a connection.
+      });
+    }
   }
+
 
   function next() {
     if (!stepValid) {
