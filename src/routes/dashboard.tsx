@@ -9,13 +9,13 @@ import { InfantStatesModule } from "@/components/infant-states";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Home — Vela" }] }),
-  beforeLoad: () => {
-    if (typeof window !== "undefined" && !getState().profile.onboarded) {
-      throw redirect({ to: "/onboarding" });
-    }
-  },
-  component: Dashboard,
+  component: () => (
+    <AuthGate requireOnboarded>
+      <Dashboard />
+    </AuthGate>
+  ),
 });
+
 
 function Dashboard() {
   const profile = useStore((s) => s.profile);
