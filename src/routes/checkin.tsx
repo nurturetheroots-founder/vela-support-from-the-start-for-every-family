@@ -73,8 +73,10 @@ function CheckinPage() {
 
   const canSubmit = mood !== null && sleep !== null && feeding !== null && over !== null;
 
-  function submit() {
-    if (!canSubmit) return;
+  async function submit() {
+    if (!canSubmit || saving) return;
+    setSaving(true);
+    setSaveError(null);
     const c = addCheckin({
       date: today,
       mood: mood!,
@@ -83,8 +85,16 @@ function CheckinPage() {
       overall: over!,
       note: note.trim() || undefined,
     });
-    setSubmitted({ flagged: !!c.flagged });
+    try {
+      if (user) await saveCheckin(user.id, c);
+    } catch {
+      setSaveError("We saved today on this device, but couldn't reach your account just yet.");
+    } finally {
+      setSaving(false);
+      setSubmitted({ flagged: !!c.flagged });
+    }
   }
+
 
   return (
     <AppShell>
