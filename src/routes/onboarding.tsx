@@ -9,6 +9,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { legal } from "@/lib/microcopy";
 import { setProfile, type Insurance, type Stage, type Tier } from "@/lib/store";
+import { AuthGate } from "@/components/auth-gate";
+import { useAuth } from "@/hooks/use-auth";
+import { saveParent } from "@/lib/vela-db";
 import { cn } from "@/lib/utils";
 import { ExpectTimeline } from "@/components/expect-timeline";
 import { CalendarIcon, Check, Heart, Sparkles, AlertCircle, Loader2 } from "lucide-react";
