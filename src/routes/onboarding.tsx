@@ -9,6 +9,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { legal } from "@/lib/microcopy";
 import { setProfile, type Insurance, type Stage, type Tier } from "@/lib/store";
+import { AuthGate } from "@/components/auth-gate";
+import { useAuth } from "@/hooks/use-auth";
+import { saveParent } from "@/lib/vela-db";
 import { cn } from "@/lib/utils";
 import { ExpectTimeline } from "@/components/expect-timeline";
 import { CalendarIcon, Check, Heart, Sparkles, AlertCircle, Loader2 } from "lucide-react";
@@ -20,7 +23,12 @@ export const Route = createFileRoute("/onboarding")({
       { name: "description", content: "Set up your Vela profile in a few gentle steps." },
     ],
   }),
-  component: Onboarding,
+  component: () => (
+    <AuthGate>
+      <Onboarding />
+    </AuthGate>
+  ),
+
 });
 
 const FOCUS_OPTIONS = [
@@ -59,6 +67,7 @@ function FieldError({ id, children }: { id: string; children: React.ReactNode })
 
 function Onboarding() {
   const nav = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [stage, setStage] = useState<Stage | null>(null);
   const [dueDate, setDueDate] = useState<Date | undefined>();
@@ -146,9 +155,9 @@ function Onboarding() {
   }
 
   function finish() {
-    setProfile({
+    const profile = {
       name: name.trim(),
-      stage: stage ?? "postpartum",
+      stage: (stage ?? "postpartum") as Stage,
       dueDate: stage === "expecting" && dueDate ? format(dueDate, "yyyy-MM-dd") : undefined,
       birthDate: derivedBirthDate(),
       focuses,
@@ -156,9 +165,16 @@ function Onboarding() {
       insurance,
       tier,
       onboarded: true,
-    });
+    };
+    setProfile(profile);
     setFinishing(true);
+    if (user) {
+      void saveParent(user.id, { ...profile, consented: true }).catch(() => {
+        // Saved locally; we'll sync again next time there's a connection.
+      });
+    }
   }
+
 
   function next() {
     if (!stepValid) {

@@ -146,10 +146,20 @@ export function markModuleComplete(week: number) {
   setProfile({ completedModules: [...state.profile.completedModules, week] });
 }
 
+export function hydrateFromRemote(profile: Partial<Profile>, checkins: Checkin[]) {
+  state = {
+    ...state,
+    profile: { ...state.profile, ...profile },
+    checkins,
+  };
+  emit();
+}
+
 export function resetAll() {
   state = initial;
   emit();
 }
+
 
 export function useStore<T>(selector: (s: State) => T): T {
   return useSyncExternalStore(

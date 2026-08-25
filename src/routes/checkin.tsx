@@ -1,20 +1,22 @@
 import { affirm, cta } from "@/lib/microcopy";
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
+import { AuthGate } from "@/components/auth-gate";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { addCheckin, getState, todayStr, useStore } from "@/lib/store";
+import { addCheckin, todayStr, useStore } from "@/lib/store";
+import { saveCheckin } from "@/lib/vela-db";
 import { cn } from "@/lib/utils";
-import { Heart } from "lucide-react";
+import { Heart, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/checkin")({
   head: () => ({ meta: [{ title: "Daily check-in — Vela" }] }),
-  beforeLoad: () => {
-    if (typeof window !== "undefined" && !getState().profile.onboarded) {
-      throw redirect({ to: "/onboarding" });
-    }
-  },
-  component: CheckinPage,
+  component: () => (
+    <AuthGate requireOnboarded>
+      <CheckinPage />
+    </AuthGate>
+  ),
 });
 
 const moods = ["😞", "😕", "😐", "🙂", "😊"];
@@ -22,6 +24,7 @@ const overall = ["Rough", "Hard", "Okay", "Good", "Steady"];
 
 function CheckinPage() {
   const nav = useNavigate();
+  const { user } = useAuth();
   const today = todayStr();
   const existing = useStore((s) => s.checkins.find((c) => c.date === today));
   const [mood, setMood] = useState<number | null>(null);
@@ -29,7 +32,10 @@ function CheckinPage() {
   const [feeding, setFeeding] = useState<"struggling" | "okay" | "going well" | null>(null);
   const [over, setOver] = useState<number | null>(null);
   const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<null | { flagged: boolean }>(null);
+
 
   if (existing && !submitted) {
     return (
@@ -67,8 +73,10 @@ function CheckinPage() {
 
   const canSubmit = mood !== null && sleep !== null && feeding !== null && over !== null;
 
-  function submit() {
-    if (!canSubmit) return;
+  async function submit() {
+    if (!canSubmit || saving) return;
+    setSaving(true);
+    setSaveError(null);
     const c = addCheckin({
       date: today,
       mood: mood!,
@@ -77,8 +85,16 @@ function CheckinPage() {
       overall: over!,
       note: note.trim() || undefined,
     });
-    setSubmitted({ flagged: !!c.flagged });
+    try {
+      if (user) await saveCheckin(user.id, c);
+    } catch {
+      setSaveError("We saved today on this device, but couldn't reach your account just yet.");
+    } finally {
+      setSaving(false);
+      setSubmitted({ flagged: !!c.flagged });
+    }
   }
+
 
   return (
     <AppShell>
@@ -153,10 +169,13 @@ function CheckinPage() {
       </section>
 
       <div className="mt-8">
-        <Button size="lg" className="rounded-full w-full" disabled={!canSubmit} onClick={submit}>
+        <Button size="lg" className="rounded-full w-full" disabled={!canSubmit || saving} onClick={submit}>
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save today's check-in
         </Button>
       </div>
+      {saveError && <p role="alert" className="mt-3 text-xs text-destructive text-center">{saveError}</p>}
+
       <p className="mt-3 text-xs text-muted-foreground text-center">
         We hold your check-ins gently. If a few heavy days gather in a row, we'll quietly offer a hand — never a diagnosis.
       </p>
