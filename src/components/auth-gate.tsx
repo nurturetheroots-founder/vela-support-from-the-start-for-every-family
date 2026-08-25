@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { fetchCheckins, fetchParent, rowToCheckin, rowToProfile } from "@/lib/vela-db";
-import { hydrateFromRemote } from "@/lib/store";
+import { getState, hydrateFromRemote } from "@/lib/store";
 
 /**
  * Client-side gate for the signed-in experience. Renders a calm waiting state
