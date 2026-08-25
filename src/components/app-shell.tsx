@@ -45,7 +45,18 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
             <span className="font-serif text-lg font-semibold">Vela</span>
           </Link>
+          <button
+            type="button"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/auth";
+            }}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Sign out
+          </button>
         </div>
+
       </header>
       <main className="flex-1 max-w-2xl w-full mx-auto px-5 py-6">{children}</main>
       <LegalFooter className="max-w-2xl w-full mx-auto pb-28" />
