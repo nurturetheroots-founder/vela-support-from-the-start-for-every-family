@@ -9,7 +9,13 @@ import { hydrateFromRemote } from "@/lib/store";
  * Client-side gate for the signed-in experience. Renders a calm waiting state
  * while the session resolves, then hydrates the local store from the database.
  */
-export function AuthGate({ children }: { children: React.ReactNode }) {
+export function AuthGate({
+  children,
+  requireOnboarded = false,
+}: {
+  children: React.ReactNode;
+  requireOnboarded?: boolean;
+}) {
   const nav = useNavigate();
   const { user, loading } = useAuth();
   const [hydrated, setHydrated] = useState(false);
@@ -36,6 +42,13 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, [loading, user, nav]);
+
+  useEffect(() => {
+    if (hydrated && requireOnboarded && !getState().profile.onboarded) {
+      nav({ to: "/onboarding" });
+    }
+  }, [hydrated, requireOnboarded, nav]);
+
 
   if (loading || !user || !hydrated) {
     return (
