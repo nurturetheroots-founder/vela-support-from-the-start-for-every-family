@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LegalFooter } from "@/components/legal-footer";
+import { startGuest } from "@/lib/guest";
 
 function safeNext(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -137,16 +138,36 @@ function AuthPage() {
           </Button>
         </form>
 
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "signup" ? "signin" : "signup");
-            setError(null);
-          }}
-          className="mt-6 text-sm text-primary underline underline-offset-4"
-        >
-          {mode === "signup" ? "I already have an account" : "I'm new here — create an account"}
-        </button>
+        <div className="mt-6 flex flex-col items-start gap-4">
+          <button
+            type="button"
+            onClick={() => {
+              setMode(mode === "signup" ? "signin" : "signup");
+              setError(null);
+            }}
+            className="text-sm text-primary underline underline-offset-4"
+          >
+            {mode === "signup" ? "I already have an account" : "I'm new here — create an account"}
+          </button>
+
+          <div className="w-full pt-4 border-t border-border/60">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="rounded-full w-full bg-card/60"
+              onClick={() => {
+                startGuest();
+                nav({ to: "/onboarding" });
+              }}
+            >
+              View demo — continue as guest
+            </Button>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+              Explore the whole app without an account. Anything you enter stays on this device and isn't saved to a profile.
+            </p>
+          </div>
+        </div>
       </main>
       <LegalFooter />
     </div>
