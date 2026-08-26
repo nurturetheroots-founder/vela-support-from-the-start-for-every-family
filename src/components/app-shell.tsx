@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart } from "lucide-react";
+import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { problem } from "@/lib/microcopy";
 import { LegalFooter } from "@/components/legal-footer";
+
 
 const nav = [
   { to: "/dashboard", label: "Home", icon: Home },
