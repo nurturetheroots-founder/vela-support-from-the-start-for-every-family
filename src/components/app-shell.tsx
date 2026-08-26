@@ -17,6 +17,7 @@ const nav = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [offline, setOffline] = useState(false);
+  const [openAlerts, setOpenAlerts] = useState(0);
 
   useEffect(() => {
     const sync = () => setOffline(!navigator.onLine);
@@ -28,6 +29,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       window.removeEventListener("offline", sync);
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("escalations")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "open")
+      .then(({ count }) => {
+        if (active) setOpenAlerts(count ?? 0);
+      });
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
+
 
   return (
     <div
