@@ -10,7 +10,25 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/education")({
-  head: () => ({ meta: [{ title: "Learning — Vela" }] }),
+  head: () => ({
+    meta: [
+      { title: "Weekly Postpartum Learning — Vela" },
+      {
+        name: "description",
+        content:
+          "Short, week-by-week postpartum lessons on feeding, sleep, healing, and mood — written to be read one-handed at 3am.",
+      },
+      { property: "og:title", content: "Weekly Postpartum Learning — Vela" },
+      {
+        property: "og:description",
+        content: "Week-by-week lessons on feeding, sleep, healing, and mood — short enough to read one-handed.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/education" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/education" }],
+  }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
       throw redirect({ to: "/onboarding" });

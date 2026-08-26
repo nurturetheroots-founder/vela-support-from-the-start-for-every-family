@@ -6,7 +6,25 @@ import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight } from "lu
 import { legal } from "@/lib/microcopy";
 
 export const Route = createFileRoute("/support")({
-  head: () => ({ meta: [{ title: "Support — Vela" }] }),
+  head: () => ({
+    meta: [
+      { title: "Doula, Therapist & Peer Support — Vela" },
+      {
+        name: "description",
+        content:
+          "Three ways to be held: a moderated peer community, sliding-scale doula sessions, and warm referrals to perinatal therapists.",
+      },
+      { property: "og:title", content: "Doula, Therapist & Peer Support — Vela" },
+      {
+        property: "og:description",
+        content: "Peer community, sliding-scale doula sessions, and warm therapist referrals.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/support" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/support" }],
+  }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
       throw redirect({ to: "/onboarding" });
