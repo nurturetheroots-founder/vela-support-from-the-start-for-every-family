@@ -79,6 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={async () => {
+                endGuest();
                 await supabase.auth.signOut();
                 window.location.href = "/auth";
               }}
