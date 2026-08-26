@@ -5,6 +5,7 @@ import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart, Bell } from "luc
 import { cn } from "@/lib/utils";
 import { problem } from "@/lib/microcopy";
 import { LegalFooter } from "@/components/legal-footer";
+import { endGuest } from "@/lib/guest";
 
 
 const nav = [
