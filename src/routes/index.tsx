@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, BookHeart, HeartHandshake, Sparkles, type LucideIcon } from "lucide-react";
 import { getState } from "@/lib/store";
 import { legal } from "@/lib/microcopy";
+import { startGuest } from "@/lib/guest";
 
 export const Route = createFileRoute("/")({
   head: () => ({
