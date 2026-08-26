@@ -14,6 +14,332 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignments: {
+        Row: {
+          assigned_at: string
+          doula_id: string
+          family_id: string
+          id: string
+        }
+        Insert: {
+          assigned_at?: string
+          doula_id: string
+          family_id: string
+          id?: string
+        }
+        Update: {
+          assigned_at?: string
+          doula_id?: string
+          family_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_doula_id_fkey"
+            columns: ["doula_id"]
+            isOneToOne: false
+            referencedRelation: "doulas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      check_ins: {
+        Row: {
+          family_id: string
+          feeding: string | null
+          id: string
+          local_date: string
+          mood: number | null
+          note: string | null
+          overall: number | null
+          sleep: string | null
+          submitted_at: string
+        }
+        Insert: {
+          family_id: string
+          feeding?: string | null
+          id?: string
+          local_date: string
+          mood?: number | null
+          note?: string | null
+          overall?: number | null
+          sleep?: string | null
+          submitted_at?: string
+        }
+        Update: {
+          family_id?: string
+          feeding?: string | null
+          id?: string
+          local_date?: string
+          mood?: number | null
+          note?: string | null
+          overall?: number | null
+          sleep?: string | null
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consents: {
+        Row: {
+          consent_type: string
+          family_id: string
+          granted_at: string
+          id: string
+          version: string
+        }
+        Insert: {
+          consent_type: string
+          family_id: string
+          granted_at?: string
+          id?: string
+          version: string
+        }
+        Update: {
+          consent_type?: string
+          family_id?: string
+          granted_at?: string
+          id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consents_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_views: {
+        Row: {
+          content_id: string
+          family_id: string
+          id: string
+          viewed_at: string
+        }
+        Insert: {
+          content_id: string
+          family_id: string
+          id?: string
+          viewed_at?: string
+        }
+        Update: {
+          content_id?: string
+          family_id?: string
+          id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_views_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      derived_signals: {
+        Row: {
+          computed_at: string
+          family_id: string
+          id: string
+          rule_version: string
+          signal_type: string
+        }
+        Insert: {
+          computed_at?: string
+          family_id: string
+          id?: string
+          rule_version: string
+          signal_type: string
+        }
+        Update: {
+          computed_at?: string
+          family_id?: string
+          id?: string
+          rule_version?: string
+          signal_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "derived_signals_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doulas: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          languages: string[]
+          name: string
+          specialties: string[]
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          languages?: string[]
+          name: string
+          specialties?: string[]
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          languages?: string[]
+          name?: string
+          specialties?: string[]
+        }
+        Relationships: []
+      }
+      epds_administrations: {
+        Row: {
+          administered_at: string
+          family_id: string
+          id: string
+          local_date: string
+          total_score: number | null
+          trigger_reason: string | null
+        }
+        Insert: {
+          administered_at?: string
+          family_id: string
+          id?: string
+          local_date: string
+          total_score?: number | null
+          trigger_reason?: string | null
+        }
+        Update: {
+          administered_at?: string
+          family_id?: string
+          id?: string
+          local_date?: string
+          total_score?: number | null
+          trigger_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epds_administrations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epds_responses: {
+        Row: {
+          administration_id: string
+          id: string
+          item_number: number
+          response_value: number
+        }
+        Insert: {
+          administration_id: string
+          id?: string
+          item_number: number
+          response_value: number
+        }
+        Update: {
+          administration_id?: string
+          id?: string
+          item_number?: number
+          response_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epds_responses_administration_id_fkey"
+            columns: ["administration_id"]
+            isOneToOne: false
+            referencedRelation: "epds_administrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escalations: {
+        Row: {
+          family_id: string
+          id: string
+          resolved_at: string | null
+          status: string
+          trigger_detail: string | null
+          trigger_type: string
+          triggered_at: string
+        }
+        Insert: {
+          family_id: string
+          id?: string
+          resolved_at?: string | null
+          status?: string
+          trigger_detail?: string | null
+          trigger_type: string
+          triggered_at?: string
+        }
+        Update: {
+          family_id?: string
+          id?: string
+          resolved_at?: string | null
+          status?: string
+          trigger_detail?: string | null
+          trigger_type?: string
+          triggered_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      families: {
+        Row: {
+          created_at: string
+          due_or_birth_date: string | null
+          email: string | null
+          id: string
+          timezone: string
+        }
+        Insert: {
+          created_at?: string
+          due_or_birth_date?: string | null
+          email?: string | null
+          id?: string
+          timezone?: string
+        }
+        Update: {
+          created_at?: string
+          due_or_birth_date?: string | null
+          email?: string | null
+          id?: string
+          timezone?: string
+        }
+        Relationships: []
+      }
       parent_daily_checkins: {
         Row: {
           checkin_id: string
