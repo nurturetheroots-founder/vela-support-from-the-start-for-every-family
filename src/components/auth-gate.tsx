@@ -19,9 +19,19 @@ export function AuthGate({
   const nav = useNavigate();
   const { user, loading } = useAuth();
   const [hydrated, setHydrated] = useState(false);
+  const [guest, setGuest] = useState(false);
+
+  useEffect(() => {
+    setGuest(isGuest());
+  }, []);
 
   useEffect(() => {
     if (loading) return;
+    if (isGuest()) {
+      // Demo mode — everything lives in the local store on this device.
+      setHydrated(true);
+      return;
+    }
     if (!user) {
       nav({ to: "/auth" });
       return;
@@ -50,7 +60,7 @@ export function AuthGate({
   }, [hydrated, requireOnboarded, nav]);
 
 
-  if (loading || !user || !hydrated) {
+  if (loading || (!user && !guest) || !hydrated) {
     return (
       <div
         className="min-h-dvh flex flex-col items-center justify-center gap-3 px-6 text-center"
@@ -61,6 +71,7 @@ export function AuthGate({
       </div>
     );
   }
+
 
   return <>{children}</>;
 }
