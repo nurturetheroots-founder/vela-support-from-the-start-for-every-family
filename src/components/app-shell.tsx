@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart } from "lucide-react";
+import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { problem } from "@/lib/microcopy";
 import { LegalFooter } from "@/components/legal-footer";
+
 
 const nav = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -16,6 +17,7 @@ const nav = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [offline, setOffline] = useState(false);
+  const [openAlerts, setOpenAlerts] = useState(0);
 
   useEffect(() => {
     const sync = () => setOffline(!navigator.onLine);
@@ -27,6 +29,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       window.removeEventListener("offline", sync);
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("escalations")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "open")
+      .then(({ count }) => {
+        if (active) setOpenAlerts(count ?? 0);
+      });
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
+
 
   return (
     <div
@@ -46,16 +63,31 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
             <span className="font-serif text-lg font-semibold">Vela</span>
           </Link>
-          <button
-            type="button"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              window.location.href = "/auth";
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/alerts"
+              aria-label={openAlerts > 0 ? `Your notices, ${openAlerts} new` : "Your notices"}
+              className="relative grid place-items-center h-10 w-10 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Bell className="h-5 w-5" />
+              {openAlerts > 0 && (
+                <span className="absolute top-1.5 right-1.5 grid place-items-center min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
+                  {openAlerts}
+                </span>
+              )}
+            </Link>
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                window.location.href = "/auth";
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Sign out
+            </button>
+          </div>
+
         </div>
 
       </header>
