@@ -4,7 +4,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { getState } from "@/lib/store";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Globe2 } from "lucide-react";
+import { Search, MapPin, Globe2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import emptyIllustration from "@/assets/empty-providers.jpg";
 
@@ -39,6 +39,7 @@ export const Route = createFileRoute("/providers")({
 
 const TYPES = [
   "All",
+  "Doula care",
   "Feeding support",
   "Emotional support",
   "Body recovery",
@@ -54,9 +55,23 @@ interface Provider {
   city: string;
   languages: string;
   blurb: string;
+  url?: string;
+  urlLabel?: string;
 }
 
 const providers: Provider[] = [
+  {
+    id: "p0",
+    name: "Ashlee McKenzie",
+    credential: "Nurture The Roots",
+    type: "Doula care",
+    city: "San Francisco Bay Area, CA",
+    languages: "English",
+    blurb:
+      "Postpartum doula support, newborn care specialist services, and fourth trimester coaching — newborn communication, cues and states, and responsive care in your home.",
+    url: "https://nurturetheroots.co",
+    urlLabel: "nurturetheroots.co",
+  },
   {
     id: "p1",
     name: "Maya Reyes",
@@ -167,6 +182,18 @@ function ProvidersPage() {
                   <Globe2 className="h-3 w-3" /> {p.languages}
                 </div>
               </div>
+
+              {p.url && (
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                >
+                  {p.urlLabel ?? "Visit website"}
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
             </article>
           ))}
         </div>
