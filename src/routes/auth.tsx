@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LegalFooter } from "@/components/legal-footer";
+import { startGuest } from "@/lib/guest";
 
 function safeNext(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
