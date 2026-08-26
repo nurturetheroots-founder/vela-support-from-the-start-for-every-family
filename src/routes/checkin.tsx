@@ -11,7 +11,25 @@ import { cn } from "@/lib/utils";
 import { Heart, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/checkin")({
-  head: () => ({ meta: [{ title: "Daily check-in — Vela" }] }),
+  head: () => ({
+    meta: [
+      { title: "Daily Check-In — Vela" },
+      {
+        name: "description",
+        content:
+          "A one-minute daily check-in on mood, sleep, and feeding, so patterns show up early and support arrives sooner.",
+      },
+      { property: "og:title", content: "Daily Check-In — Vela" },
+      {
+        property: "og:description",
+        content: "One minute on mood, sleep, and feeding — so patterns show up early.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/checkin" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: () => (
     <AuthGate requireOnboarded>
       <CheckinPage />

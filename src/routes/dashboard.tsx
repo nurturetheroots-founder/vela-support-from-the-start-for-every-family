@@ -9,7 +9,25 @@ import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Home — Vela" }] }),
+  head: () => ({
+    meta: [
+      { title: "Your Home Base — Vela" },
+      {
+        name: "description",
+        content:
+          "Your postpartum home base: today's check-in, this week's learning, screening reminders, and gentle nudges toward support.",
+      },
+      { property: "og:title", content: "Your Home Base — Vela" },
+      {
+        property: "og:description",
+        content: "Today's check-in, this week's learning, and screening reminders in one calm place.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/dashboard" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: () => (
     <AuthGate requireOnboarded>
       <Dashboard />

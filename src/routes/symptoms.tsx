@@ -12,7 +12,9 @@ export const Route = createFileRoute("/symptoms")({
       { property: "og:description", content: "Know which postpartum symptoms need attention now, which need a call to your provider, and which are common in recovery." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/symptoms" },
     ],
+    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/symptoms" }],
   }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {

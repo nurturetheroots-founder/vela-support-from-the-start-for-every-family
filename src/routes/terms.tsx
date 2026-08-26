@@ -12,7 +12,9 @@ export const Route = createFileRoute("/terms")({
       { property: "og:description", content: "What Vela is, what it isn't, and where to turn in a crisis." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/terms" },
     ],
+    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/terms" }],
   }),
   component: TermsPage,
 });

@@ -19,9 +19,22 @@ import { CalendarIcon, Check, Heart, Sparkles, AlertCircle, Loader2 } from "luci
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Welcome to Vela" },
-      { name: "description", content: "Set up your Vela profile in a few gentle steps." },
+      { title: "Get Started — Vela Fourth Trimester Care" },
+      {
+        name: "description",
+        content:
+          "A few gentle steps to set up your Vela companion: your baby's age, what you'd like support with, and what to expect week by week.",
+      },
+      { property: "og:title", content: "Get Started — Vela Fourth Trimester Care" },
+      {
+        property: "og:description",
+        content: "A few gentle steps to set up your Vela companion and see what to expect week by week.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/onboarding" },
+      { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/onboarding" }],
   }),
   component: () => (
     <AuthGate>

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SymptomsRouteImport } from './routes/symptoms'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScreeningRouteImport } from './routes/screening'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -36,6 +37,11 @@ const SymptomsRoute = SymptomsRouteImport.update({
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScreeningRoute = ScreeningRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/providers': typeof ProvidersRoute
   '/screening': typeof ScreeningRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
   '/terms': typeof TermsRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/providers': typeof ProvidersRoute
   '/screening': typeof ScreeningRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
   '/terms': typeof TermsRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/providers': typeof ProvidersRoute
   '/screening': typeof ScreeningRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/symptoms': typeof SymptomsRoute
   '/terms': typeof TermsRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/providers'
     | '/screening'
+    | '/sitemap.xml'
     | '/support'
     | '/symptoms'
     | '/terms'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/providers'
     | '/screening'
+    | '/sitemap.xml'
     | '/support'
     | '/symptoms'
     | '/terms'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/providers'
     | '/screening'
+    | '/sitemap.xml'
     | '/support'
     | '/symptoms'
     | '/terms'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   ProvidersRoute: typeof ProvidersRoute
   ScreeningRoute: typeof ScreeningRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
   SymptomsRoute: typeof SymptomsRoute
   TermsRoute: typeof TermsRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/screening': {
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   ProvidersRoute: ProvidersRoute,
   ScreeningRoute: ScreeningRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
   SymptomsRoute: SymptomsRoute,
   TermsRoute: TermsRoute,

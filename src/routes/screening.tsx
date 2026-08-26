@@ -8,7 +8,25 @@ import { ShieldCheck, Phone, LifeBuoy } from "lucide-react";
 import { legal } from "@/lib/microcopy";
 
 export const Route = createFileRoute("/screening")({
-  head: () => ({ meta: [{ title: "EPDS screening — Vela" }] }),
+  head: () => ({
+    meta: [
+      { title: "EPDS Mood Screening — Vela" },
+      {
+        name: "description",
+        content:
+          "A gentle ten-question mood screening used after birth, with a clear explanation of your result and where to turn next.",
+      },
+      { property: "og:title", content: "EPDS Mood Screening — Vela" },
+      {
+        property: "og:description",
+        content: "Ten gentle questions, a clear result, and warm next steps if something needs attention.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vela-maternity-care.lovable.app/screening" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/screening" }],
+  }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
       throw redirect({ to: "/onboarding" });

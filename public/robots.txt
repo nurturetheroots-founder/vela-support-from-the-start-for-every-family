@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vela-maternity-care.lovable.app/sitemap.xml
