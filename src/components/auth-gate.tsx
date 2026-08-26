@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { fetchCheckins, fetchParent, rowToCheckin, rowToProfile } from "@/lib/vela-db";
 import { getState, hydrateFromRemote } from "@/lib/store";
+import { isGuest } from "@/lib/guest";
 
 /**
  * Client-side gate for the signed-in experience. Renders a calm waiting state
