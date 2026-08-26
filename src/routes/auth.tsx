@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LegalFooter } from "@/components/legal-footer";
 
+function safeNext(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  return value.startsWith("/") && !value.startsWith("//") ? value : undefined;
+}
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>) => ({ next: safeNext(s.next) }),
   head: () => ({
     meta: [
       { title: "Sign in — Vela" },
@@ -24,6 +30,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const nav = useNavigate();
+  const { next } = Route.useSearch();
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [name, setName] = useState("");
@@ -33,8 +40,11 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && user) nav({ to: "/dashboard" });
-  }, [loading, user, nav]);
+    if (!loading && user) {
+      if (next) window.location.href = next;
+      else nav({ to: "/dashboard" });
+    }
+  }, [loading, user, nav, next]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +56,7 @@ function AuthPage() {
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}${next ?? "/dashboard"}`,
             data: { display_name: name.trim() },
           },
         });
@@ -55,7 +65,8 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
       }
-      nav({ to: "/onboarding" });
+      if (next) window.location.href = next;
+      else nav({ to: "/onboarding" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something didn't go through. Try again in a moment.");
     } finally {
