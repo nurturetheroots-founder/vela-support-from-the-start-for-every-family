@@ -188,8 +188,18 @@ function Landing() {
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         )}
+        <button
+          type="button"
+          onClick={() => {
+            startGuest();
+            window.location.href = "/onboarding";
+          }}
+          className="block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+        >
+          View demo — continue as guest
+        </button>
         <Link
-          to="/onboarding"
+          to="/auth"
           className="block text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
         >
           I already have an account
