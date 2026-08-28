@@ -63,6 +63,9 @@ function Dashboard() {
         <h1 className="text-3xl font-serif mt-1">{greeting}{profile.name ? `, ${profile.name}` : ""}.</h1>
       </div>
 
+      <AgentStatus className="mb-5" />
+
+
       {flagged && (
         <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3">
           <AlertTriangle className="h-5 w-5 text-clay mt-0.5" />
