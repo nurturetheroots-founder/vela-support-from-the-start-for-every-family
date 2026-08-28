@@ -55,7 +55,7 @@ export const heading = {
   screening: "A gentle check-in on you",
   support: "Support",
   directory: "Provider & specialist directory",
-  symptoms: "Your safety & care always come first",
+  
   timeline: "What to expect next.",
 } as const;
 
