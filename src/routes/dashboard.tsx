@@ -9,6 +9,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
+import { AgentStatus } from "@/components/agent-status";
+import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -62,6 +64,9 @@ function Dashboard() {
         <p className="text-sm text-primary">{label}</p>
         <h1 className="text-3xl font-serif mt-1">{greeting}{profile.name ? `, ${profile.name}` : ""}.</h1>
       </div>
+
+      <AgentStatus className="mb-5" />
+
 
       {flagged && (
         <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3">
@@ -191,13 +196,15 @@ function HandoverReportCard() {
 
   const generate = async () => {
     setPending(true);
+    const taskId = startAgentTask("Vela is securely coordinating your care plan…");
     try {
       // Placeholder until the report API is wired up.
-      await new Promise((r) => setTimeout(r, 900));
+      await new Promise((r) => setTimeout(r, 1600));
       toast("Report coming soon", {
         description: "We'll gather your check-ins and screenings into a one-page summary for your pediatrician.",
       });
     } finally {
+      endAgentTask(taskId);
       setPending(false);
     }
   };
