@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
+import { GentleLoading } from "@/components/gentle-loading";
 
 export function ShareCheckinsCard() {
   const [pending, setPending] = useState(false);
