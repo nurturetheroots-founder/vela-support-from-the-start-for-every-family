@@ -193,6 +193,7 @@ function Dashboard() {
 
 function HandoverReportCard() {
   const [pending, setPending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const generate = async () => {
     setPending(true);
@@ -200,9 +201,7 @@ function HandoverReportCard() {
     try {
       // Placeholder until the report API is wired up.
       await new Promise((r) => setTimeout(r, 1600));
-      toast("Report coming soon", {
-        description: "We'll gather your check-ins and screenings into a one-page summary for your pediatrician.",
-      });
+      setSent(true);
     } finally {
       endAgentTask(taskId);
       setPending(false);
