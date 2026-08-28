@@ -18,10 +18,10 @@ export function ShareCheckinsCard() {
 
   const share = async () => {
     setPending(true);
-    const taskId = startAgentTask("Vela is gently preparing your check-in summary…");
+    const taskId = startAgentTask("Vela is gently organizing your thoughts for your support team…");
     try {
       // Placeholder until the secure share API is wired up.
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise((r) => setTimeout(r, 2400));
       setShared(true);
     } finally {
       endAgentTask(taskId);
