@@ -6,11 +6,12 @@ import { useStore, weekNumber, todayStr, nextScreeningDue } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight, Sun, FileHeart, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+
 import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
 import { AgentStatus } from "@/components/agent-status";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
+import { HandoverSentDialog } from "@/components/handover-sent-dialog";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -193,6 +194,7 @@ function Dashboard() {
 
 function HandoverReportCard() {
   const [pending, setPending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const generate = async () => {
     setPending(true);
@@ -200,9 +202,7 @@ function HandoverReportCard() {
     try {
       // Placeholder until the report API is wired up.
       await new Promise((r) => setTimeout(r, 1600));
-      toast("Report coming soon", {
-        description: "We'll gather your check-ins and screenings into a one-page summary for your pediatrician.",
-      });
+      setSent(true);
     } finally {
       endAgentTask(taskId);
       setPending(false);
@@ -241,6 +241,7 @@ function HandoverReportCard() {
           )}
         </Button>
       </div>
+      <HandoverSentDialog open={sent} onOpenChange={setSent} />
     </Card>
   );
 }
