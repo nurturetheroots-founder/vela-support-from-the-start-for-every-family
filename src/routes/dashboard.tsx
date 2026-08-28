@@ -11,6 +11,7 @@ import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
 import { AgentStatus } from "@/components/agent-status";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
+import { HandoverSentDialog } from "@/components/handover-sent-dialog";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
