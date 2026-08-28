@@ -9,6 +9,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
+import { AgentStatus } from "@/components/agent-status";
+import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
