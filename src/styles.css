@@ -178,3 +178,18 @@
     letter-spacing: -0.01em;
   }
 }
+
+/* Gentle, non-robotic loading motion */
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@keyframes gentle-fade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.animate-gentle-pulse { animation: gentle-pulse 2.4s ease-in-out infinite; }
+.animate-gentle-fade { animation: gentle-fade 3.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-gentle-pulse, .animate-gentle-fade { animation: none; opacity: 0.8; }
+}
