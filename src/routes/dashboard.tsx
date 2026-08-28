@@ -194,13 +194,15 @@ function HandoverReportCard() {
 
   const generate = async () => {
     setPending(true);
+    const taskId = startAgentTask("Vela is securely coordinating your care plan…");
     try {
       // Placeholder until the report API is wired up.
-      await new Promise((r) => setTimeout(r, 900));
+      await new Promise((r) => setTimeout(r, 1600));
       toast("Report coming soon", {
         description: "We'll gather your check-ins and screenings into a one-page summary for your pediatrician.",
       });
     } finally {
+      endAgentTask(taskId);
       setPending(false);
     }
   };
