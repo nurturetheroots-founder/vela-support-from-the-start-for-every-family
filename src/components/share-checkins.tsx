@@ -43,28 +43,25 @@ export function ShareCheckinsCard() {
         </div>
       </div>
       <div className="mt-4">
-        <Button
-          onClick={share}
-          disabled={pending}
-          variant="secondary"
-          className="w-full rounded-full h-12 bg-card/80 hover:bg-card border border-border/60 shadow-sm transition-all hover:shadow-md disabled:opacity-70"
-        >
-          {pending ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Getting your summary ready…
-            </>
-          ) : (
-            <>
+        {pending ? (
+          <GentleLoading />
+        ) : (
+          <>
+            <Button
+              onClick={share}
+              variant="secondary"
+              className="w-full rounded-full h-12 bg-card/80 hover:bg-card border border-border/60 shadow-sm transition-all hover:shadow-md"
+            >
               <HeartHandshake className="h-4 w-4 text-primary" />
               Share my check-ins with my support team
-            </>
-          )}
-        </Button>
-        <p className="text-xs text-muted-foreground mt-3 text-center leading-relaxed">
-          Sent securely. Nothing is shared without you asking.
-        </p>
+            </Button>
+            <p className="text-xs text-muted-foreground mt-3 text-center leading-relaxed">
+              Sent securely. Nothing is shared without you asking.
+            </p>
+          </>
+        )}
       </div>
+
 
       <Dialog open={shared} onOpenChange={setShared}>
         <DialogContent className="rounded-2xl">
