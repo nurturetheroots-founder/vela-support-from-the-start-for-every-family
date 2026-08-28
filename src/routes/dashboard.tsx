@@ -184,6 +184,58 @@ function Dashboard() {
   );
 }
 
+function HandoverReportCard() {
+  const [pending, setPending] = useState(false);
+
+  const generate = async () => {
+    setPending(true);
+    try {
+      // Placeholder until the report API is wired up.
+      await new Promise((r) => setTimeout(r, 900));
+      toast("Report coming soon", {
+        description: "We'll gather your check-ins and screenings into a one-page summary for your pediatrician.",
+      });
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <Card>
+      <div className="flex items-start gap-3">
+        <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
+          <FileHeart className="h-5 w-5" />
+        </span>
+        <div className="flex-1">
+          <h2 className="font-serif text-xl">Pediatrician handover</h2>
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+            A calm, one-page summary of how you and baby have been doing — easy to share at your next visit.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4">
+        <Button
+          onClick={generate}
+          disabled={pending}
+          className="w-full rounded-full h-12 shadow-sm transition-all hover:shadow-md disabled:opacity-70"
+        >
+          {pending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Preparing your summary…
+            </>
+          ) : (
+            <>
+              <FileHeart className="h-4 w-4" />
+              Generate Pediatrician Handover Report
+            </>
+          )}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 function Card({ children }: { children: React.ReactNode }) {
   return <div className="rounded-2xl bg-card/70 border border-border/60 p-5 mb-4 shadow-sm">{children}</div>;
 }
