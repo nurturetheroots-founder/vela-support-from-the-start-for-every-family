@@ -173,6 +173,9 @@ function Dashboard() {
 
       <InfantStatesModule />
 
+      <HandoverReportCard />
+
+
       <div className="grid grid-cols-2 gap-3">
         <QuickLink to="/support" icon={MessageCircleHeart} label="Peer community" />
         <QuickLink to="/support" icon={MessageCircleHeart} label="Book a doula" />
