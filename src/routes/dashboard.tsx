@@ -12,6 +12,8 @@ import { InfantStatesModule } from "@/components/infant-states";
 import { AgentStatus } from "@/components/agent-status";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
 import { HandoverSentDialog } from "@/components/handover-sent-dialog";
+import { ShareCheckinsCard } from "@/components/share-checkins";
+
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
