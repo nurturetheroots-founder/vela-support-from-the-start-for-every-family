@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HeartHandshake, Check } from "lucide-react";
+import { HeartHandshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,28 +65,43 @@ export function ShareCheckinsCard() {
 
 
       <Dialog open={shared} onOpenChange={setShared}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <span className="grid place-items-center h-11 w-11 rounded-full bg-primary/10 text-primary mb-2">
-              <Check className="h-5 w-5" />
+        <DialogContent className="rounded-3xl border-border/60 bg-card/95 backdrop-blur px-6 py-7 sm:max-w-md">
+          <div className="relative mx-auto mb-1">
+            <span className="absolute inset-0 rounded-full bg-primary/15 blur-xl animate-gentle-fade" aria-hidden="true" />
+            <span className="relative grid place-items-center h-14 w-14 rounded-full bg-primary/10 text-primary">
+              <HeartHandshake className="h-6 w-6" />
             </span>
-            <DialogTitle className="font-serif text-xl text-left">Your summary is on its way</DialogTitle>
-            <DialogDescription className="text-left leading-relaxed">
-              Your check-ins have been securely shared with your support team. This is a snapshot of how
-              your days have felt — not an assessment or diagnosis. Reaching out was a caring thing to do.
+          </div>
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="font-serif text-2xl leading-snug text-center">
+              Your summary has been shared
+            </DialogTitle>
+            <DialogDescription className="text-center text-base leading-relaxed text-muted-foreground">
+              Your check-in summary has been securely shared with your support network. You are doing an
+              incredible job, and you don't have to carry this alone.
             </DialogDescription>
           </DialogHeader>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            If you ever need someone right away, the National Maternal Mental Health Hotline is
-            1-833-943-5746, and 988 is available any hour.
+
+          <div className="mt-2 rounded-2xl bg-secondary/70 px-4 py-3">
+            <p className="text-sm leading-relaxed text-muted-foreground text-center">
+              This is simply a picture of how your days have felt — nothing more. Asking someone to walk
+              beside you is a strong, loving thing to do.
+            </p>
+          </div>
+
+          <p className="mt-1 text-xs text-muted-foreground leading-relaxed text-center">
+            If you'd like someone to talk to right now, the National Maternal Mental Health Hotline is
+            1-833-943-5746, and 988 is there any hour, any day.
           </p>
+
           <DialogFooter>
-            <Button className="rounded-full w-full" onClick={() => setShared(false)}>
+            <Button className="rounded-full w-full h-12" onClick={() => setShared(false)}>
               Back to my day
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }
