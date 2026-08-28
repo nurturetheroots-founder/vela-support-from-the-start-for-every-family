@@ -4,7 +4,9 @@ import { AppShell } from "@/components/app-shell";
 import { AuthGate } from "@/components/auth-gate";
 import { useStore, weekNumber, todayStr, nextScreeningDue } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight, Sun } from "lucide-react";
+import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight, Sun, FileHeart, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
 
@@ -173,11 +175,66 @@ function Dashboard() {
 
       <InfantStatesModule />
 
+      <HandoverReportCard />
+
+
       <div className="grid grid-cols-2 gap-3">
         <QuickLink to="/support" icon={MessageCircleHeart} label="Peer community" />
         <QuickLink to="/support" icon={MessageCircleHeart} label="Book a doula" />
       </div>
     </AppShell>
+  );
+}
+
+function HandoverReportCard() {
+  const [pending, setPending] = useState(false);
+
+  const generate = async () => {
+    setPending(true);
+    try {
+      // Placeholder until the report API is wired up.
+      await new Promise((r) => setTimeout(r, 900));
+      toast("Report coming soon", {
+        description: "We'll gather your check-ins and screenings into a one-page summary for your pediatrician.",
+      });
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <Card>
+      <div className="flex items-start gap-3">
+        <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
+          <FileHeart className="h-5 w-5" />
+        </span>
+        <div className="flex-1">
+          <h2 className="font-serif text-xl">Pediatrician handover</h2>
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+            A calm, one-page summary of how you and baby have been doing — easy to share at your next visit.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4">
+        <Button
+          onClick={generate}
+          disabled={pending}
+          className="w-full rounded-full h-12 shadow-sm transition-all hover:shadow-md disabled:opacity-70"
+        >
+          {pending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Preparing your summary…
+            </>
+          ) : (
+            <>
+              <FileHeart className="h-4 w-4" />
+              Generate Pediatrician Handover Report
+            </>
+          )}
+        </Button>
+      </div>
+    </Card>
   );
 }
 
