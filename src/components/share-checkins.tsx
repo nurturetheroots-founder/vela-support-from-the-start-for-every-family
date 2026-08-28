@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HeartHandshake, Loader2, Check } from "lucide-react";
+import { HeartHandshake, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
