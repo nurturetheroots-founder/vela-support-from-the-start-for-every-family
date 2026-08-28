@@ -240,6 +240,7 @@ function HandoverReportCard() {
           )}
         </Button>
       </div>
+      <HandoverSentDialog open={sent} onOpenChange={setSent} />
     </Card>
   );
 }
