@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SymptomsRouteImport } from './routes/symptoms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScreeningRouteImport } from './routes/screening'
@@ -34,11 +33,6 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SymptomsRoute = SymptomsRouteImport.update({
-  id: '/symptoms',
-  path: '/symptoms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SupportRoute = SupportRouteImport.update({
@@ -154,7 +148,6 @@ export interface FileRoutesByFullPath {
   '/screening': typeof ScreeningRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
-  '/symptoms': typeof SymptomsRoute
   '/terms': typeof TermsRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -177,7 +170,6 @@ export interface FileRoutesByTo {
   '/screening': typeof ScreeningRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
-  '/symptoms': typeof SymptomsRoute
   '/terms': typeof TermsRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -201,7 +193,6 @@ export interface FileRoutesById {
   '/screening': typeof ScreeningRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
-  '/symptoms': typeof SymptomsRoute
   '/terms': typeof TermsRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -226,7 +217,6 @@ export interface FileRouteTypes {
     | '/screening'
     | '/sitemap.xml'
     | '/support'
-    | '/symptoms'
     | '/terms'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -249,7 +239,6 @@ export interface FileRouteTypes {
     | '/screening'
     | '/sitemap.xml'
     | '/support'
-    | '/symptoms'
     | '/terms'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -272,7 +261,6 @@ export interface FileRouteTypes {
     | '/screening'
     | '/sitemap.xml'
     | '/support'
-    | '/symptoms'
     | '/terms'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -296,7 +284,6 @@ export interface RootRouteChildren {
   ScreeningRoute: typeof ScreeningRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
-  SymptomsRoute: typeof SymptomsRoute
   TermsRoute: typeof TermsRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -313,13 +300,6 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/symptoms': {
-      id: '/symptoms'
-      path: '/symptoms'
-      fullPath: '/symptoms'
-      preLoaderRoute: typeof SymptomsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/support': {
@@ -472,7 +452,6 @@ const rootRouteChildren: RootRouteChildren = {
   ScreeningRoute: ScreeningRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
-  SymptomsRoute: SymptomsRoute,
   TermsRoute: TermsRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
