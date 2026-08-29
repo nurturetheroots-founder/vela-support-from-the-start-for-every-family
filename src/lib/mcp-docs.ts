@@ -120,6 +120,49 @@ export function clientConfigExample(): string {
   );
 }
 
+/** Copy-ready Cloud Shell setup: env vars + discovery + a first authenticated call. */
+export function cloudShellSnippet(): string {
+  return [
+    "# 1. Point your agent at Vela's MCP server",
+    `export VELA_MCP_URL="${MCP_ENDPOINT}"`,
+    `export VELA_MCP_METADATA="${MCP_METADATA_URL}"`,
+    "",
+    "# 2. Discover the authorization server (no token needed)",
+    'curl -s "$VELA_MCP_METADATA" | jq .',
+    "",
+    "# 3. After the OAuth 2.1 + PKCE flow, export the parent's access token",
+    'export VELA_ACCESS_TOKEN="<paste access token>"',
+    "",
+    "# 4. Verify the connection by listing the tools your agent can call",
+    'curl -s -X POST "$VELA_MCP_URL" \\',
+    '  -H "Authorization: Bearer $VELA_ACCESS_TOKEN" \\',
+    '  -H "Content-Type: application/json" \\',
+    '  -H "Accept: application/json, text/event-stream" \\',
+    `  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq .`,
+  ].join("\n");
+}
+
+/** Node/AI SDK client an in-Cloud-Shell agent can run directly. */
+export function cloudShellNodeSnippet(): string {
+  return [
+    "// npm i @ai-sdk/mcp",
+    'import { createMCPClient } from "@ai-sdk/mcp";',
+    "",
+    "const client = await createMCPClient({",
+    "  transport: {",
+    '    type: "http",',
+    "    url: process.env.VELA_MCP_URL!,",
+    "    headers: { Authorization: `Bearer ${process.env.VELA_ACCESS_TOKEN}` },",
+    '    redirect: "error",',
+    "  },",
+    "});",
+    "",
+    "const tools = await client.tools(); // pass into streamText/generateText",
+    "console.log(Object.keys(tools));",
+    "await client.close();",
+  ].join("\n");
+}
+
 export function requiredFields(schema?: JsonSchema): string[] {
   return schema?.required ?? [];
 }
