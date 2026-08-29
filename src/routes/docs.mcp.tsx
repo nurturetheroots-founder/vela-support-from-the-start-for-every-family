@@ -124,6 +124,24 @@ function McpDocsPage() {
       </section>
 
       <section className="mt-8">
+        <h2 className="font-serif text-2xl">Cloud Shell quickstart</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Running your agent from Cloud Shell (or any terminal)? Paste this in to set the environment,
+          discover the authorization server, and confirm the tools your agent can reach.
+        </p>
+        <CopyableCode label="Cloud Shell setup">{cloudShellSnippet()}</CopyableCode>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          Once the token is in place, this is the smallest client that hands Vela&apos;s tools to a model.
+        </p>
+        <CopyableCode label="Node MCP client">{cloudShellNodeSnippet()}</CopyableCode>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          Keep the access token in an environment variable — never commit it, and never pass it into model
+          context. Each token is scoped to one parent, so tools only ever see that family&apos;s data.
+        </p>
+      </section>
+
+
+      <section className="mt-8">
         <h2 className="font-serif text-2xl">Authentication</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           Every tool call requires a parent&apos;s OAuth 2.1 access token. There are no API keys and no
