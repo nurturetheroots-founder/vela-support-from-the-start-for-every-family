@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 import {
   MCP_ENDPOINT,
   MCP_METADATA_URL,
   SITE_ORIGIN,
   clientConfigExample,
+  cloudShellNodeSnippet,
+  cloudShellSnippet,
   curlExample,
   mcpManifest,
   schemaFields,
@@ -39,6 +43,37 @@ function Code({ children }: { children: string }) {
   );
 }
 
+function CopyableCode({ children, label }: { children: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(children);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <div className="relative mt-3">
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={copied ? `${label} copied` : `Copy ${label}`}
+        className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-background/15 px-3 py-1.5 text-[11px] font-medium text-background transition hover:bg-background/25"
+      >
+        {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+        {copied ? "Copied" : "Copy"}
+      </button>
+      <pre className="overflow-x-auto rounded-xl bg-foreground/90 p-4 pt-12 text-xs leading-relaxed text-background">
+        <code>{children}</code>
+      </pre>
+    </div>
+  );
+}
+
 function Badge({ children }: { children: string }) {
   return (
     <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium tracking-wide text-primary">
@@ -46,6 +81,7 @@ function Badge({ children }: { children: string }) {
     </span>
   );
 }
+
 
 function McpDocsPage() {
   const { tools, server } = mcpManifest.mcp;
