@@ -88,7 +88,7 @@ function HandoverPage() {
       : 0;
 
   const sleepScore = (s: Checkin["sleep"]) =>
-    s === "good" ? 5 : s === "fair" ? 3.5 : s === "rough" ? 2 : 2.5;
+    s === "good" ? 5 : s === "fair" ? 3.5 : s === "poor" ? 2 : 2.5;
   const longestSleep = recent.length
     ? Math.round(avg(recent.map((c) => sleepScore(c.sleep))) * 10) / 10
     : 3;
