@@ -17,6 +17,7 @@ import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MetaPreviewRouteImport } from './routes/meta-preview'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as HandoverRouteImport } from './routes/handover'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckinRouteImport } from './routes/checkin'
@@ -68,6 +69,11 @@ const MetaPreviewRoute = MetaPreviewRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HandoverRoute = HandoverRouteImport.update({
+  id: '/handover',
+  path: '/handover',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EducationRoute = EducationRouteImport.update({
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
+  '/handover': typeof HandoverRoute
   '/mcp': typeof McpRoute
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
+  '/handover': typeof HandoverRoute
   '/mcp': typeof McpRoute
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
+  '/handover': typeof HandoverRoute
   '/mcp': typeof McpRoute
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/education'
+    | '/handover'
     | '/mcp'
     | '/meta-preview'
     | '/onboarding'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/education'
+    | '/handover'
     | '/mcp'
     | '/meta-preview'
     | '/onboarding'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/checkin'
     | '/dashboard'
     | '/education'
+    | '/handover'
     | '/mcp'
     | '/meta-preview'
     | '/onboarding'
@@ -277,6 +289,7 @@ export interface RootRouteChildren {
   CheckinRoute: typeof CheckinRoute
   DashboardRoute: typeof DashboardRoute
   EducationRoute: typeof EducationRoute
+  HandoverRoute: typeof HandoverRoute
   McpRoute: typeof McpRoute
   MetaPreviewRoute: typeof MetaPreviewRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/handover': {
+      id: '/handover'
+      path: '/handover'
+      fullPath: '/handover'
+      preLoaderRoute: typeof HandoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/education': {
@@ -445,6 +465,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckinRoute: CheckinRoute,
   DashboardRoute: DashboardRoute,
   EducationRoute: EducationRoute,
+  HandoverRoute: HandoverRoute,
   McpRoute: McpRoute,
   MetaPreviewRoute: MetaPreviewRoute,
   OnboardingRoute: OnboardingRoute,
