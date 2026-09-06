@@ -61,7 +61,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="border border-slate-300 rounded-md p-4 break-inside-avoid print:rounded-none">
-      <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-900 border-b border-slate-300 pb-2 mb-3">
+      <h2 className="font-sans text-xs font-semibold uppercase tracking-[0.12em] text-slate-900 border-b border-slate-300 pb-2 mb-3">
         {title}
       </h2>
       {children}
@@ -88,7 +88,7 @@ export function PediatricianHandover({ data = defaultHandoverData }: { data?: Ha
 
       {/* Header */}
       <header className="border-b-2 border-slate-900 pb-4 mb-5">
-        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="font-sans text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
           Vela Clinical Dyad Summary
         </h1>
         <dl className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3">
