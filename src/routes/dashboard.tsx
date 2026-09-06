@@ -71,6 +71,8 @@ function Dashboard() {
 
       <AgentStatus className="mb-5" />
 
+      <DraftApprovalQueue />
+
 
       {flagged && (
         <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3">
