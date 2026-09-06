@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import { PediatricianHandover } from "@/components/PediatricianHandover";
 import type { PediatricianHandoverData } from "@/types/handover";
-import { useStore, weekNumber } from "@/lib/store";
+import { useStore, weekNumber, type Checkin, type Profile } from "@/lib/store";
+import { useAuth } from "@/hooks/use-auth";
+import { fetchCheckins, fetchParent, rowToCheckin, rowToProfile } from "@/lib/vela-db";
 
 export const Route = createFileRoute("/handover")({
   head: () => ({
