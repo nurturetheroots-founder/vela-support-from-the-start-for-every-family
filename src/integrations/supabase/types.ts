@@ -431,6 +431,8 @@ export type Database = {
       }
       review_queue: {
         Row: {
+          category: string | null
+          clinical_context: string | null
           created_at: string
           family_id: string
           id: string
@@ -440,6 +442,8 @@ export type Database = {
           status: string
         }
         Insert: {
+          category?: string | null
+          clinical_context?: string | null
           created_at?: string
           family_id: string
           id?: string
@@ -449,6 +453,8 @@ export type Database = {
           status?: string
         }
         Update: {
+          category?: string | null
+          clinical_context?: string | null
           created_at?: string
           family_id?: string
           id?: string

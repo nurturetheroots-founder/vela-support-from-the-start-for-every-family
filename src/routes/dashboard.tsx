@@ -12,6 +12,7 @@ import { InfantStatesModule } from "@/components/infant-states";
 import { AgentStatus } from "@/components/agent-status";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
 import { ShareCheckinsCard } from "@/components/share-checkins";
+import { DraftApprovalQueue } from "@/components/DraftApprovalQueue";
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -70,6 +71,8 @@ function Dashboard() {
       <InfantStatesModule />
 
       <AgentStatus className="mb-5" />
+
+      <DraftApprovalQueue />
 
 
       {flagged && (
