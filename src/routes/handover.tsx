@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
-import { PediatricianHandover, type HandoverData } from "@/components/PediatricianHandover";
+import { PediatricianHandover } from "@/components/PediatricianHandover";
+import type { PediatricianHandoverData } from "@/types/handover";
 import { useStore, weekNumber } from "@/lib/store";
 
 export const Route = createFileRoute("/handover")({
@@ -43,44 +44,69 @@ function HandoverPage() {
     : 2;
 
   const recentSleep = checkins.slice(-3).map((c) => c.sleep);
-  const longestSleep = recentSleep.includes("good")
-    ? "4–5 hours"
-    : recentSleep.includes("fair")
-      ? "3 hours"
-      : "2 hours";
+  const longestSleep = recentSleep.includes("good") ? 5 : recentSleep.includes("fair") ? 3 : 2;
 
   const stateCounts = infantStates.reduce<Record<string, number>>((acc, l) => {
     acc[l.stateLabel] = (acc[l.stateLabel] ?? 0) + 1;
     return acc;
   }, {});
-  const predominant =
-    Object.entries(stateCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Quiet alert";
+  const topState = Object.entries(stateCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Quiet alert";
+  const lower = topState.toLowerCase();
+  const predominant: PediatricianHandoverData["stateOrganization"]["predominantDaytimeState"] =
+    lower.includes("crying") || lower.includes("fussy")
+      ? "Fussy / Crying (State 6)"
+      : lower.includes("active")
+        ? "Active Alert (State 5)"
+        : "Quiet Alert (State 4)";
 
-  const milestone =
-    ageDays <= 21 ? "2-Week Well-Child" : ageDays <= 45 ? "1-Month Well-Child" : "2-Month Well-Child";
+  const milestone: PediatricianHandoverData["wellChildMilestone"] =
+    ageDays <= 21 ? "2-Week" : ageDays <= 45 ? "1-Month" : ageDays <= 75 ? "2-Month" : "Custom";
 
-  const data: HandoverData = {
-    patientName: profile.name ? `Baby ${profile.name}` : "Baby (demo)",
-    dateOfBirth: profile.birthDate ?? "—",
-    chronologicalAge: `${ageDays} days`,
-    gestationalAge: "39 weeks 9 days at birth",
-    visitMilestone: milestone,
-    motherName: profile.name || "Parent (demo)",
-    nutrition: {
-      avgFeeds: "9 per 24h",
-      modality: "Direct latch + expressed milk",
-      wetDiapers: "7 per 24h",
-      dirtyDiapers: "3 per 24h",
-      stoolCharacteristic: "Normal seedy yellow",
+  const data: PediatricianHandoverData = {
+    visitDate: new Date().toISOString().slice(0, 10),
+    wellChildMilestone: milestone,
+    infant: {
+      fullName: profile.name ? `Baby ${profile.name}` : "Baby (demo)",
+      dob: profile.birthDate ?? "—",
+      chronologicalAgeDays: ageDays,
+      gestationalAgeWeeks: 39,
+      birthWeightLbs: 7.4,
+      lastRecordedWeightLbs: 8.1,
     },
-    regulation: {
-      primaryDaytimeState: predominant,
-      avgSoothingLatency: "5–15 min",
-      autonomicNotes:
-        "Color stable during feeds; occasional hiccups and mild startle when the room is bright. Settles with containment hold.",
+    maternal: {
+      fullName: profile.name || "Parent (demo)",
+      parity: "G1 P1",
+      deliveryType: "Vaginal",
+      feedingModality: "Direct Latch + EBM",
     },
-    maternal: { longestSleepStretch: longestSleep, epds3Score: epds3 },
-    priorities: [
+    vitalRhythms: {
+      averageFeedsPer24h: 9,
+      elimination: {
+        wetDiapers24h: 7,
+        soiledDiapers24h: 3,
+        stoolConsistency: "Normal Seedy Yellow",
+      },
+      sleepConsolidation: {
+        longestSleepStretchHours: 3.5,
+        nocturnalWakeningIntervalAvgHours: 2,
+      },
+    },
+    stateOrganization: {
+      predominantDaytimeState: predominant,
+      soothabilityLatencyMinutes: "5–15 min",
+      autonomicStabilityNotes: [
+        "Color stable during feeds.",
+        "Occasional hiccups and mild startle when the room is bright.",
+        "Settles with containment hold.",
+      ],
+    },
+    maternalWellbeing: {
+      longestConsolidatedSleepHours: longestSleep,
+      epds3Score: epds3,
+      epds3AlertFlag: epds3 >= 3,
+      supportAtHome: "Partner Present",
+    },
+    targetedQuestionsForMD: [
       "Feeding comfort — latch pain in the evenings",
       "Sleep stretches: what is typical at this age?",
       "Weight gain check and next visit timing",
