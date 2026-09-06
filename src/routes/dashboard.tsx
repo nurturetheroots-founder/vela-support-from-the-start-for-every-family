@@ -206,20 +206,20 @@ function Dashboard() {
 
 function HandoverReportCard() {
   const [pending, setPending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const navigate = useNavigate();
 
   const generate = async () => {
     setPending(true);
     const taskId = startAgentTask("Vela is securely coordinating your care plan…");
     try {
-      // Placeholder until the report API is wired up.
-      await new Promise((r) => setTimeout(r, 1600));
-      setSent(true);
+      await new Promise((r) => setTimeout(r, 900));
+      await navigate({ to: "/handover" });
     } finally {
       endAgentTask(taskId);
       setPending(false);
     }
   };
+
 
   return (
     <Card>
