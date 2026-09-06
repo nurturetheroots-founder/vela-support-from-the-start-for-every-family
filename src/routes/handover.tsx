@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
-import { PediatricianHandover, type HandoverData } from "@/components/PediatricianHandover";
+import { PediatricianHandover } from "@/components/PediatricianHandover";
+import type { PediatricianHandoverData } from "@/types/handover";
 import { useStore, weekNumber } from "@/lib/store";
 
 export const Route = createFileRoute("/handover")({
