@@ -15,6 +15,13 @@
       "when": 1788662773041,
       "tag": "0001_review_queue_draft_metadata",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788673953694,
+      "tag": "0002_review_queue_approved_at",
+      "breakpoints": true
     }
   ]
 }

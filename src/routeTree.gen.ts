@@ -13,6 +13,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScreeningRouteImport } from './routes/screening'
+import { Route as ReviewQueueRouteImport } from './routes/review-queue'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MetaPreviewRouteImport } from './routes/meta-preview'
@@ -49,6 +50,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ScreeningRoute = ScreeningRouteImport.update({
   id: '/screening',
   path: '/screening',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewQueueRoute = ReviewQueueRouteImport.update({
+  id: '/review-queue',
+  path: '/review-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProvidersRoute = ProvidersRouteImport.update({
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
   '/providers': typeof ProvidersRoute
+  '/review-queue': typeof ReviewQueueRoute
   '/screening': typeof ScreeningRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
   '/providers': typeof ProvidersRoute
+  '/review-queue': typeof ReviewQueueRoute
   '/screening': typeof ScreeningRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/meta-preview': typeof MetaPreviewRoute
   '/onboarding': typeof OnboardingRoute
   '/providers': typeof ProvidersRoute
+  '/review-queue': typeof ReviewQueueRoute
   '/screening': typeof ScreeningRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/meta-preview'
     | '/onboarding'
     | '/providers'
+    | '/review-queue'
     | '/screening'
     | '/sitemap.xml'
     | '/support'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/meta-preview'
     | '/onboarding'
     | '/providers'
+    | '/review-queue'
     | '/screening'
     | '/sitemap.xml'
     | '/support'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/meta-preview'
     | '/onboarding'
     | '/providers'
+    | '/review-queue'
     | '/screening'
     | '/sitemap.xml'
     | '/support'
@@ -294,6 +306,7 @@ export interface RootRouteChildren {
   MetaPreviewRoute: typeof MetaPreviewRoute
   OnboardingRoute: typeof OnboardingRoute
   ProvidersRoute: typeof ProvidersRoute
+  ReviewQueueRoute: typeof ReviewQueueRoute
   ScreeningRoute: typeof ScreeningRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
@@ -334,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/screening'
       fullPath: '/screening'
       preLoaderRoute: typeof ScreeningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/review-queue': {
+      id: '/review-queue'
+      path: '/review-queue'
+      fullPath: '/review-queue'
+      preLoaderRoute: typeof ReviewQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/providers': {
@@ -470,6 +490,7 @@ const rootRouteChildren: RootRouteChildren = {
   MetaPreviewRoute: MetaPreviewRoute,
   OnboardingRoute: OnboardingRoute,
   ProvidersRoute: ProvidersRoute,
+  ReviewQueueRoute: ReviewQueueRoute,
   ScreeningRoute: ScreeningRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
