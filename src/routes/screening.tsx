@@ -156,10 +156,9 @@ function CrisisInterceptDialog({ open, onAcknowledge }: { open: boolean; onAckno
   return (
     <Dialog open={open}>
       <DialogContent
-        showCloseButton={false}
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
-        className="max-w-md rounded-3xl border-clay/40 bg-card p-6"
+        className="max-w-md rounded-3xl border-clay/40 bg-card p-6 [&>button:last-child]:hidden"
       >
         <span className="grid h-12 w-12 place-items-center rounded-full bg-clay/15 text-clay">
           <LifeBuoy className="h-6 w-6" />
