@@ -31,10 +31,10 @@ export const Route = createFileRoute("/onboarding")({
         content: "A few gentle steps to set up your Vela companion and see what to expect week by week.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/onboarding" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/onboarding" },
       { name: "twitter:card", content: "summary" },
     ],
-    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/onboarding" }],
+    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/onboarding" }],
   }),
   component: () => (
     <AuthGate>

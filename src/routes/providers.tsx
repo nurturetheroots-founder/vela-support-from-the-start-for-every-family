@@ -25,9 +25,9 @@ export const Route = createFileRoute("/providers")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/providers" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/providers" },
     ],
-    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/providers" }],
+    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/providers" }],
   }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {

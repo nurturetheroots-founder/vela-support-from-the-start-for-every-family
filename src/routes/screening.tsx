@@ -23,10 +23,10 @@ export const Route = createFileRoute("/screening")({
         content: "Ten gentle questions, a clear result, and warm next steps if something needs attention.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/screening" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/screening" },
       { name: "twitter:card", content: "summary" },
     ],
-    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/screening" }],
+    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/screening" }],
   }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {

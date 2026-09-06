@@ -30,7 +30,7 @@ export const Route = createFileRoute("/dashboard")({
         content: "Today's check-in, this week's learning, and screening reminders in one calm place.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/dashboard" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/dashboard" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],

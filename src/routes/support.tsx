@@ -20,10 +20,10 @@ export const Route = createFileRoute("/support")({
         content: "Peer community, sliding-scale doula sessions, and warm therapist referrals.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/support" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/support" },
       { name: "twitter:card", content: "summary" },
     ],
-    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/support" }],
+    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/support" }],
   }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
