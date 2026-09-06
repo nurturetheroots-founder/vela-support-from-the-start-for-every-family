@@ -189,7 +189,8 @@ function Dashboard() {
       <HandoverReportCard />
 
 
-      <HandoverReportCard />
+
+
 
       <ShareCheckinsCard />
 
