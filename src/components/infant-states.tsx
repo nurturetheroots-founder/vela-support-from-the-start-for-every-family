@@ -97,14 +97,12 @@ export const infantStates: InfantState[] = [
 
 export function InfantStatesModule() {
   const [open, setOpen] = useState(false);
-  const [picking, setPicking] = useState(false);
   const [active, setActive] = useState<InfantState | null>(null);
   const logs = useStore((s) => s.infantStates);
   const todayCount = logs.filter((l) => l.date === new Date().toISOString().slice(0, 10)).length;
 
   function choose(s: InfantState) {
     setActive(s);
-    setPicking(false);
     setOpen(true);
   }
 
@@ -127,21 +125,15 @@ export function InfantStatesModule() {
         <div className="flex-1">
           <h2 className="font-serif text-xl">Sleep &amp; wake rhythms</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            The 6 infant states — where your baby is right now, and what helps.
+            Tap where your baby is right now — the 6 infant states, and what helps.
           </p>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Button className="rounded-full" onClick={() => setPicking((p) => !p)}>
-          Log current state
-        </Button>
-        {todayCount === 0 && (
-          <span className="text-xs text-muted-foreground">
-            {empty.noStatesToday}
-          </span>
-        )}
-        {todayCount > 0 && (
+      <div className="mt-4 flex items-center gap-3">
+        {todayCount === 0 ? (
+          <span className="text-xs text-muted-foreground">{empty.noStatesToday}</span>
+        ) : (
           <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
             {todayCount} logged today
@@ -149,20 +141,18 @@ export function InfantStatesModule() {
         )}
       </div>
 
-      {picking && (
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {infantStates.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => choose(s)}
-              className="rounded-xl bg-secondary hover:bg-sand-deep transition-colors p-3 text-left min-h-14 flex items-center gap-2"
-            >
-              <s.icon className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-sm font-medium leading-snug">{s.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {infantStates.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => choose(s)}
+            className="rounded-2xl bg-secondary hover:bg-sand-deep active:scale-[0.98] transition-all p-3 text-left min-h-16 flex items-center gap-2 border border-border/50"
+          >
+            <s.icon className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm font-medium leading-snug">{s.label}</span>
+          </button>
+        ))}
+      </div>
 
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent className="bg-card">

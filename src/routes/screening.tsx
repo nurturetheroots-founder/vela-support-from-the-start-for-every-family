@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { addScreening, getState, nextScreeningDue, todayStr, useStore, weekNumber } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { ShieldCheck, Phone, LifeBuoy } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { legal } from "@/lib/microcopy";
 
 export const Route = createFileRoute("/screening")({
@@ -59,6 +60,7 @@ function ScreeningPage() {
 
   const [answers, setAnswers] = useState<(number | null)[]>(Array(10).fill(null));
   const [result, setResult] = useState<{ score: number } | null>(null);
+  const [crisisAck, setCrisisAck] = useState(false);
 
   const allAnswered = answers.every((a) => a !== null);
 
@@ -74,8 +76,16 @@ function ScreeningPage() {
     const q10 = answers[9]!;
     // reverse-scored: anything other than "Never" is a positive self-harm answer
     const selfHarm = q10 !== 3;
-    if (result.score >= 10 || selfHarm) return <CrisisSupport score={result.score} />;
-    return <Result score={result.score} q10={q10} />;
+    return (
+      <>
+        {result.score >= 10 || selfHarm ? (
+          <CrisisSupport score={result.score} />
+        ) : (
+          <Result score={result.score} q10={q10} />
+        )}
+        <CrisisInterceptDialog open={selfHarm && !crisisAck} onAcknowledge={() => setCrisisAck(true)} />
+      </>
+    );
   }
 
   return (
@@ -139,6 +149,55 @@ function ScreeningPage() {
         </Button>
       </div>
     </AppShell>
+  );
+}
+
+function CrisisInterceptDialog({ open, onAcknowledge }: { open: boolean; onAcknowledge: () => void }) {
+  return (
+    <Dialog open={open}>
+      <DialogContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        className="max-w-md rounded-3xl border-clay/40 bg-card p-6 [&>button:last-child]:hidden"
+      >
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-clay/15 text-clay">
+          <LifeBuoy className="h-6 w-6" />
+        </span>
+        <DialogTitle className="font-serif text-2xl leading-snug">
+          You don't have to sit with this alone.
+        </DialogTitle>
+        <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
+          Thoughts like these can come with the exhaustion of these weeks, and they are more common than
+          most parents are ever told. Someone warm is available right now, any hour.
+        </DialogDescription>
+
+        <div className="mt-2 grid gap-2">
+          <a href="tel:988">
+            <Button size="lg" className="h-14 w-full rounded-2xl bg-clay text-base text-primary-foreground hover:bg-clay/90">
+              <Phone className="mr-2 h-4 w-4" /> Call or text 988 Lifeline
+            </Button>
+          </a>
+          <a href="tel:18339435746">
+            <Button size="lg" variant="outline" className="h-14 w-full rounded-2xl border-clay/50 text-base">
+              <Phone className="mr-2 h-4 w-4" /> Maternal Mental Health Hotline
+            </Button>
+          </a>
+          <a href="tel:18009444773">
+            <Button size="lg" variant="outline" className="h-14 w-full rounded-2xl border-clay/50 text-base">
+              <Phone className="mr-2 h-4 w-4" /> PSI Helpline
+            </Button>
+          </a>
+        </div>
+
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          If you feel unsafe right now, please call 911 or go to your nearest emergency department.
+        </p>
+
+        <Button variant="ghost" className="w-full rounded-full" onClick={onAcknowledge}>
+          I am safe with my support team right now
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 }
 

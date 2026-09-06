@@ -1,5 +1,5 @@
 import { empty, cta } from "@/lib/microcopy";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { AuthGate } from "@/components/auth-gate";
 import { useStore, weekNumber, todayStr, nextScreeningDue } from "@/lib/store";
@@ -11,7 +11,6 @@ import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
 import { AgentStatus } from "@/components/agent-status";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
-import { HandoverSentDialog } from "@/components/handover-sent-dialog";
 import { ShareCheckinsCard } from "@/components/share-checkins";
 
 
@@ -65,8 +64,10 @@ function Dashboard() {
     <AppShell>
       <div className="mb-6">
         <p className="text-sm text-primary">{label}</p>
-        <h1 className="text-3xl font-serif mt-1">{greeting}{profile.name ? `, ${profile.name}` : ""}.</h1>
+        <h1 className="text-3xl font-serif mt-1">{`${greeting}${profile.name ? `, ${profile.name}` : ""}.`}</h1>
       </div>
+
+      <InfantStatesModule />
 
       <AgentStatus className="mb-5" />
 
@@ -87,7 +88,9 @@ function Dashboard() {
             <Sun className="h-5 w-5" />
           </span>
           <div className="flex-1">
-            <h2 className="font-serif text-xl">Your {Math.max(week, 1)}-week rhythm &amp; wake windows</h2>
+            <h2 className="font-serif text-base font-normal text-foreground/90">
+              Your {Math.max(week, 1)}-week rhythm &amp; wake windows
+            </h2>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               At {Math.max(week, 1)} weeks, your baby is just beginning to explore active alert moments. Look for gentle
               wake windows around 45–60 minutes — focusing on quiet connection rather than a rigid clock.
@@ -98,6 +101,7 @@ function Dashboard() {
           <Link to="/education"><Button variant="outline" className="rounded-full">Explore today's cues &amp; flow</Button></Link>
         </div>
       </Card>
+
 
       <Card>
         <div className="flex items-start gap-3">
@@ -181,9 +185,11 @@ function Dashboard() {
         </div>
       </Card>
 
-      <InfantStatesModule />
-
       <HandoverReportCard />
+
+
+
+
 
       <ShareCheckinsCard />
 
@@ -199,20 +205,20 @@ function Dashboard() {
 
 function HandoverReportCard() {
   const [pending, setPending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const navigate = useNavigate();
 
   const generate = async () => {
     setPending(true);
     const taskId = startAgentTask("Vela is securely coordinating your care plan…");
     try {
-      // Placeholder until the report API is wired up.
-      await new Promise((r) => setTimeout(r, 1600));
-      setSent(true);
+      await new Promise((r) => setTimeout(r, 900));
+      await navigate({ to: "/handover" });
     } finally {
       endAgentTask(taskId);
       setPending(false);
     }
   };
+
 
   return (
     <Card>
@@ -246,7 +252,6 @@ function HandoverReportCard() {
           )}
         </Button>
       </div>
-      <HandoverSentDialog open={sent} onOpenChange={setSent} />
     </Card>
   );
 }
