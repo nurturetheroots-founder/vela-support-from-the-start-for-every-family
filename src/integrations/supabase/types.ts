@@ -429,6 +429,44 @@ export type Database = {
         }
         Relationships: []
       }
+      review_queue: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          outreach_draft: string
+          pattern_noticed: string
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          outreach_draft: string
+          pattern_noticed: string
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          outreach_draft?: string
+          pattern_noticed?: string
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_queue_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
