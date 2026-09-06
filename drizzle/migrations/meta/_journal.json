@@ -8,6 +8,13 @@
       "when": 1788661886808,
       "tag": "0000_create_review_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788662773041,
+      "tag": "0001_review_queue_draft_metadata",
+      "breakpoints": true
     }
   ]
 }
