@@ -25,7 +25,7 @@ export const Route = createFileRoute("/checkin")({
         content: "One minute on mood, sleep, and feeding — so patterns show up early.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/checkin" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/checkin" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],

@@ -22,10 +22,10 @@ export const Route = createFileRoute("/")({
           "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/" }],
   }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && getState().profile.onboarded) {

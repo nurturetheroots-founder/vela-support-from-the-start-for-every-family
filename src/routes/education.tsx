@@ -24,10 +24,10 @@ export const Route = createFileRoute("/education")({
         content: "Week-by-week lessons on feeding, sleep, healing, and mood — short enough to read one-handed.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://vela-maternity-care.lovable.app/education" },
+      { property: "og:url", content: "https://app.nurturetheroots.co/education" },
       { name: "twitter:card", content: "summary" },
     ],
-    links: [{ rel: "canonical", href: "https://vela-maternity-care.lovable.app/education" }],
+    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/education" }],
   }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
