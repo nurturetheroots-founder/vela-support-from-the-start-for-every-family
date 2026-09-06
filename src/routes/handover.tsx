@@ -159,8 +159,8 @@ function HandoverPage() {
       predominantDaytimeState: predominant,
       soothabilityLatencyMinutes: "5–15 min",
       autonomicStabilityNotes: [
-        "Color stable during feeds.",
-        "Occasional hiccups and mild startle when the room is bright.",
+        `Based on ${recent.length || 0} recent daily check-in${recent.length === 1 ? "" : "s"}.`,
+        `Parent-reported average day rating ${avgOverall ? avgOverall.toFixed(1) : "—"} of 5.`,
         "Settles with containment hold.",
       ],
     },
@@ -171,7 +171,7 @@ function HandoverPage() {
       supportAtHome: "Partner Present",
     },
     targetedQuestionsForMD: [
-      "Feeding comfort — latch pain in the evenings",
+      latestNote ? `From my check-in: ${latestNote}` : "Feeding comfort — latch pain in the evenings",
       "Sleep stretches: what is typical at this age?",
       "Weight gain check and next visit timing",
     ],
@@ -186,8 +186,16 @@ function HandoverPage() {
         >
           <ChevronLeft className="h-4 w-4" /> Back to home
         </Link>
+        <p className="mt-2 text-xs text-slate-500">
+          {loading
+            ? "Filling in your saved check-ins…"
+            : remoteCheckins && remoteCheckins.length
+              ? `Filled in from your last ${recent.length} saved check-in${recent.length === 1 ? "" : "s"}.`
+              : "Showing check-ins saved on this device."}
+        </p>
       </div>
       <PediatricianHandover data={data} />
     </div>
   );
+
 }
