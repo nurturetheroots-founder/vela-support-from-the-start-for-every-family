@@ -193,3 +193,18 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-gentle-pulse, .animate-gentle-fade { animation: none; opacity: 0.8; }
 }
+
+/* Printable clinical handover */
+@page {
+  size: portrait;
+  margin: 0.5in;
+}
+@media print {
+  html, body {
+    background: #fff !important;
+  }
+  body * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
