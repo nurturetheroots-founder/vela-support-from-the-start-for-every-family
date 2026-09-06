@@ -65,8 +65,10 @@ function Dashboard() {
     <AppShell>
       <div className="mb-6">
         <p className="text-sm text-primary">{label}</p>
-        <h1 className="text-3xl font-serif mt-1">{greeting}{profile.name ? `, ${profile.name}` : ""}.</h1>
+        <h1 className="text-3xl font-serif mt-1">{`${greeting}${profile.name ? `, ${profile.name}` : ""}.`}</h1>
       </div>
+
+      <InfantStatesModule />
 
       <AgentStatus className="mb-5" />
 
@@ -87,7 +89,9 @@ function Dashboard() {
             <Sun className="h-5 w-5" />
           </span>
           <div className="flex-1">
-            <h2 className="font-serif text-xl">Your {Math.max(week, 1)}-week rhythm &amp; wake windows</h2>
+            <h2 className="font-serif text-base font-normal text-foreground/90">
+              Your {Math.max(week, 1)}-week rhythm &amp; wake windows
+            </h2>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               At {Math.max(week, 1)} weeks, your baby is just beginning to explore active alert moments. Look for gentle
               wake windows around 45–60 minutes — focusing on quiet connection rather than a rigid clock.
@@ -98,6 +102,7 @@ function Dashboard() {
           <Link to="/education"><Button variant="outline" className="rounded-full">Explore today's cues &amp; flow</Button></Link>
         </div>
       </Card>
+
 
       <Card>
         <div className="flex items-start gap-3">
