@@ -1,5 +1,5 @@
 import { empty, cta } from "@/lib/microcopy";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { AuthGate } from "@/components/auth-gate";
 import { useStore, weekNumber, todayStr, nextScreeningDue } from "@/lib/store";
@@ -11,7 +11,6 @@ import { educationModules } from "@/lib/education";
 import { InfantStatesModule } from "@/components/infant-states";
 import { AgentStatus } from "@/components/agent-status";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
-import { HandoverSentDialog } from "@/components/handover-sent-dialog";
 import { ShareCheckinsCard } from "@/components/share-checkins";
 
 
@@ -253,7 +252,6 @@ function HandoverReportCard() {
           )}
         </Button>
       </div>
-      <HandoverSentDialog open={sent} onOpenChange={setSent} />
     </Card>
   );
 }
