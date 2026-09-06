@@ -186,7 +186,8 @@ function Dashboard() {
         </div>
       </Card>
 
-      <InfantStatesModule />
+      <HandoverReportCard />
+
 
       <HandoverReportCard />
 
