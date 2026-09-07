@@ -111,12 +111,14 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
             </p>
             <h1 className="mt-1 font-serif text-2xl text-night-text">Shift &amp; care tracker</h1>
           </div>
-          <Link
-            to="/care-summary"
-            className="mt-1 inline-flex items-center gap-1 text-sm text-night-muted underline-offset-4 hover:underline"
-          >
-            Parent view <ArrowRight className="h-4 w-4" />
-          </Link>
+          {showParentLink && (
+            <Link
+              to="/care-summary"
+              className="mt-1 inline-flex items-center gap-1 text-sm text-night-muted underline-offset-4 hover:underline"
+            >
+              Parent view <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
         </header>
 
         <CareTimers onLog={handleLog} />
