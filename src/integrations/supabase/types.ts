@@ -402,6 +402,60 @@ export type Database = {
         }
         Relationships: []
       }
+      family_invites: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          family_id: string
+          id: string
+          revoked: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string
+          family_id: string
+          id?: string
+          revoked?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          family_id?: string
+          id?: string
+          revoked?: boolean
+        }
+        Relationships: []
+      }
+      family_members: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          permissions: Json
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          permissions?: Json
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          permissions?: Json
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       parent_daily_checkins: {
         Row: {
           checkin_id: string
@@ -459,6 +513,7 @@ export type Database = {
           focuses: string[]
           insurance: string | null
           parent_id: string
+          role: Database["public"]["Enums"]["member_role"]
           stage: string | null
           updated_at: string
           zip: string | null
@@ -472,6 +527,7 @@ export type Database = {
           focuses?: string[]
           insurance?: string | null
           parent_id: string
+          role?: Database["public"]["Enums"]["member_role"]
           stage?: string | null
           updated_at?: string
           zip?: string | null
@@ -485,6 +541,7 @@ export type Database = {
           focuses?: string[]
           insurance?: string | null
           parent_id?: string
+          role?: Database["public"]["Enums"]["member_role"]
           stage?: string | null
           updated_at?: string
           zip?: string | null
@@ -587,10 +644,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_family_invite: { Args: never; Returns: string }
+      is_family_caregiver: { Args: { _family_id: string }; Returns: boolean }
+      redeem_family_invite: {
+        Args: { _code: string; _display_name: string }
+        Returns: string
+      }
     }
     Enums: {
       care_event_type: "feed" | "diaper" | "sleep" | "observation"
+      member_role: "parent" | "caregiver"
       shift_handover_status: "draft" | "published"
     }
     CompositeTypes: {
@@ -720,6 +783,7 @@ export const Constants = {
   public: {
     Enums: {
       care_event_type: ["feed", "diaper", "sleep", "observation"],
+      member_role: ["parent", "caregiver"],
       shift_handover_status: ["draft", "published"],
     },
   },

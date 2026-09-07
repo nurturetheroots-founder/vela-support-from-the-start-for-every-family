@@ -2,19 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AuthGate } from "@/components/auth-gate";
 import { CareTracker } from "@/components/care/care-tracker";
 
-export const Route = createFileRoute("/care")({
+export const Route = createFileRoute("/caregiver/shift-dashboard")({
   head: () => ({
     meta: [
-      { title: "Shift & Care Tracker — Vela" },
+      { title: "Caregiver Shift Dashboard — Vela" },
       {
         name: "description",
         content:
-          "A one-handed, low-glare way for postpartum caregivers to log feeds, diapers, sleep and observations, then hand the night over to parents.",
+          "The invited caregiver's home: log feeds, diapers, sleep and observations for the family you support, then leave a warm morning handover.",
       },
-      { property: "og:title", content: "Shift & Care Tracker — Vela" },
+      { property: "og:title", content: "Caregiver Shift Dashboard — Vela" },
       {
         property: "og:description",
-        content: "Low-glare shift logging for postpartum caregivers, with a warm morning handover for parents.",
+        content: "Log tonight's care and hand the morning over to the family you support.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -23,8 +23,7 @@ export const Route = createFileRoute("/care")({
   }),
   component: () => (
     <AuthGate>
-      <CareTracker />
+      <CareTracker showParentLink={false} />
     </AuthGate>
   ),
-});
 });

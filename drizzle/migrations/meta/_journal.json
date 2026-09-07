@@ -29,6 +29,13 @@
       "when": 1788781129946,
       "tag": "0003_create_care_logs_and_shift_handovers",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788784322935,
+      "tag": "0004_rbac_family_members_and_invites",
+      "breakpoints": true
     }
   ]
 }
