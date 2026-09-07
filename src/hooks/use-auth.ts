@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { posthog } from "@/lib/analytics";
+import { posthog } from "@/lib/posthog";
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);

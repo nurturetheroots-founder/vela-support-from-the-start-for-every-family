@@ -7,7 +7,7 @@ import { ShiftTimeline } from "@/components/care/shift-timeline";
 import { HandoverGenerator } from "@/components/care/handover-generator";
 import { CareTimers } from "@/components/care/care-timers";
 import { MorningHandoverCard } from "@/components/care/morning-handover";
-import { posthog } from "@/lib/analytics";
+import { posthog } from "@/lib/posthog";
 import {
   addCareLog,
   computeMetrics,
@@ -79,7 +79,9 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
       if (type === "feed" && "type" in payload) {
         posthog.capture("logged_feed", { feed_type: (payload as FeedPayload).type });
       } else if (type === "sleep" && "duration_minutes" in payload) {
-        posthog.capture("logged_sleep", { duration_minutes: (payload as SleepPayload).duration_minutes });
+        posthog.capture("logged_sleep", {
+          duration_minutes: (payload as SleepPayload).duration_minutes,
+        });
       } else if (type === "diaper" && "condition" in payload) {
         posthog.capture("logged_diaper", { type: (payload as DiaperPayload).condition });
       }
