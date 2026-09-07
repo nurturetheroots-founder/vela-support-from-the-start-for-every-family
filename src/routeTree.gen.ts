@@ -22,6 +22,8 @@ import { Route as HandoverRouteImport } from './routes/handover'
 import { Route as EducationRouteImport } from './routes/education'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckinRouteImport } from './routes/checkin'
+import { Route as CareSummaryRouteImport } from './routes/care-summary'
+import { Route as CareRouteImport } from './routes/care'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -97,6 +99,16 @@ const CheckinRoute = CheckinRouteImport.update({
   path: '/checkin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareSummaryRoute = CareSummaryRouteImport.update({
+  id: '/care-summary',
+  path: '/care-summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareRoute = CareRouteImport.update({
+  id: '/care',
+  path: '/care',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -150,6 +162,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
+  '/care': typeof CareRoute
+  '/care-summary': typeof CareSummaryRoute
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
@@ -174,6 +188,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
+  '/care': typeof CareRoute
+  '/care-summary': typeof CareSummaryRoute
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
@@ -199,6 +215,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/auth': typeof AuthRoute
+  '/care': typeof CareRoute
+  '/care-summary': typeof CareSummaryRoute
   '/checkin': typeof CheckinRoute
   '/dashboard': typeof DashboardRoute
   '/education': typeof EducationRoute
@@ -225,6 +243,8 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/auth'
+    | '/care'
+    | '/care-summary'
     | '/checkin'
     | '/dashboard'
     | '/education'
@@ -249,6 +269,8 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/auth'
+    | '/care'
+    | '/care-summary'
     | '/checkin'
     | '/dashboard'
     | '/education'
@@ -273,6 +295,8 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/auth'
+    | '/care'
+    | '/care-summary'
     | '/checkin'
     | '/dashboard'
     | '/education'
@@ -298,6 +322,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AuthRoute: typeof AuthRoute
+  CareRoute: typeof CareRoute
+  CareSummaryRoute: typeof CareSummaryRoute
   CheckinRoute: typeof CheckinRoute
   DashboardRoute: typeof DashboardRoute
   EducationRoute: typeof EducationRoute
@@ -412,6 +438,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckinRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/care-summary': {
+      id: '/care-summary'
+      path: '/care-summary'
+      fullPath: '/care-summary'
+      preLoaderRoute: typeof CareSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/care': {
+      id: '/care'
+      path: '/care'
+      fullPath: '/care'
+      preLoaderRoute: typeof CareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -482,6 +522,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AuthRoute: AuthRoute,
+  CareRoute: CareRoute,
+  CareSummaryRoute: CareSummaryRoute,
   CheckinRoute: CheckinRoute,
   DashboardRoute: DashboardRoute,
   EducationRoute: EducationRoute,

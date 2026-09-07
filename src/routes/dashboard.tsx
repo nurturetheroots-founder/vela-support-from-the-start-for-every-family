@@ -74,6 +74,29 @@ function Dashboard() {
 
       <DraftApprovalQueue />
 
+      <div className="mb-5 rounded-2xl border border-border/60 bg-card/70 p-5">
+        <h2 className="font-serif text-lg">Overnight care</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          See last night's summary from your care team, or open the caregiver shift tracker.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            to="/care-summary"
+            className="inline-flex min-h-11 items-center gap-1 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground"
+          >
+            Morning summary <ChevronRight className="h-4 w-4" />
+          </Link>
+          <Link
+            to="/care"
+            className="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-sm font-medium"
+          >
+            Caregiver tracker
+          </Link>
+        </div>
+      </div>
+
+
+
 
       {flagged && (
         <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3">

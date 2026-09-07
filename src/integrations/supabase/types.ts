@@ -50,6 +50,68 @@ export type Database = {
           },
         ]
       }
+      babies: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          id: string
+          name: string
+          parent_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string
+        }
+        Relationships: []
+      }
+      care_logs: {
+        Row: {
+          baby_id: string
+          created_at: string
+          event_type: Database["public"]["Enums"]["care_event_type"]
+          id: string
+          logged_by: string
+          payload: Json
+          timestamp: string
+        }
+        Insert: {
+          baby_id: string
+          created_at?: string
+          event_type: Database["public"]["Enums"]["care_event_type"]
+          id?: string
+          logged_by?: string
+          payload?: Json
+          timestamp?: string
+        }
+        Update: {
+          baby_id?: string
+          created_at?: string
+          event_type?: Database["public"]["Enums"]["care_event_type"]
+          id?: string
+          logged_by?: string
+          payload?: Json
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_logs_baby_id_fkey"
+            columns: ["baby_id"]
+            isOneToOne: false
+            referencedRelation: "babies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       check_ins: {
         Row: {
           family_id: string
@@ -476,6 +538,50 @@ export type Database = {
           },
         ]
       }
+      shift_handovers: {
+        Row: {
+          baby_id: string
+          caregiver_id: string
+          caregiver_notes: string | null
+          created_at: string
+          id: string
+          shift_end: string
+          shift_start: string
+          status: Database["public"]["Enums"]["shift_handover_status"]
+          summary_metrics: Json
+        }
+        Insert: {
+          baby_id: string
+          caregiver_id?: string
+          caregiver_notes?: string | null
+          created_at?: string
+          id?: string
+          shift_end: string
+          shift_start: string
+          status?: Database["public"]["Enums"]["shift_handover_status"]
+          summary_metrics?: Json
+        }
+        Update: {
+          baby_id?: string
+          caregiver_id?: string
+          caregiver_notes?: string | null
+          created_at?: string
+          id?: string
+          shift_end?: string
+          shift_start?: string
+          status?: Database["public"]["Enums"]["shift_handover_status"]
+          summary_metrics?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_handovers_baby_id_fkey"
+            columns: ["baby_id"]
+            isOneToOne: false
+            referencedRelation: "babies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -484,7 +590,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      care_event_type: "feed" | "diaper" | "sleep" | "observation"
+      shift_handover_status: "draft" | "published"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -611,6 +718,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      care_event_type: ["feed", "diaper", "sleep", "observation"],
+      shift_handover_status: ["draft", "published"],
+    },
   },
 } as const
