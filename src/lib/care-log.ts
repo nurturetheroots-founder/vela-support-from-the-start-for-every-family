@@ -63,6 +63,11 @@ export interface ShiftHandover {
  */
 let babyPromise: Promise<{ id: string; name: string }> | null = null;
 
+/** Call when the signed-in person or their family changes (sign in, invite redeemed). */
+export function resetBabyCache() {
+  babyPromise = null;
+}
+
 export function ensureBaby(name = "Baby"): Promise<{ id: string; name: string }> {
   // Two components can ask at once on first load — share one round trip so we
   // never create duplicate baby records.
@@ -75,39 +80,73 @@ export function ensureBaby(name = "Baby"): Promise<{ id: string; name: string }>
   return babyPromise;
 }
 
+/** Read-only lookup for views that should never create a record. */
+export async function findBaby(): Promise<{ id: string; name: string } | null> {
+  const family = await familyBaby();
+  if (family !== undefined) return family;
+  const { data, error } = await supabase
+    .from("babies")
+    .select("id, name")
+    .order("created_at", { ascending: true })
+    .limit(1);
+  if (error) throw error;
+  return (data?.[0] as { id: string; name: string } | undefined) ?? null;
+}
+
+/**
+ * For invited caregivers: the baby of the family they support.
+ * Returns `undefined` when the signed-in person is not a caregiver.
+ */
+async function familyBaby(): Promise<{ id: string; name: string } | null | undefined> {
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return undefined;
+
+  const { data: link } = await supabase
+    .from("family_members")
+    .select("family_id")
+    .eq("user_id", uid)
+    .eq("role", "caregiver")
+    .limit(1)
+    .maybeSingle();
+  if (!link?.family_id) return undefined;
+
+  const { data, error } = await supabase
+    .from("babies")
+    .select("id, name")
+    .eq("parent_id", link.family_id as string)
+    .order("created_at", { ascending: true })
+    .limit(1);
+  if (error) throw error;
+  return (data?.[0] as { id: string; name: string } | undefined) ?? null;
+}
+
 async function resolveBaby(name: string): Promise<{ id: string; name: string }> {
   const { data: auth } = await supabase.auth.getUser();
   const uid = auth.user?.id;
 
+  const { data: link } = uid
+    ? await supabase
+        .from("family_members")
+        .select("family_id")
+        .eq("user_id", uid)
+        .eq("role", "caregiver")
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
 
-  if (uid) {
-    const { data: link } = await supabase
-      .from("family_members")
-      .select("family_id")
-      .eq("user_id", uid)
-      .eq("role", "caregiver")
-      .limit(1)
-      .maybeSingle();
-
-    if (link?.family_id) {
-      const { data: familyBaby, error: familyError } = await supabase
-        .from("babies")
-        .select("id, name")
-        .eq("parent_id", link.family_id as string)
-        .order("created_at", { ascending: true })
-        .limit(1);
-      if (familyError) throw familyError;
-      if (familyBaby && familyBaby.length > 0) return familyBaby[0] as { id: string; name: string };
-      const { data: madeForFamily, error: madeError } = await supabase
-        .from("babies")
-        .insert({ name, parent_id: link.family_id as string })
-        .select("id, name")
-        .single();
-      if (madeError) throw madeError;
-      return madeForFamily as { id: string; name: string };
-    }
+  // Invited caregivers always work inside the family that invited them.
+  if (link?.family_id) {
+    const family = await familyBaby();
+    if (family) return family;
+    const { data: madeForFamily, error: madeError } = await supabase
+      .from("babies")
+      .insert({ name, parent_id: link.family_id as string })
+      .select("id, name")
+      .single();
+    if (madeError) throw madeError;
+    return madeForFamily as { id: string; name: string };
   }
-
 
   const { data, error } = await supabase
     .from("babies")
@@ -117,7 +156,6 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
   if (error) throw error;
   if (data && data.length > 0) return data[0] as { id: string; name: string };
 
-
   const { data: created, error: insertError } = await supabase
     .from("babies")
     .insert({ name })
@@ -126,6 +164,7 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
   if (insertError) throw insertError;
   return created as { id: string; name: string };
 }
+
 
 export async function fetchCareLogs(babyId: string, sinceIso: string): Promise<CareLog[]> {
   const { data, error } = await supabase
