@@ -22,6 +22,13 @@
       "when": 1788673953694,
       "tag": "0002_review_queue_approved_at",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788781129946,
+      "tag": "0003_create_care_logs_and_shift_handovers",
+      "breakpoints": true
     }
   ]
 }
