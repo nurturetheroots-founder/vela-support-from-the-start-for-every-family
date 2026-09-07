@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Milk, Baby, Moon, NotebookPen, Minus, Plus } from "lucide-react";
+import { useRef, useState } from "react";
+import { Milk, Baby, Moon, NotebookPen, Minus, Plus, Droplet } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import type {
@@ -12,9 +12,9 @@ import type {
 } from "@/lib/care-log";
 
 const pill =
-  "min-h-11 rounded-full px-4 text-sm font-medium border transition-colors select-none";
-const pillIdle = "border-slate-700 bg-slate-800/60 text-slate-200 active:bg-slate-700";
-const pillOn = "border-transparent bg-slate-100 text-slate-900";
+  "min-h-11 rounded-full px-4 text-sm font-medium transition-colors select-none";
+const pillIdle = "bg-night-raised/70 text-night-muted active:bg-night-raised";
+const pillOn = "bg-clay-soft text-night";
 
 function Pills<T extends string | number>({
   options,
@@ -57,24 +57,24 @@ function Stepper({
   suffix: string;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-slate-700 bg-slate-800/60 px-3 py-2">
+    <div className="flex items-center justify-between rounded-full bg-night-soft px-3 py-2">
       <button
         type="button"
         aria-label="Decrease"
         onClick={() => onChange(Math.max(min, Math.round((value - step) * 10) / 10))}
-        className="grid h-11 w-11 place-items-center rounded-full bg-slate-700/70 text-slate-100"
+        className="grid h-11 w-11 place-items-center rounded-full bg-night-raised/80 text-night-text"
       >
         <Minus className="h-5 w-5" />
       </button>
-      <span className="text-2xl font-semibold text-slate-50 tabular-nums">
+      <span className="text-2xl font-semibold tabular-nums text-night-text">
         {value}
-        <span className="ml-1 text-sm font-normal text-slate-400">{suffix}</span>
+        <span className="ml-1 text-sm font-normal text-night-muted">{suffix}</span>
       </span>
       <button
         type="button"
         aria-label="Increase"
         onClick={() => onChange(Math.round((value + step) * 10) / 10)}
-        className="grid h-11 w-11 place-items-center rounded-full bg-slate-700/70 text-slate-100"
+        className="grid h-11 w-11 place-items-center rounded-full bg-night-raised/80 text-night-text"
       >
         <Plus className="h-5 w-5" />
       </button>
@@ -82,11 +82,70 @@ function Stepper({
   );
 }
 
-const actions: { type: CareEventType; label: string; icon: typeof Milk; tint: string }[] = [
-  { type: "feed", label: "Feed", icon: Milk, tint: "text-amber-300" },
-  { type: "diaper", label: "Diaper", icon: Baby, tint: "text-slate-300" },
-  { type: "sleep", label: "Sleep", icon: Moon, tint: "text-teal-300" },
-  { type: "observation", label: "Note", icon: NotebookPen, tint: "text-violet-300" },
+type QuickAction = {
+  key: string;
+  type: CareEventType;
+  label: string;
+  hint: string;
+  icon: typeof Milk;
+  tint: string;
+  payload: () => CarePayload;
+};
+
+const quickActions: QuickAction[] = [
+  {
+    key: "wet",
+    type: "diaper",
+    label: "Wet",
+    hint: "diaper",
+    icon: Droplet,
+    tint: "text-sage",
+    payload: () => ({ condition: "wet" }),
+  },
+  {
+    key: "dirty",
+    type: "diaper",
+    label: "Dirty",
+    hint: "diaper",
+    icon: Baby,
+    tint: "text-clay-soft",
+    payload: () => ({ condition: "dirty" }),
+  },
+  {
+    key: "bottle",
+    type: "feed",
+    label: "Bottle",
+    hint: "3 oz",
+    icon: Milk,
+    tint: "text-clay-soft",
+    payload: () => ({ type: "bottle", amount_oz: 3 }),
+  },
+  {
+    key: "sleep",
+    type: "sleep",
+    label: "Sleep",
+    hint: "past hour",
+    icon: Moon,
+    tint: "text-sage",
+    payload: () => {
+      const end = new Date();
+      const start = new Date(end.getTime() - 60 * 60000);
+      return {
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+        duration_minutes: 60,
+      } satisfies SleepPayload;
+    },
+  },
+  {
+    key: "note",
+    type: "observation",
+    label: "Note",
+    hint: "hold to write",
+    icon: NotebookPen,
+    tint: "text-lilac-soft",
+    payload: () => ({ category: "soothing", note: "Settled with swaddle" }),
+  },
 ];
 
 export function QuickLogBar({
@@ -95,6 +154,8 @@ export function QuickLogBar({
   onLog: (type: CareEventType, payload: CarePayload) => Promise<void> | void;
 }) {
   const [open, setOpen] = useState<CareEventType | null>(null);
+  const held = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // feed
   const [feedType, setFeedType] = useState<FeedPayload["type"]>("bottle");
@@ -111,6 +172,21 @@ export function QuickLogBar({
   const [note, setNote] = useState<string | undefined>(undefined);
 
   const close = () => setOpen(null);
+
+  function startHold(action: QuickAction) {
+    held.current = false;
+    timer.current = setTimeout(() => {
+      held.current = true;
+      if (navigator.vibrate) navigator.vibrate(8);
+      setOpen(action.type);
+    }, 500);
+  }
+
+  function endHold(action: QuickAction) {
+    if (timer.current) clearTimeout(timer.current);
+    if (held.current) return;
+    void onLog(action.type, action.payload());
+  }
 
   async function submit() {
     if (!open) return;
@@ -140,19 +216,26 @@ export function QuickLogBar({
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-800 bg-slate-950/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto grid max-w-2xl grid-cols-4">
-          {actions.map((a) => {
+      <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-night via-night/95 to-transparent pb-[env(safe-area-inset-bottom)] pt-6">
+        <p className="pb-2 text-center text-[11px] tracking-wide text-night-muted/70">
+          Tap to log now · hold for details
+        </p>
+        <div className="mx-auto flex max-w-2xl gap-2 overflow-x-auto px-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {quickActions.map((a) => {
             const Icon = a.icon;
             return (
               <button
-                key={a.type}
+                key={a.key}
                 type="button"
-                onClick={() => setOpen(a.type)}
-                className="flex min-h-16 flex-col items-center justify-center gap-1 py-3 text-xs text-slate-300 active:bg-slate-900"
+                onPointerDown={() => startHold(a)}
+                onPointerUp={() => endHold(a)}
+                onPointerLeave={() => timer.current && clearTimeout(timer.current)}
+                onContextMenu={(e) => e.preventDefault()}
+                className="flex min-h-[76px] min-w-[88px] flex-1 select-none flex-col items-center justify-center gap-1 rounded-3xl bg-night-soft/90 px-3 text-night-text shadow-lg shadow-black/20 transition-transform active:scale-95 active:bg-night-raised"
               >
                 <Icon className={cn("h-6 w-6", a.tint)} />
-                {a.label}
+                <span className="text-sm font-medium">{a.label}</span>
+                <span className="text-[11px] text-night-muted">{a.hint}</span>
               </button>
             );
           })}
@@ -160,12 +243,9 @@ export function QuickLogBar({
       </div>
 
       <Sheet open={open !== null} onOpenChange={(v) => !v && close()}>
-        <SheetContent
-          side="bottom"
-          className="rounded-t-3xl border-slate-800 bg-slate-900 text-slate-100"
-        >
+        <SheetContent side="bottom" className="rounded-t-[2rem] border-0 bg-night-soft text-night-text">
           <SheetHeader className="text-left">
-            <SheetTitle className="text-slate-50">
+            <SheetTitle className="font-serif text-xl text-night-text">
               {open === "feed" && "Log a feed"}
               {open === "diaper" && "Log a diaper"}
               {open === "sleep" && "Log a sleep stretch"}
@@ -195,7 +275,12 @@ export function QuickLogBar({
                       onChange={setSide}
                       labels={(v) => (v === "both" ? "Both" : v === "left" ? "Left" : "Right")}
                     />
-                    <Pills options={[10, 15, 20, 25, 30]} value={nursingMins} onChange={setNursingMins} labels={(v) => `${v} min`} />
+                    <Pills
+                      options={[10, 15, 20, 25, 30]}
+                      value={nursingMins}
+                      onChange={setNursingMins}
+                      labels={(v) => `${v} min`}
+                    />
                     <Stepper value={nursingMins} onChange={setNursingMins} step={5} suffix="min" />
                   </>
                 )}
@@ -213,10 +298,15 @@ export function QuickLogBar({
 
             {open === "sleep" && (
               <>
-                <p className="text-sm text-slate-400">How long did this stretch last?</p>
-                <Pills options={[30, 45, 60, 90, 120, 180]} value={sleepMins} onChange={setSleepMins} labels={(v) => `${v} min`} />
+                <p className="text-sm text-night-muted">How long did this stretch last?</p>
+                <Pills
+                  options={[30, 45, 60, 90, 120, 180]}
+                  value={sleepMins}
+                  onChange={setSleepMins}
+                  labels={(v) => `${v} min`}
+                />
                 <Stepper value={sleepMins} onChange={setSleepMins} step={5} suffix="min" />
-                <p className="text-sm text-slate-400">Soothing that worked</p>
+                <p className="text-sm text-night-muted">Soothing that worked</p>
                 <Pills
                   options={["Swaddle", "Rocking", "Shushing", "Contact nap", "Pacifier"]}
                   value={soothing}
@@ -245,7 +335,7 @@ export function QuickLogBar({
             <button
               type="button"
               onClick={submit}
-              className="min-h-14 w-full rounded-2xl bg-slate-100 text-base font-semibold text-slate-900 active:bg-slate-300"
+              className="min-h-14 w-full rounded-full bg-clay-soft text-base font-semibold text-night active:opacity-90"
             >
               Save
             </button>
