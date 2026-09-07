@@ -20,7 +20,11 @@ import {
   type CarePayload,
   type ShiftHandover,
   type ObservationPayload,
+  type FeedPayload,
+  type SleepPayload,
+  type DiaperPayload,
 } from "@/lib/care-log";
+import { captureEvent } from "@/lib/analytics";
 
 function shiftStartIso() {
   // Current shift window: the last 14 hours of activity.
@@ -71,6 +75,14 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
       const row = await addCareLog(baby.id, type, payload);
       setLogs((prev) => [row, ...prev]);
       toast.success("Logged.");
+
+      if (type === "feed") {
+        captureEvent("logged_feed", { feed_type: (payload as FeedPayload).type });
+      } else if (type === "sleep") {
+        captureEvent("logged_sleep", { duration_minutes: (payload as SleepPayload).duration_minutes });
+      } else if (type === "diaper") {
+        captureEvent("logged_diaper", { type: (payload as DiaperPayload).condition });
+      }
     } catch {
       toast.error("That didn't save. Try once more.");
     }
