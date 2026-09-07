@@ -4,7 +4,8 @@ import { AppShell } from "@/components/app-shell";
 import { AuthGate } from "@/components/auth-gate";
 import { useStore, weekNumber, todayStr, nextScreeningDue } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight, Sun, FileHeart, Loader2 } from "lucide-react";
+import { BookOpen, ClipboardCheck, MessageCircleHeart, ShieldCheck, AlertTriangle, ChevronRight, Sun, FileHeart, Loader2, Moon } from "lucide-react";
+import { DisclosureSection } from "@/components/disclosure-section";
 import { useState } from "react";
 
 import { educationModules } from "@/lib/education";
@@ -68,20 +69,82 @@ function Dashboard() {
     <AppShell>
       <div className="mb-6">
         <p className="text-sm text-primary">{label}</p>
-        <h1 className="text-3xl font-serif mt-1">{`${greeting}${profile.name ? `, ${profile.name}` : ""}.`}</h1>
+        <h1 className="mt-1 font-serif text-3xl">{`${greeting}${profile.name ? `, ${profile.name}` : ""}.`}</h1>
       </div>
 
-      <InfantStatesModule />
-
-      <AgentStatus className="mb-5" />
+      {flagged && (
+        <div className="mb-5 flex gap-3 rounded-2xl border border-clay/30 bg-clay/10 p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-clay" />
+          <div className="min-w-0 text-sm">
+            <div className="font-medium">We're noticing a few hard days in a row.</div>
+            <p className="mt-1 text-muted-foreground">
+              That's worth honoring. Would it feel okay to take the EPDS screening, or to reach out to a doula?
+            </p>
+          </div>
+        </div>
+      )}
 
       <DraftApprovalQueue />
 
-      <div className="mb-5 rounded-2xl border border-border/60 bg-card/70 p-5">
-        <h2 className="font-serif text-lg">Overnight care</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          See last night's summary from your care team, or open the caregiver shift tracker.
+      {/* One primary action for the day. */}
+      <div className="mb-6 rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+            <ClipboardCheck className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="font-serif text-xl">Daily check-in</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {didToday
+                ? empty.checkedInToday
+                : checkins.length === 0
+                  ? empty.noCheckinsYet
+                  : "Sixty seconds. Mood, sleep, feeding, overall."}
+            </p>
+          </div>
+        </div>
+        <div className="mt-4">
+          <Link to="/checkin">
+            <Button className="h-12 w-full rounded-full" disabled={didToday}>
+              {didToday ? "Check back tomorrow" : cta.start}
+            </Button>
+          </Link>
+        </div>
+        {due && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Week {due.week} milestone:{" "}
+            <Link to="/screening" className="font-medium text-primary underline-offset-4 hover:underline">
+              take the EPDS screening
+            </Link>
+            .
+          </p>
+        )}
+      </div>
+
+      <AgentStatus className="mb-5" />
+
+      {/* Everything else stays folded away until it's wanted. */}
+      <DisclosureSection
+        icon={Sun}
+        title="Today's cues & rhythm"
+        hint={`Wake windows at ${Math.max(week, 1)} weeks`}
+      >
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          At {Math.max(week, 1)} weeks, your baby is just beginning to explore active alert moments. Look for gentle
+          wake windows around 45–60 minutes — focusing on quiet connection rather than a rigid clock.
         </p>
+        <div className="mt-4">
+          <InfantStatesModule />
+        </div>
+        <Link to="/education">
+          <Button variant="outline" className="rounded-full">
+            Explore today's cues &amp; flow
+          </Button>
+        </Link>
+      </DisclosureSection>
+
+      <DisclosureSection icon={Moon} title="Overnight care" hint="Last night's feeds, diapers and sleep">
+        <CareFeedCard />
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             to="/care-summary"
@@ -96,139 +159,39 @@ function Dashboard() {
             Caregiver tracker
           </Link>
         </div>
-      </div>
+      </DisclosureSection>
 
-
-
-
-      {flagged && (
-        <div className="mb-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 flex gap-3">
-          <AlertTriangle className="h-5 w-5 text-clay mt-0.5" />
-          <div className="text-sm">
-            <div className="font-medium">We're noticing a few hard days in a row.</div>
-            <p className="text-muted-foreground mt-1">That's worth honoring. Would it feel okay to take the EPDS screening, or to reach out to a doula?</p>
-          </div>
-        </div>
-      )}
-
-      <Card>
-        <div className="flex items-start gap-3">
-          <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
-            <Sun className="h-5 w-5" />
-          </span>
-          <div className="flex-1">
-            <h2 className="font-serif text-base font-normal text-foreground/90">
-              Your {Math.max(week, 1)}-week rhythm &amp; wake windows
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-              At {Math.max(week, 1)} weeks, your baby is just beginning to explore active alert moments. Look for gentle
-              wake windows around 45–60 minutes — focusing on quiet connection rather than a rigid clock.
-            </p>
-          </div>
-        </div>
+      <DisclosureSection icon={BookOpen} title="This week's learning" hint={`${thisWeekModule.title} · ${thisWeekModule.readTime} min read`}>
+        <p className="text-sm leading-relaxed text-muted-foreground">{thisWeekModule.excerpt}</p>
         <div className="mt-4">
-          <Link to="/education"><Button variant="outline" className="rounded-full">Explore today's cues &amp; flow</Button></Link>
-        </div>
-      </Card>
-
-
-      <Card>
-        <div className="flex items-start gap-3">
-          <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
-            <ClipboardCheck className="h-5 w-5" />
-          </span>
-          <div className="flex-1">
-            <h2 className="font-serif text-xl">Daily check-in</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {didToday
-                ? empty.checkedInToday
-                : checkins.length === 0
-                  ? empty.noCheckinsYet
-                  : "Sixty seconds. Mood, sleep, feeding, overall."}
-            </p>
-          </div>
-        </div>
-        <div className="mt-4">
-          <Link to="/checkin">
-            <Button className="rounded-full" disabled={didToday}>
-              {didToday ? "Check back tomorrow" : cta.start}
+          <Link to="/education">
+            <Button variant="outline" className="rounded-full">
+              Read this week's guide
             </Button>
           </Link>
         </div>
-      </Card>
+      </DisclosureSection>
 
-      {due && (
-        <Card>
-          <div className="flex items-start gap-3">
-            <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
-              <ShieldCheck className="h-5 w-5" />
-            </span>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h2 className="font-serif text-xl">EPDS screening</h2>
-                <span className="text-xs rounded-full bg-clay/15 text-clay px-2 py-0.5">
-                  Week {due.week} milestone
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                A gentle 10-question check on how you've been feeling these last 7 days.
-              </p>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Link to="/screening"><Button variant="outline" className="rounded-full">Take screening</Button></Link>
-          </div>
-        </Card>
-      )}
-
-      {!due && screenings.length === 0 && (
-        <Card>
-          <div className="flex items-start gap-3">
-            <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
-              <ShieldCheck className="h-5 w-5" />
-            </span>
-            <div className="flex-1">
-              <h2 className="font-serif text-xl">Mood screening</h2>
-              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                {empty.noScreeningsYet}
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      <Card>
-        <div className="flex items-start gap-3">
-          <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary">
-            <BookOpen className="h-5 w-5" />
-          </span>
-          <div className="flex-1">
-            <h2 className="font-serif text-xl">This week's learning</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {thisWeekModule.title} · {thisWeekModule.readTime} min read
-            </p>
-          </div>
-        </div>
+      <DisclosureSection icon={ShieldCheck} title="Mood screening" hint={due ? `Week ${due.week} milestone is due` : "EPDS, when it feels right"}>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {due
+            ? "A gentle 10-question check on how you've been feeling these last 7 days."
+            : empty.noScreeningsYet}
+        </p>
         <div className="mt-4">
-          <Link to="/education"><Button variant="outline" className="rounded-full">Read this week's guide</Button></Link>
+          <Link to="/screening">
+            <Button variant="outline" className="rounded-full">
+              Take screening
+            </Button>
+          </Link>
         </div>
-      </Card>
+      </DisclosureSection>
 
-      <HandoverReportCard />
-
-
-
-
-
-      <ShareCheckinsCard />
-
-      <InviteCaregiverCard />
-
-      <CareFeedCard />
-
-
-
-
+      <DisclosureSection icon={FileHeart} title="Sharing & your care team" hint="Handover report, invites, shared check-ins">
+        <HandoverReportCard />
+        <ShareCheckinsCard />
+        <InviteCaregiverCard />
+      </DisclosureSection>
 
       <div className="grid grid-cols-2 gap-3">
         <QuickLink to="/support" icon={MessageCircleHeart} label="Peer community" />
@@ -237,6 +200,7 @@ function Dashboard() {
     </AppShell>
   );
 }
+
 
 function HandoverReportCard() {
   const [pending, setPending] = useState(false);
