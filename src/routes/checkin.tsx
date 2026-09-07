@@ -9,6 +9,7 @@ import { addCheckin, todayStr, useStore } from "@/lib/store";
 import { saveCheckin } from "@/lib/vela-db";
 import { cn } from "@/lib/utils";
 import { Heart, Loader2 } from "lucide-react";
+import { ParentToolsDrawer } from "@/components/parent-tools";
 
 export const Route = createFileRoute("/checkin")({
   head: () => ({
@@ -63,6 +64,7 @@ function CheckinPage() {
         <Link to="/dashboard" className="inline-block mt-6">
           <Button className="rounded-full">{cta.backHome}</Button>
         </Link>
+        <ParentToolsDrawer className="mt-8" />
       </AppShell>
     );
   }
@@ -197,6 +199,8 @@ function CheckinPage() {
       <p className="mt-3 text-xs text-muted-foreground text-center">
         We hold your check-ins gently. If a few heavy days gather in a row, we'll quietly offer a hand — never a diagnosis.
       </p>
+
+      <ParentToolsDrawer className="mt-8" />
     </AppShell>
   );
 }
