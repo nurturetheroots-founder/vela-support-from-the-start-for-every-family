@@ -14,6 +14,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { saveParent } from "@/lib/vela-db";
 import { cn } from "@/lib/utils";
 import { ExpectTimeline } from "@/components/expect-timeline";
+import { CaregiverInviteDialog } from "@/components/caregiver-invite-dialog";
+
 import { CalendarIcon, Check, Heart, Sparkles, AlertCircle, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/onboarding")({
@@ -95,6 +97,8 @@ function Onboarding() {
 
   const total = 7;
   const [showErrors, setShowErrors] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+
   const [finishing, setFinishing] = useState(false);
   const [preparedCount, setPreparedCount] = useState(0);
 
@@ -528,7 +532,18 @@ function Onboarding() {
             {step === total ? "Complete setup" : step === 5 && tier !== 0 ? "Simulate checkout" : "Continue"}
           </Button>
         </div>
+        <div className="max-w-xl mx-auto px-5 pb-4 -mt-1 text-center">
+          <button
+            type="button"
+            onClick={() => setInviteOpen(true)}
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            Invited as a doula or caregiver? Enter invite code
+          </button>
+        </div>
+        <CaregiverInviteDialog open={inviteOpen} onOpenChange={setInviteOpen} />
       </footer>
+
     </div>
     )
   );

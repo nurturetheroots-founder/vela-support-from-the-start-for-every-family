@@ -61,9 +61,24 @@ export interface ShiftHandover {
  * created on first use. Invited caregivers get the baby of the family that
  * invited them, and never create one.
  */
-export async function ensureBaby(name = "Baby"): Promise<{ id: string; name: string }> {
+let babyPromise: Promise<{ id: string; name: string }> | null = null;
+
+export function ensureBaby(name = "Baby"): Promise<{ id: string; name: string }> {
+  // Two components can ask at once on first load — share one round trip so we
+  // never create duplicate baby records.
+  if (!babyPromise) {
+    babyPromise = resolveBaby(name).catch((err) => {
+      babyPromise = null;
+      throw err;
+    });
+  }
+  return babyPromise;
+}
+
+async function resolveBaby(name: string): Promise<{ id: string; name: string }> {
   const { data: auth } = await supabase.auth.getUser();
   const uid = auth.user?.id;
+
 
   if (uid) {
     const { data: link } = await supabase
@@ -83,9 +98,16 @@ export async function ensureBaby(name = "Baby"): Promise<{ id: string; name: str
         .limit(1);
       if (familyError) throw familyError;
       if (familyBaby && familyBaby.length > 0) return familyBaby[0] as { id: string; name: string };
-      throw new Error("This family hasn't set up their baby's profile yet.");
+      const { data: madeForFamily, error: madeError } = await supabase
+        .from("babies")
+        .insert({ name, parent_id: link.family_id as string })
+        .select("id, name")
+        .single();
+      if (madeError) throw madeError;
+      return madeForFamily as { id: string; name: string };
     }
   }
+
 
   const { data, error } = await supabase
     .from("babies")
