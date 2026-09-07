@@ -27,4 +27,3 @@ export const Route = createFileRoute("/care")({
     </AuthGate>
   ),
 });
-});
