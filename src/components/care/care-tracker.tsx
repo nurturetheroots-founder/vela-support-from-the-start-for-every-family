@@ -7,6 +7,7 @@ import { ShiftTimeline } from "@/components/care/shift-timeline";
 import { HandoverGenerator } from "@/components/care/handover-generator";
 import { CareTimers } from "@/components/care/care-timers";
 import { MorningHandoverCard } from "@/components/care/morning-handover";
+import { posthog } from "@/lib/analytics";
 import {
   addCareLog,
   computeMetrics,
@@ -20,6 +21,9 @@ import {
   type CarePayload,
   type ShiftHandover,
   type ObservationPayload,
+  type FeedPayload,
+  type SleepPayload,
+  type DiaperPayload,
 } from "@/lib/care-log";
 
 function shiftStartIso() {
@@ -71,6 +75,14 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
       const row = await addCareLog(baby.id, type, payload);
       setLogs((prev) => [row, ...prev]);
       toast.success("Logged.");
+
+      if (type === "feed" && "type" in payload) {
+        posthog.capture("logged_feed", { feed_type: (payload as FeedPayload).type });
+      } else if (type === "sleep" && "duration_minutes" in payload) {
+        posthog.capture("logged_sleep", { duration_minutes: (payload as SleepPayload).duration_minutes });
+      } else if (type === "diaper" && "condition" in payload) {
+        posthog.capture("logged_diaper", { type: (payload as DiaperPayload).condition });
+      }
     } catch {
       toast.error("That didn't save. Try once more.");
     }
