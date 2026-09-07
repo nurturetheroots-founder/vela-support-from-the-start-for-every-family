@@ -162,7 +162,7 @@ function Dashboard() {
       </DisclosureSection>
 
       <DisclosureSection icon={BookOpen} title="This week's learning" hint={`${thisWeekModule.title} · ${thisWeekModule.readTime} min read`}>
-        <p className="text-sm leading-relaxed text-muted-foreground">{thisWeekModule.summary ?? thisWeekModule.title}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">{thisWeekModule.excerpt}</p>
         <div className="mt-4">
           <Link to="/education">
             <Button variant="outline" className="rounded-full">
