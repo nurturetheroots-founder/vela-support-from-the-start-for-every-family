@@ -43,6 +43,13 @@
       "when": 1788786691546,
       "tag": "0005_babies_insert_caregiver",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788810296525,
+      "tag": "0006_lock_down_security_definer_functions",
+      "breakpoints": true
     }
   ]
 }
