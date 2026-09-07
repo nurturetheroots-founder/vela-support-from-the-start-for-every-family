@@ -11,14 +11,10 @@ import type {
 import { formatDuration } from "@/lib/care-log";
 
 const styles = {
-  sleep: { icon: Moon, badge: "bg-teal-500/15 text-teal-300 border-teal-500/30", label: "Sleep" },
-  feed: { icon: Milk, badge: "bg-amber-500/15 text-amber-300 border-amber-500/30", label: "Feed" },
-  diaper: { icon: Baby, badge: "bg-slate-500/15 text-slate-300 border-slate-500/30", label: "Diaper" },
-  observation: {
-    icon: NotebookPen,
-    badge: "bg-violet-500/15 text-violet-300 border-violet-500/30",
-    label: "Observation",
-  },
+  sleep: { icon: Moon, tint: "text-sage", label: "Sleep" },
+  feed: { icon: Milk, tint: "text-clay-soft", label: "Feed" },
+  diaper: { icon: Baby, tint: "text-night-muted", label: "Diaper" },
+  observation: { icon: NotebookPen, tint: "text-lilac-soft", label: "Note" },
 } as const;
 
 export function describeLog(log: CareLog): string {
@@ -54,48 +50,58 @@ export function ShiftTimeline({
   onDelete: (log: CareLog) => void;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
 
   if (logs.length === 0) {
     return (
-      <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-8 text-center text-slate-400">
-        Nothing logged yet this shift. Tap a button below to start.
+      <div className="rounded-[1.75rem] bg-night-soft/70 p-10 text-center text-night-muted">
+        The night is quiet so far. Tap a card below when something happens.
       </div>
     );
   }
 
   return (
-    <ol className="space-y-3">
+    <ol className="relative pl-8">
+      <span
+        aria-hidden
+        className="absolute left-[15px] top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-night-line to-transparent"
+      />
       {logs.map((log) => {
         const s = styles[log.event_type];
         const Icon = s.icon;
         const editing = editingId === log.id;
+        const expanded = openId === log.id;
         return (
-          <li
-            key={log.id}
-            className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 transition-opacity"
-          >
-            <div className="flex items-start gap-3">
-              <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-full border", s.badge)}>
-                <Icon className="h-5 w-5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 text-xs">
-                  <span className={cn("rounded-full border px-2 py-0.5", s.badge)}>{s.label}</span>
-                  <span className="text-slate-500">{time(log.timestamp)}</span>
-                </div>
-                {editing ? (
-                  <textarea
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    rows={2}
-                    className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-2 text-sm text-slate-100 outline-none focus:border-slate-500"
-                  />
-                ) : (
-                  <p className="mt-1 text-sm leading-relaxed text-slate-200">{describeLog(log)}</p>
+          <li key={log.id} className="relative py-3">
+            <span className="absolute -left-8 top-4 grid h-8 w-8 place-items-center rounded-full bg-night ring-1 ring-night-line">
+              <Icon className={cn("h-4 w-4", s.tint)} />
+            </span>
+            <button
+              type="button"
+              onClick={() => setOpenId(expanded ? null : log.id)}
+              className="flex w-full items-baseline gap-3 rounded-2xl px-2 py-1.5 text-left active:bg-night-soft/60"
+            >
+              <span className="w-16 shrink-0 text-xs tabular-nums text-night-muted">{time(log.timestamp)}</span>
+              <span className="min-w-0 flex-1">
+                {editing ? null : (
+                  <span className="block text-[15px] leading-relaxed text-night-text">{describeLog(log)}</span>
                 )}
-              </div>
-              <div className="flex shrink-0 gap-1">
+                <span className="block text-[11px] uppercase tracking-wide text-night-muted/70">{s.label}</span>
+              </span>
+            </button>
+
+            {editing && (
+              <textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={2}
+                className="mt-2 w-full rounded-2xl bg-night-soft p-3 text-sm text-night-text outline-none ring-1 ring-night-line focus:ring-clay-soft"
+              />
+            )}
+
+            {(expanded || editing) && (
+              <div className="mt-2 flex gap-2 pl-2">
                 {editing ? (
                   <>
                     <button
@@ -105,17 +111,17 @@ export function ShiftTimeline({
                         onEdit(log, draft);
                         setEditingId(null);
                       }}
-                      className="grid h-11 w-11 place-items-center rounded-full text-teal-300 active:bg-slate-800"
+                      className="flex min-h-11 items-center gap-1.5 rounded-full bg-clay-soft px-4 text-sm font-medium text-night"
                     >
-                      <Check className="h-5 w-5" />
+                      <Check className="h-4 w-4" /> Save
                     </button>
                     <button
                       type="button"
                       aria-label="Cancel"
                       onClick={() => setEditingId(null)}
-                      className="grid h-11 w-11 place-items-center rounded-full text-slate-400 active:bg-slate-800"
+                      className="flex min-h-11 items-center gap-1.5 rounded-full bg-night-soft px-4 text-sm text-night-muted"
                     >
-                      <X className="h-5 w-5" />
+                      <X className="h-4 w-4" /> Cancel
                     </button>
                   </>
                 ) : (
@@ -127,22 +133,22 @@ export function ShiftTimeline({
                         setDraft(describeLog(log));
                         setEditingId(log.id);
                       }}
-                      className="grid h-11 w-11 place-items-center rounded-full text-slate-400 active:bg-slate-800"
+                      className="flex min-h-11 items-center gap-1.5 rounded-full bg-night-soft px-4 text-sm text-night-text"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-4 w-4" /> Edit
                     </button>
                     <button
                       type="button"
                       aria-label="Delete entry"
                       onClick={() => onDelete(log)}
-                      className="grid h-11 w-11 place-items-center rounded-full text-slate-500 active:bg-slate-800"
+                      className="flex min-h-11 items-center gap-1.5 rounded-full bg-night-soft px-4 text-sm text-night-muted"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" /> Remove
                     </button>
                   </>
                 )}
               </div>
-            </div>
+            )}
           </li>
         );
       })}
