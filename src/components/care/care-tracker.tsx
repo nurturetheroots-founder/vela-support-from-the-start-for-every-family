@@ -24,7 +24,7 @@ import {
   type SleepPayload,
   type DiaperPayload,
 } from "@/lib/care-log";
-import { captureEvent } from "@/lib/analytics";
+import { captureEvent } from "@/lib/analytics-utils";
 
 function shiftStartIso() {
   // Current shift window: the last 14 hours of activity.
@@ -79,7 +79,9 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
       if (type === "feed") {
         captureEvent("logged_feed", { feed_type: (payload as FeedPayload).type });
       } else if (type === "sleep") {
-        captureEvent("logged_sleep", { duration_minutes: (payload as SleepPayload).duration_minutes });
+        captureEvent("logged_sleep", {
+          duration_minutes: (payload as SleepPayload).duration_minutes,
+        });
       } else if (type === "diaper") {
         captureEvent("logged_diaper", { type: (payload as DiaperPayload).condition });
       }
