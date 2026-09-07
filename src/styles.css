@@ -64,6 +64,17 @@
   --color-clay: var(--clay);
   --color-welcome-base: var(--welcome-base);
   --color-welcome-blush: var(--welcome-blush);
+  /* Care tracker night surfaces — velvety, warm, low-contrast for 3am eyes */
+  --color-night: oklch(0.21 0.012 60);
+  --color-night-soft: oklch(0.26 0.013 60);
+  --color-night-raised: oklch(0.3 0.014 60);
+  --color-night-line: oklch(0.36 0.012 60);
+  --color-night-text: oklch(0.93 0.012 80);
+  --color-night-muted: oklch(0.72 0.014 75);
+  --color-sage: oklch(0.74 0.05 155);
+  --color-clay-soft: oklch(0.76 0.09 45);
+  --color-lilac-soft: oklch(0.78 0.05 300);
+
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 }
