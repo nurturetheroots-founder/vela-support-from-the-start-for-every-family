@@ -55,10 +55,7 @@ export function CareFeedCard() {
           <Loader2 className="h-4 w-4 animate-spin" /> Looking in on the last shift…
         </p>
       ) : logs.length === 0 ? (
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Nothing logged yet. When your caregiver starts a shift, feeds, diapers and sleep will show
-          up here.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">No entries yet.</p>
       ) : (
         <>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
