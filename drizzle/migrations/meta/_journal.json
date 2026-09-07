@@ -36,6 +36,13 @@
       "when": 1788784322935,
       "tag": "0004_rbac_family_members_and_invites",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788786691546,
+      "tag": "0005_babies_insert_caregiver",
+      "breakpoints": true
     }
   ]
 }

@@ -13,6 +13,8 @@ import { AgentStatus } from "@/components/agent-status";
 import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
 import { ShareCheckinsCard } from "@/components/share-checkins";
 import { DraftApprovalQueue } from "@/components/DraftApprovalQueue";
+import { InviteCaregiverCard } from "@/components/invite-caregiver-card";
+
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -218,6 +220,9 @@ function Dashboard() {
 
 
       <ShareCheckinsCard />
+
+      <InviteCaregiverCard />
+
 
 
 
