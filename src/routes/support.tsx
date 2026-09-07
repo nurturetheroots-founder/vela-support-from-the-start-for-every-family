@@ -4,6 +4,7 @@ import { getState } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight } from "lucide-react";
 import { legal } from "@/lib/microcopy";
+import { InviteCaregiverCard } from "@/components/invite-caregiver-card";
 
 export const Route = createFileRoute("/support")({
   head: () => ({
@@ -94,6 +95,10 @@ function SupportPage() {
           cta="Start a referral"
           tone="default"
         />
+      </div>
+
+      <div className="mt-7">
+        <InviteCaregiverCard />
       </div>
 
       <section className="mt-12">

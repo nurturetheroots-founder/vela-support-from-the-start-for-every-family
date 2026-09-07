@@ -97,6 +97,9 @@ export function DraftApprovalQueue({ className }: { className?: string }) {
     toast("Your words are saved.");
   };
 
+  // Stay quiet when there's nothing to review.
+  if (loading || drafts.length === 0) return null;
+
   return (
     <section className={cn("mb-4", className)} aria-label="Drafts waiting for you">
       <div className="flex items-center gap-2 mb-3">

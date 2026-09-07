@@ -197,6 +197,23 @@ function EducationPage() {
     <AppShell>
       <h1 className="font-serif text-3xl">Weekly guides</h1>
       <p className="mt-2 text-muted-foreground">Short reads that meet you where your week is. Take them in any order, or skip one entirely — nothing here is homework.</p>
+
+      {(() => {
+        const current = mvpModules.find((m) => m.week === Math.min(Math.max(week, 1), 6)) ?? mvpModules[0];
+        if (!current) return null;
+        return (
+          <section className="mt-6 rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm">
+            <p className="text-xs uppercase tracking-wider text-primary">
+              This week's learning · {current.readTime} min read
+            </p>
+            <h2 className="mt-1.5 font-serif text-xl">{current.title}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{current.excerpt}</p>
+            <Button className="mt-4 h-12 w-full rounded-full" onClick={() => setOpenWeek(current.week)}>
+              Read this week's guide
+            </Button>
+          </section>
+        );
+      })()}
       <div className="mt-5 text-sm text-muted-foreground">
         {completedInScope} of {mvpModules.length} weeks read
       </div>
