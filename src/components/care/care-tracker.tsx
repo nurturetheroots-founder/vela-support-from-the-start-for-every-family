@@ -27,7 +27,7 @@ function shiftStartIso() {
   return new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString();
 }
 
-export function CareTracker() {
+export function CareTracker({ showParentLink = true }: { showParentLink?: boolean } = {}) {
   const [baby, setBaby] = useState<{ id: string; name: string } | null>(null);
   const [logs, setLogs] = useState<CareLog[]>([]);
   const [loading, setLoading] = useState(true);
