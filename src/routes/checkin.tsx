@@ -10,6 +10,7 @@ import { saveCheckin } from "@/lib/vela-db";
 import { cn } from "@/lib/utils";
 import { Heart, Loader2 } from "lucide-react";
 import { ParentToolsDrawer } from "@/components/parent-tools";
+import { captureEvent } from "@/lib/analytics";
 
 export const Route = createFileRoute("/checkin")({
   head: () => ({
@@ -107,6 +108,7 @@ function CheckinPage() {
     });
     try {
       if (user) await saveCheckin(user.id, c);
+      captureEvent("logged_mood");
     } catch {
       setSaveError("We saved today on this device, but couldn't reach your account just yet.");
     } finally {
