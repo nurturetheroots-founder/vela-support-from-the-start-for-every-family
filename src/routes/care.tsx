@@ -6,16 +6,20 @@ import { AuthGate } from "@/components/auth-gate";
 import { QuickLogBar } from "@/components/care/quick-log-bar";
 import { ShiftTimeline } from "@/components/care/shift-timeline";
 import { HandoverGenerator } from "@/components/care/handover-generator";
+import { CareTimers } from "@/components/care/care-timers";
+import { MorningHandoverCard } from "@/components/care/morning-handover";
 import {
   addCareLog,
   computeMetrics,
   deleteCareLog,
   ensureBaby,
   fetchCareLogs,
+  fetchLatestPublishedHandover,
   updateCareLog,
   type CareEventType,
   type CareLog,
   type CarePayload,
+  type ShiftHandover,
   type ObservationPayload,
 } from "@/lib/care-log";
 
@@ -55,11 +59,16 @@ function CarePage() {
   const [logs, setLogs] = useState<CareLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [since] = useState(shiftStartIso);
+  const [handover, setHandover] = useState<ShiftHandover | null>(null);
 
   const load = useCallback(
     async (babyId: string) => {
-      const rows = await fetchCareLogs(babyId, since);
+      const [rows, latest] = await Promise.all([
+        fetchCareLogs(babyId, since),
+        fetchLatestPublishedHandover(babyId).catch(() => null),
+      ]);
       setLogs(rows);
+      setHandover(latest);
     },
     [since],
   );
@@ -120,29 +129,32 @@ function CarePage() {
   const metrics = computeMetrics(logs);
 
   return (
-    <div className="min-h-dvh bg-slate-950 text-slate-100">
+    <div className="min-h-dvh bg-night text-night-text">
       <div className="mx-auto max-w-2xl px-5 pb-40 pt-6">
         <header className="mb-5 flex items-start justify-between gap-3">
           <div>
-            <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-slate-500">
+            <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-night-muted">
               <Moon className="h-3.5 w-3.5" /> Active shift
             </p>
-            <h1 className="mt-1 font-serif text-2xl text-slate-50">Shift &amp; care tracker</h1>
+            <h1 className="mt-1 font-serif text-2xl text-night-text">Shift &amp; care tracker</h1>
           </div>
           <Link
             to="/care-summary"
-            className="mt-1 inline-flex items-center gap-1 text-sm text-slate-400 underline-offset-4 hover:underline"
+            className="mt-1 inline-flex items-center gap-1 text-sm text-night-muted underline-offset-4 hover:underline"
           >
             Parent view <ArrowRight className="h-4 w-4" />
           </Link>
         </header>
 
+        <CareTimers onLog={handleLog} />
+
         {loading ? (
-          <div className="flex items-center gap-2 text-slate-400">
+          <div className="flex items-center gap-2 text-night-muted">
             <Loader2 className="h-4 w-4 animate-spin" /> Opening tonight's shift…
           </div>
         ) : (
           <>
+            {handover && <MorningHandoverCard handover={handover} />}
             {baby && (
               <div className="mb-6">
                 <HandoverGenerator
@@ -150,6 +162,7 @@ function CarePage() {
                   babyName={baby.name}
                   metrics={metrics}
                   shiftStart={since}
+                  onPublished={() => baby && void load(baby.id)}
                 />
               </div>
             )}
