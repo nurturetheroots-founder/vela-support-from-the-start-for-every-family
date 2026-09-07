@@ -14,6 +14,7 @@ import { startAgentTask, endAgentTask } from "@/lib/agent-tasks";
 import { ShareCheckinsCard } from "@/components/share-checkins";
 import { DraftApprovalQueue } from "@/components/DraftApprovalQueue";
 import { InviteCaregiverCard } from "@/components/invite-caregiver-card";
+import { CareFeedCard } from "@/components/care/care-feed-card";
 
 
 
@@ -222,6 +223,9 @@ function Dashboard() {
       <ShareCheckinsCard />
 
       <InviteCaregiverCard />
+
+      <CareFeedCard />
+
 
 
 

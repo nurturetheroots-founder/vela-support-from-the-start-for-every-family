@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchRoleInfo } from "@/lib/roles";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,10 +45,15 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && user) {
-      if (next) window.location.href = next;
-      else nav({ to: "/dashboard" });
+    if (loading || !user) return;
+    if (next) {
+      window.location.href = next;
+      return;
     }
+    // Invited caregivers land on their shift tracker, never parent screens.
+    void fetchRoleInfo().then((info) =>
+      nav({ to: info.role === "caregiver" ? "/caregiver/shift-dashboard" : "/dashboard" }),
+    );
   }, [loading, user, nav, next]);
 
   async function submit(e: React.FormEvent) {
@@ -69,8 +75,12 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
       }
-      if (next) window.location.href = next;
-      else nav({ to: "/onboarding" });
+      if (next) {
+        window.location.href = next;
+      } else {
+        const info = await fetchRoleInfo();
+        await nav({ to: info.role === "caregiver" ? "/caregiver/shift-dashboard" : "/onboarding" });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something didn't go through. Try again in a moment.");
     } finally {

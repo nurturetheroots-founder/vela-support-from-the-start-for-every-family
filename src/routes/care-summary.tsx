@@ -4,7 +4,7 @@ import { Heart, Moon, Milk, Baby, Loader2, ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { AuthGate } from "@/components/auth-gate";
 import {
-  ensureBaby,
+  findBaby,
   fetchLatestPublishedHandover,
   formatDuration,
   type ShiftHandover,
@@ -44,8 +44,8 @@ function CareSummaryPage() {
     let cancelled = false;
     (async () => {
       try {
-        const baby = await ensureBaby();
-        const h = await fetchLatestPublishedHandover(baby.id);
+        const baby = await findBaby();
+        const h = baby ? await fetchLatestPublishedHandover(baby.id) : null;
         if (!cancelled) setHandover(h);
       } catch {
         /* offline — show the calm empty state */

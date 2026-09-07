@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { resetBabyCache } from "@/lib/care-log";
 
 /**
  * Role-based access. A "parent" owns the family record and all maternal
@@ -60,6 +61,7 @@ export async function redeemInvite(code: string, displayName: string): Promise<s
   });
   if (error) throw error;
   setCachedRole("caregiver");
+  resetBabyCache();
   return data as string;
 }
 

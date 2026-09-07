@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { fetchCheckins, fetchParent, rowToCheckin, rowToProfile } from "@/lib/vela-db";
 import { getState, hydrateFromRemote } from "@/lib/store";
 import { isGuest } from "@/lib/guest";
+import { cachedRole } from "@/lib/roles";
 
 /**
  * Client-side gate for the signed-in experience. Renders a calm waiting state
@@ -55,7 +56,8 @@ export function AuthGate({
   }, [loading, user, nav]);
 
   useEffect(() => {
-    if (hydrated && requireOnboarded && !getState().profile.onboarded) {
+    // Caregivers never go through parent onboarding.
+    if (hydrated && requireOnboarded && cachedRole() !== "caregiver" && !getState().profile.onboarded) {
       nav({ to: "/onboarding" });
     }
   }, [hydrated, requireOnboarded, nav]);
