@@ -107,8 +107,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
       </header>
-      <main className="flex-1 max-w-2xl w-full mx-auto px-5 pt-6 pb-28">{children}</main>
-      <LegalFooter className="max-w-2xl w-full mx-auto pb-28" />
+      <main className="flex-1 max-w-2xl w-full mx-auto px-5 pt-6 pb-40">{children}</main>
+      <LegalFooter className="max-w-2xl w-full mx-auto pb-40" />
       <nav className="fixed bottom-0 inset-x-0 border-t border-border/50 bg-welcome-base/90 backdrop-blur">
         <div className="max-w-2xl mx-auto border-b border-border/40">
           <BetaFeedbackDialog />
