@@ -7,6 +7,7 @@ import { problem } from "@/lib/microcopy";
 import { LegalFooter } from "@/components/legal-footer";
 import { endGuest } from "@/lib/guest";
 import { cachedRole, fetchRoleInfo, type AppRole } from "@/lib/roles";
+import { BetaFeedbackDialog } from "@/components/beta-feedback-dialog";
 
 
 const caregiverNav = [{ to: "/caregiver/shift-dashboard", label: "Shift", icon: Moon }];
