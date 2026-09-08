@@ -31,6 +31,8 @@ export const sendEmailFn = createServerFn({ method: "POST" })
       return { success: true, data: response.data };
     } catch (error) {
       console.error("[Resend] Exception inside server function:", error);
-      throw error instanceof Error ? error : new Error("An unexpected error occurred while sending email");
+      throw error instanceof Error
+        ? error
+        : new Error("An unexpected error occurred while sending email");
     }
   });

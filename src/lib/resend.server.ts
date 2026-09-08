@@ -9,7 +9,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
 if (!RESEND_API_KEY) {
   console.warn(
-    "[Resend] Warning: RESEND_API_KEY is not set in process.env. Emails cannot be sent."
+    "[Resend] Warning: RESEND_API_KEY is not set in process.env. Emails cannot be sent.",
   );
 }
 
