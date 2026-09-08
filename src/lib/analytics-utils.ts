@@ -52,7 +52,7 @@ function delayUntilLoadOrInteraction(): Promise<void> {
   });
 }
 
-export async function initPostHog(): Promise<PostHog | null> {
+export async function initPostHog(): Promise<PostHogLike | null> {
   if (typeof window === "undefined") return null;
   if (posthogPromise) return posthogPromise;
 
