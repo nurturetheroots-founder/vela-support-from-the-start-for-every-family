@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Moon, ArrowRight } from "lucide-react";
 import { QuickLogBar } from "@/components/care/quick-log-bar";
@@ -25,6 +26,8 @@ import {
   type DiaperPayload,
 } from "@/lib/care-log";
 import { captureEvent } from "@/lib/analytics-utils";
+import { useAuth } from "@/hooks/use-auth";
+import { isGuest } from "@/lib/guest";
 
 function shiftStartIso() {
   // Current shift window: the last 14 hours of activity.
@@ -32,42 +35,64 @@ function shiftStartIso() {
 }
 
 export function CareTracker({ showParentLink = true }: { showParentLink?: boolean } = {}) {
+  const { session, loading: isAuthLoading } = useAuth();
+  const [guest, setGuest] = useState(false);
   const [baby, setBaby] = useState<{ id: string; name: string } | null>(null);
   const [logs, setLogs] = useState<CareLog[]>([]);
-  const [loading, setLoading] = useState(true);
   const [since] = useState(shiftStartIso);
   const [handover, setHandover] = useState<ShiftHandover | null>(null);
 
-  const load = useCallback(
-    async (babyId: string) => {
+  useEffect(() => {
+    setGuest(isGuest());
+  }, []);
+
+  // Wait for the Supabase session to finish hydrating before fetching, so a
+  // not-yet-authorized request never surfaces a false "check your connection"
+  // toast. Works for parents, invited caregivers, and guest/demo sessions.
+  const ready = !isAuthLoading && (!!session || guest);
+
+  const shiftQuery = useQuery({
+    queryKey: ["shift-tracker", session?.user?.id ?? "guest", since],
+    enabled: ready,
+    // Retry transient Supabase network/auth blips with exponential backoff
+    // before we consider the load failed.
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
+    queryFn: async () => {
+      const b = await ensureBaby();
       const [rows, latest] = await Promise.all([
-        fetchCareLogs(babyId, since),
-        fetchLatestPublishedHandover(babyId).catch(() => null),
+        fetchCareLogs(b.id, since),
+        fetchLatestPublishedHandover(b.id).catch(() => null),
       ]);
-      setLogs(rows);
-      setHandover(latest);
+      return { baby: b, logs: rows, handover: latest };
     },
-    [since],
-  );
+  });
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const b = await ensureBaby();
-        if (cancelled) return;
-        setBaby(b);
-        await load(b.id);
-      } catch {
-        toast.error("Couldn't open the shift tracker. Check your connection.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [load]);
+    if (!shiftQuery.data) return;
+    setBaby(shiftQuery.data.baby);
+    setLogs(shiftQuery.data.logs);
+    setHandover(shiftQuery.data.handover);
+  }, [shiftQuery.data]);
+
+  useEffect(() => {
+    // Only toast once retries are exhausted; background retries that recover
+    // never surface the warning.
+    if (shiftQuery.isError) {
+      toast.error("Couldn't open the shift tracker. Check your connection.");
+    }
+  }, [shiftQuery.isError]);
+
+  const loading = !ready || shiftQuery.isPending;
+
+  async function reload(babyId: string) {
+    const [rows, latest] = await Promise.all([
+      fetchCareLogs(babyId, since),
+      fetchLatestPublishedHandover(babyId).catch(() => null),
+    ]);
+    setLogs(rows);
+    setHandover(latest);
+  }
 
   async function handleLog(type: CareEventType, payload: CarePayload) {
     if (!baby) return;
@@ -151,7 +176,7 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
                   babyName={baby.name}
                   metrics={metrics}
                   shiftStart={since}
-                  onPublished={() => baby && void load(baby.id)}
+                  onPublished={() => baby && void reload(baby.id)}
                 />
               </div>
             )}
