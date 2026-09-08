@@ -10,7 +10,7 @@ const emailPayloadSchema = z.object({
 });
 
 export const sendEmailFn = createServerFn({ method: "POST" })
-  .validator(emailPayloadSchema)
+  .inputValidator((data: unknown) => emailPayloadSchema.parse(data))
   .handler(async ({ data }) => {
     try {
       const response = await resend.emails.send({

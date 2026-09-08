@@ -1,6 +1,11 @@
-import type { PostHog } from "posthog-js";
+type PostHogLike = {
+  init: (token: string, config: Record<string, unknown>) => void;
+  capture: (event: string, properties?: Record<string, unknown>) => void;
+  identify: (id: string, properties?: Record<string, unknown>) => void;
+  reset: () => void;
+};
 
-let posthogPromise: Promise<PostHog | null> | null = null;
+let posthogPromise: Promise<PostHogLike | null> | null = null;
 
 const FALLBACK_TOKEN = "phc_ANLxu5buY5J4tPL977GrZLEaacto8wLcBrw72tAetykh";
 const FALLBACK_REGION = "us";
@@ -47,7 +52,7 @@ function delayUntilLoadOrInteraction(): Promise<void> {
   });
 }
 
-export async function initPostHog(): Promise<PostHog | null> {
+export async function initPostHog(): Promise<PostHogLike | null> {
   if (typeof window === "undefined") return null;
   if (posthogPromise) return posthogPromise;
 
