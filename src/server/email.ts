@@ -1,37 +1,39 @@
-import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
-import { resend } from '../lib/resend.server';
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { resend } from "../lib/resend.server";
 
+// Input validation schema using Zod
 const emailPayloadSchema = z.object({
   to: z.string().email(),
   subject: z.string(),
   html: z.string(),
 });
 
-export const sendEmailFn = createServerFn({ method: 'POST' })
+export const sendEmailFn = createServerFn({ method: "POST" })
   .validator(emailPayloadSchema)
   .handler(async ({ data }) => {
     try {
-      const { data: resendData, error } = await resend.emails.send({
-        from: 'Vela Support <care@nurturetheroots.co>',
+      const response = await resend.emails.send({
+        from: "Vela Support <care@nurturetheroots.co>",
         to: data.to,
         subject: data.subject,
         html: data.html,
       });
 
-      if (error) {
-        return { success: false, error };
+      if (response.error) {
+        console.error("[Resend] Email API error:", response.error);
+        return { success: false, error: response.error };
       }
 
-      return { success: true, id: resendData?.id };
+      return { success: true, id: response.data?.id };
     } catch (error: any) {
-      console.error('Failed to send email:', error);
+      console.error("[Resend] Exception inside server function:", error);
       return { success: false, error: error };
     }
   });
 
 export async function sendWelcomeEmail(toEmail: string) {
-  const subject = 'Welcome to Vela - Support from the Start';
+  const subject = "Welcome to Vela - Support from the Start";
   const html = `
     <!DOCTYPE html>
     <html>
