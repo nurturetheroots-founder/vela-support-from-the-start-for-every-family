@@ -147,7 +147,7 @@ functions stay revoked from everyone and still work.
 
 Replays the full migration history into a throwaway Postgres cluster and
 asserts the guarantees as parent, caregiver, unrelated user, `service_role`,
-and `anon` — 27 checks. Run it after any migration that touches RLS, grants,
+and `anon` — 31 checks. Run it after any migration that touches RLS, grants,
 or the private tables.
 
 ## References
