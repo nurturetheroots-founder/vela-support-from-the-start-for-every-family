@@ -26,6 +26,31 @@ BEGIN
   IF to_regclass('public.profiles') IS NULL THEN
     RAISE EXCEPTION 'public.profiles not found — wrong database.';
   END IF;
+
+  IF to_regclass('public.checkins') IS NULL THEN
+    RAISE EXCEPTION
+      'public.checkins not found. Section 11 locks it down; if it is absent '
+      'here, this is not the database you inspected.';
+  END IF;
+END $$;
+
+-- Checked here, before a single object is created, so the refusal is genuinely
+-- free of side effects even when this file is not run inside a transaction.
+-- Section 11 puts checkins under FORCE row level security, which applies to the
+-- table owner too: a row with no user_id would become unreadable by everyone,
+-- permanently and silently.
+DO $$
+DECLARE orphaned bigint;
+BEGIN
+  SELECT count(*) INTO orphaned FROM public.checkins WHERE user_id IS NULL;
+  IF orphaned > 0 THEN
+    RAISE EXCEPTION
+      'checkins holds % row(s) with a NULL user_id. Locking the table down '
+      'would make them unreadable by everyone, the table owner included. '
+      'Inspect them with:  SELECT * FROM public.checkins WHERE user_id IS '
+      'NULL;  then assign an owner or delete them, and re-run. Nothing has '
+      'been created or altered.', orphaned;
+  END IF;
 END $$;
 
 DO $$ BEGIN CREATE TYPE public.member_role AS ENUM ('parent','caregiver');
@@ -81,10 +106,45 @@ CREATE TABLE IF NOT EXISTS public.parents (
 -- Carry across what profiles already knows, so existing testers do not lose
 -- their name or dates. consented_at is deliberately left NULL: consent should
 -- be given explicitly, not inferred, so they will be asked once more.
-INSERT INTO public.parents (parent_id, display_name, due_date, birth_date)
-SELECT p.id, COALESCE(p.name, ''), p.due_date, p.baby_birthday
-FROM public.profiles p
-ON CONFLICT (parent_id) DO NOTHING;
+--
+-- The date columns on profiles are read at whatever type they actually are.
+-- This database stores dates as text in places (checkins.date is text), and a
+-- straight INSERT of text into parents.due_date fails with 42804. Rather than
+-- assume either way, the expression is chosen from the live column type, and a
+-- text value that is not an ISO date carries across as NULL instead of raising.
+DO $$
+DECLARE
+  due_type   text;
+  birth_type text;
+  due_expr   text;
+  birth_expr text;
+BEGIN
+  SELECT data_type INTO due_type FROM information_schema.columns
+   WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'due_date';
+  SELECT data_type INTO birth_type FROM information_schema.columns
+   WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'baby_birthday';
+
+  due_expr := CASE
+    WHEN due_type IS NULL             THEN 'NULL::date'
+    WHEN due_type = 'date'            THEN 'p.due_date'
+    WHEN due_type LIKE 'timestamp%'   THEN 'p.due_date::date'
+    ELSE 'CASE WHEN p.due_date ~ ''^\d{4}-\d{2}-\d{2}'' THEN left(p.due_date, 10)::date END'
+  END;
+
+  birth_expr := CASE
+    WHEN birth_type IS NULL           THEN 'NULL::date'
+    WHEN birth_type = 'date'          THEN 'p.baby_birthday'
+    WHEN birth_type LIKE 'timestamp%' THEN 'p.baby_birthday::date'
+    ELSE 'CASE WHEN p.baby_birthday ~ ''^\d{4}-\d{2}-\d{2}'' THEN left(p.baby_birthday, 10)::date END'
+  END;
+
+  EXECUTE format(
+    'INSERT INTO public.parents (parent_id, display_name, due_date, birth_date)
+     SELECT p.id, COALESCE(p.name::text, %L), %s, %s
+     FROM public.profiles p
+     ON CONFLICT (parent_id) DO NOTHING',
+    '', due_expr, birth_expr);
+END $$;
 
 DROP TRIGGER IF EXISTS parents_set_updated_at ON public.parents;
 CREATE TRIGGER parents_set_updated_at
@@ -362,13 +422,31 @@ CREATE OR REPLACE FUNCTION public.care_logs_before_write()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public, pg_temp AS $$
 BEGIN
+  -- Authorship is fixed at insert. An RLS WITH CHECK cannot see OLD, so
+  -- without this a caregiver with write access could update their own row and
+  -- reassign created_by to someone else — falsifying who logged a care event.
+  IF TG_OP = 'UPDATE' THEN
+    NEW.created_by := OLD.created_by;
+  END IF;
+
   SELECT b.parent_id INTO NEW.family_id FROM public.babies b WHERE b.id = NEW.baby_id;
   IF NEW.family_id IS NULL THEN
     RAISE EXCEPTION 'care_logs.baby_id % does not resolve to a family', NEW.baby_id;
   END IF;
-  NEW.content := COALESCE(NEW.content,
-                          NEW.operational_metrics ->> 'note',
-                          NEW.operational_metrics ->> 'notes');
+
+  -- content mirrors the note on operational_metrics. updateCareLog() patches
+  -- only operational_metrics, so COALESCE onto the existing content would pin
+  -- it to the first note ever written; re-derive unless content was set
+  -- explicitly in this same statement.
+  IF TG_OP = 'UPDATE' AND NEW.content IS NOT DISTINCT FROM OLD.content THEN
+    NEW.content := COALESCE(NEW.operational_metrics ->> 'note',
+                            NEW.operational_metrics ->> 'notes');
+  ELSE
+    NEW.content := COALESCE(NEW.content,
+                            NEW.operational_metrics ->> 'note',
+                            NEW.operational_metrics ->> 'notes');
+  END IF;
+
   RETURN NEW;
 END; $$;
 
@@ -422,6 +500,11 @@ CREATE OR REPLACE FUNCTION public.shift_handovers_before_write()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public, pg_temp AS $$
 BEGIN
+  -- Same reasoning as care_logs: an update must not reassign the caregiver.
+  IF TG_OP = 'UPDATE' THEN
+    NEW.caregiver_id := OLD.caregiver_id;
+  END IF;
+
   SELECT b.parent_id INTO NEW.family_id FROM public.babies b WHERE b.id = NEW.baby_id;
   IF NEW.family_id IS NULL THEN
     RAISE EXCEPTION 'shift_handovers.baby_id % does not resolve to a family', NEW.baby_id;
@@ -620,17 +703,43 @@ COMMENT ON COLUMN public.epds_screenings.q10_emergency_state IS
 CREATE OR REPLACE FUNCTION public.epds_screenings_before_write()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public, pg_temp AS $$
-DECLARE answered integer; summed integer; item10 integer;
+DECLARE
+  answered integer := 0;
+  summed   integer := 0;
+  item10   integer;
+  parsed   integer;
+  item     text;
 BEGIN
-  SELECT count(*), COALESCE(sum((NEW.scores ->> item)::integer),0)
-  INTO answered, summed
-  FROM unnest(ARRAY['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10']) AS item
-  WHERE jsonb_typeof(NEW.scores -> item) = 'number';
-  IF answered = 10 THEN
-    item10 := (NEW.scores ->> 'q10')::integer;
-    NEW.total_score := summed;
-    NEW.q10_emergency_state := item10 > 0;
+  -- Accept an item whether it arrives as a JSON number or a numeric string;
+  -- anything else (null, 2.5, "n/a") parses to NULL and is simply not counted.
+  FOREACH item IN ARRAY ARRAY['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'] LOOP
+    parsed := CASE
+      WHEN jsonb_typeof(NEW.scores -> item) IN ('number','string')
+           AND btrim(NEW.scores ->> item) ~ '^-?\d+$'
+      THEN btrim(NEW.scores ->> item)::integer
+      ELSE NULL
+    END;
+    IF parsed IS NOT NULL THEN
+      answered := answered + 1;
+      summed   := summed + parsed;
+      IF item = 'q10' THEN item10 := parsed; END IF;
+    END IF;
+  END LOOP;
+
+  -- Item 10 is self-harm ideation, so its flag is derived whenever the item is
+  -- present at all — NOT only when the whole instrument parses. Requiring all
+  -- ten let a client suppress the flag by omitting one other item, or by
+  -- sending the scores as strings. The flag is also never downgraded: a client
+  -- that sets it true keeps it true.
+  IF item10 IS NOT NULL THEN
+    NEW.q10_emergency_state := (item10 > 0) OR COALESCE(NEW.q10_emergency_state, false);
   END IF;
+
+  -- The total is only meaningful once every item has parsed.
+  IF answered = 10 THEN
+    NEW.total_score := summed;
+  END IF;
+
   RETURN NEW;
 END; $$;
 
@@ -665,7 +774,81 @@ CREATE POLICY epds_screenings_isolation ON public.epds_screenings
 
 
 -- =============================================================================
--- 11. Function lockdown — scoped to this script's own functions
+-- 11. checkins — absolute isolation for wellness data that already exists
+-- =============================================================================
+-- Columns: id (uuid), user_id (uuid), date (text), mood (integer), energy (integer).
+-- Mood and energy per person per day is maternal wellness data, so it gets the
+-- same treatment as private_checkins.
+--
+-- This table differs from every other one here in one way that matters: it is
+-- already live and already holds rows. Two consequences, stated plainly:
+--
+--   * FORCE row level security applies to the table owner as well. Any row
+--     whose user_id is NULL becomes unreadable by everyone, permanently and
+--     silently. The guard below refuses to run rather than orphan such rows.
+--   * Revoking service_role is the point of the exercise, but it takes effect
+--     immediately. If any server-side job, Edge Function, or admin script
+--     writes to checkins with the service_role key, it stops working the
+--     moment this runs.
+--
+-- Existing policies are left alone rather than dropped, because another
+-- application owns this table and its policies may be load-bearing. They do
+-- not weaken the guarantee: the RESTRICTIVE policy at the end of this section
+-- is ANDed with every permissive policy, so even a pre-existing USING (true)
+-- cannot grant access to someone else's row.
+
+CREATE INDEX IF NOT EXISTS checkins_user_date_idx ON public.checkins (user_id, date DESC);
+
+COMMENT ON TABLE public.checkins IS
+  'Maternal wellness (mood, energy). Readable and writable by the owning user '
+  'alone. No caregiver role, permissions grant, or family membership reaches '
+  'this table, and service_role is revoked because it carries BYPASSRLS.';
+
+-- service_role carries BYPASSRLS, so the policies below are invisible to it.
+-- Table privileges are checked separately from RLS, so the grant is revoked.
+REVOKE ALL ON public.checkins FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.checkins TO authenticated;
+
+ALTER TABLE public.checkins ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.checkins FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS checkins_layer2_select    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_insert    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_update    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_delete    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_isolation ON public.checkins;
+
+-- One permissive policy per verb, each with the identical owner test, written
+-- out separately so a future migration cannot widen one verb without the
+-- change being visible in the diff.
+CREATE POLICY checkins_layer2_select ON public.checkins
+  FOR SELECT TO authenticated
+  USING (user_id = (SELECT auth.uid()));
+
+CREATE POLICY checkins_layer2_insert ON public.checkins
+  FOR INSERT TO authenticated
+  WITH CHECK (user_id = (SELECT auth.uid()));
+
+CREATE POLICY checkins_layer2_update ON public.checkins
+  FOR UPDATE TO authenticated
+  USING (user_id = (SELECT auth.uid()))
+  WITH CHECK (user_id = (SELECT auth.uid()));
+
+CREATE POLICY checkins_layer2_delete ON public.checkins
+  FOR DELETE TO authenticated
+  USING (user_id = (SELECT auth.uid()));
+
+-- The isolation block. RESTRICTIVE policies are ANDed with the OR-ed set of
+-- permissive ones, so this cannot be satisfied by adding another policy later,
+-- and it clamps any permissive policy that already exists on this table.
+CREATE POLICY checkins_layer2_isolation ON public.checkins
+  AS RESTRICTIVE FOR ALL TO public
+  USING (user_id = (SELECT auth.uid()))
+  WITH CHECK (user_id = (SELECT auth.uid()));
+
+
+-- =============================================================================
+-- 12. Function lockdown — scoped to this script's own functions
 -- =============================================================================
 -- Not a schema-wide sweep: another application's functions live in this public
 -- schema and a blanket revoke would strip their anon EXECUTE too.
