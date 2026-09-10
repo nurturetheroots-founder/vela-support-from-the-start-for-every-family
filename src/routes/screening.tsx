@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ShieldCheck, Phone, LifeBuoy } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { legal } from "@/lib/microcopy";
+import { captureEvent } from "@/lib/analytics-utils";
 
 export const Route = createFileRoute("/screening")({
   head: () => ({
