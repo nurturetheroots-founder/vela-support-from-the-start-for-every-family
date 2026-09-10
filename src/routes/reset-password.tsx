@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +33,23 @@ function ResetPasswordPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasSession = useRef(false);
+  // The stage is tracked in a ref as well as state, and the ref is the one an
+  // in-flight async exit consults. Mirroring it during render was not enough:
+  // setStage only schedules a re-render, so between a recovery arriving and
+  // that render committing the ref still read stale, and the exit could
+  // navigate away from a form that had already opened. Writing it here, at the
+  // moment the stage changes, makes it true immediately.
+  const stageRef = useRef<Stage>("checking");
+  const applyStage = useCallback((next: Stage) => {
+    stageRef.current = next;
+    setStage(next);
+    // busy and error belong to whichever flow the old stage was showing. Carried
+    // across, they strand the new one: a recovery arriving while "email me a
+    // link" is in flight would open the password form with its submit button
+    // disabled, and could paint a send failure over it.
+    setBusy(false);
+    setError(null);
+  }, []);
 
   useEffect(() => {
     // Holding a session is not enough to prove someone owns this account — an
@@ -43,15 +60,13 @@ function ResetPasswordPage() {
     // PASSWORD_RECOVERY is the only thing we trust for that. What the URL looks
     // like is not evidence: anyone can append ?code=anything to the address bar,
     // and a code that fails to exchange fires no event at all.
-    let settled = false;
-    const finish = (next: Stage) => {
-      if (settled) return;
-      settled = true;
-      setStage(next);
-    };
-
+    // The recovery event always wins, whenever it arrives. The timer below is
+    // only a fallback for the case where it never does. An earlier version
+    // latched on whichever came first, so a code exchange slower than the
+    // timer — an ordinary phone connection — showed "expired", swallowed the
+    // event that followed, and burned a one-time link.
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") finish("ok");
+      if (event === "PASSWORD_RECOVERY") applyStage("ok");
     });
 
     void supabase.auth.getSession().then(({ data }) => {
@@ -61,18 +76,20 @@ function ResetPasswordPage() {
       }
     });
 
-    // Give the code exchange time to land. If it never does, someone signed in
-    // gets a one-tap way to have a real link emailed to them, so a recovery we
-    // failed to recognise is an extra step rather than a dead end.
+    // If no recovery has landed by now, settle on a fallback that still leaves
+    // a way forward: someone signed in gets a one-tap way to have a real link
+    // emailed. Never overwrite an "ok" — the exchange may have completed while
+    // this was pending.
     const timer = window.setTimeout(() => {
-      finish(hasSession.current ? "signed-in" : "expired");
-    }, 2500);
+      if (stageRef.current === "ok") return;
+      applyStage(hasSession.current ? "signed-in" : "expired");
+    }, 8000);
 
     return () => {
       window.clearTimeout(timer);
       sub.subscription.unsubscribe();
     };
-  }, []);
+  }, [applyStage]);
 
   async function emailMeALink() {
     if (!email) {
@@ -86,12 +103,31 @@ function ResetPasswordPage() {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (sendError) throw sendError;
+      // A recovery may have opened the form while this was in flight. Reporting
+      // on it now would talk about the wrong screen, so the late result is
+      // dropped: the form in front of them is the better outcome anyway.
+      if (stageRef.current !== "signed-in") return;
       setLinkSent(true);
     } catch (err) {
+      if (stageRef.current !== "signed-in") return;
       setError(err instanceof Error ? err.message : "That didn't send. Try again in a moment.");
     } finally {
-      setBusy(false);
+      if (stageRef.current === "signed-in") setBusy(false);
     }
+  }
+
+  // Send people where signing in would have sent them. A caregiver dropped on
+  // the parent dashboard gets pushed through parent onboarding by AuthGate,
+  // which is not their account to set up. Used after a successful reset and by
+  // the signed-in panel's way out, so neither path can drift from the other.
+  async function goHome({ yieldToRecovery = false } = {}) {
+    const info = await fetchRoleInfo().catch(() => null);
+    // A recovery that landed while the role lookup was in flight has opened
+    // the form. Leaving now would spend the one-time session with no password
+    // set — the exact loss this page is meant to prevent. After a successful
+    // save there is nothing left to protect, so that exit never yields.
+    if (yieldToRecovery && stageRef.current === "ok") return;
+    await nav({ to: info?.role === "caregiver" ? "/caregiver/shift-dashboard" : "/dashboard" });
   }
 
   async function submit(e: React.FormEvent) {
@@ -112,11 +148,7 @@ function ResetPasswordPage() {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       toast.success("Your new password is saved.");
-      // Send people where signing in would have sent them. A caregiver dropped
-      // on the parent dashboard gets pushed through parent onboarding by
-      // AuthGate, which is not their account to set up.
-      const info = await fetchRoleInfo().catch(() => null);
-      await nav({ to: info?.role === "caregiver" ? "/caregiver/shift-dashboard" : "/dashboard" });
+      await goHome();
     } catch (err) {
       setError(
         err instanceof Error
@@ -187,8 +219,14 @@ function ResetPasswordPage() {
                 {error}
               </p>
             )}
-            <Button asChild variant="ghost" size="lg" className="min-h-11 w-full rounded-full">
-              <Link to="/dashboard">Back to Vela</Link>
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              className="min-h-11 w-full rounded-full"
+              onClick={() => void goHome({ yieldToRecovery: true })}
+            >
+              Back to Vela
             </Button>
           </div>
         )}
