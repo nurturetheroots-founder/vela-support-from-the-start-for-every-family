@@ -106,10 +106,45 @@ CREATE TABLE IF NOT EXISTS public.parents (
 -- Carry across what profiles already knows, so existing testers do not lose
 -- their name or dates. consented_at is deliberately left NULL: consent should
 -- be given explicitly, not inferred, so they will be asked once more.
-INSERT INTO public.parents (parent_id, display_name, due_date, birth_date)
-SELECT p.id, COALESCE(p.name, ''), p.due_date, p.baby_birthday
-FROM public.profiles p
-ON CONFLICT (parent_id) DO NOTHING;
+--
+-- The date columns on profiles are read at whatever type they actually are.
+-- This database stores dates as text in places (checkins.date is text), and a
+-- straight INSERT of text into parents.due_date fails with 42804. Rather than
+-- assume either way, the expression is chosen from the live column type, and a
+-- text value that is not an ISO date carries across as NULL instead of raising.
+DO $$
+DECLARE
+  due_type   text;
+  birth_type text;
+  due_expr   text;
+  birth_expr text;
+BEGIN
+  SELECT data_type INTO due_type FROM information_schema.columns
+   WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'due_date';
+  SELECT data_type INTO birth_type FROM information_schema.columns
+   WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'baby_birthday';
+
+  due_expr := CASE
+    WHEN due_type IS NULL             THEN 'NULL::date'
+    WHEN due_type = 'date'            THEN 'p.due_date'
+    WHEN due_type LIKE 'timestamp%'   THEN 'p.due_date::date'
+    ELSE 'CASE WHEN p.due_date ~ ''^\d{4}-\d{2}-\d{2}'' THEN left(p.due_date, 10)::date END'
+  END;
+
+  birth_expr := CASE
+    WHEN birth_type IS NULL           THEN 'NULL::date'
+    WHEN birth_type = 'date'          THEN 'p.baby_birthday'
+    WHEN birth_type LIKE 'timestamp%' THEN 'p.baby_birthday::date'
+    ELSE 'CASE WHEN p.baby_birthday ~ ''^\d{4}-\d{2}-\d{2}'' THEN left(p.baby_birthday, 10)::date END'
+  END;
+
+  EXECUTE format(
+    'INSERT INTO public.parents (parent_id, display_name, due_date, birth_date)
+     SELECT p.id, COALESCE(p.name::text, %L), %s, %s
+     FROM public.profiles p
+     ON CONFLICT (parent_id) DO NOTHING',
+    '', due_expr, birth_expr);
+END $$;
 
 DROP TRIGGER IF EXISTS parents_set_updated_at ON public.parents;
 CREATE TRIGGER parents_set_updated_at
