@@ -105,12 +105,15 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
     setHandover(latest);
   }
 
-  async function handleLog(type: CareEventType, payload: CarePayload) {
+  async function handleLog(type: CareEventType, payload: CarePayload, timestampIso?: string) {
     if (!baby) return;
     try {
-      const row = await addCareLog(baby.id, type, payload);
-      setLogs((prev) => [row, ...prev]);
+      const row = await addCareLog(baby.id, type, payload, timestampIso);
+      setLogs((prev) =>
+        [row, ...prev].sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1)),
+      );
       toast.success("Logged.");
+
 
       if (type === "feed") {
         captureEvent("logged_feed", { feed_type: (payload as FeedPayload).type });
