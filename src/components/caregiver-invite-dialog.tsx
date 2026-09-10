@@ -43,7 +43,7 @@ export function CaregiverInviteDialog({
       onOpenChange(false);
       await nav({ to: "/caregiver/shift-dashboard" });
     } catch {
-      setError("That code didn't work. Double-check it with the family who invited you.");
+      setError("That code isn't valid or has expired. Ask the family to send a new one.");
     } finally {
       setBusy(false);
     }
