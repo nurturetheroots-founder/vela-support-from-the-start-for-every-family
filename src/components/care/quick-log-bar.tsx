@@ -180,6 +180,10 @@ export function QuickLogBar({
   // sleep
   const [sleepMins, setSleepMins] = useState(90);
   const [soothing, setSoothing] = useState<string | undefined>(undefined);
+  // pump
+  const [pumpOz, setPumpOz] = useState(3);
+  const [pumpMins, setPumpMins] = useState(20);
+  const [pumpSide, setPumpSide] = useState<NonNullable<PumpPayload["side"]>>("both");
   // observation
   const [category, setCategory] = useState<ObservationPayload["category"]>("soothing");
   const [note, setNote] = useState<string | undefined>(undefined);
