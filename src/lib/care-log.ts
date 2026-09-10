@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type CareEventType = "feed" | "diaper" | "sleep" | "observation";
+export type CareEventType = "feed" | "diaper" | "sleep" | "observation" | "pump";
 
 export interface FeedPayload {
   type: "bottle" | "nursing";
@@ -23,8 +23,19 @@ export interface ObservationPayload {
   category: "developmental" | "soothing" | "maternal_check";
   note: string;
 }
+export interface PumpPayload {
+  amount_oz?: number;
+  duration_minutes?: number;
+  side?: "left" | "right" | "both";
+  notes?: string;
+}
 
-export type CarePayload = FeedPayload | DiaperPayload | SleepPayload | ObservationPayload;
+export type CarePayload =
+  | FeedPayload
+  | DiaperPayload
+  | SleepPayload
+  | ObservationPayload
+  | PumpPayload;
 
 export interface CareLog {
   id: string;
@@ -45,6 +56,8 @@ export interface ShiftMetrics {
   dirty_diapers: number;
   longest_sleep_stretch_mins: number;
   feed_count: number;
+  total_pumped_oz?: number;
+  pump_count?: number;
 }
 
 export interface ShiftHandover {
