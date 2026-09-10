@@ -33,6 +33,10 @@ function ResetPasswordPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasSession = useRef(false);
+  // Mirrors `stage` so an in-flight async exit can see a change that happened
+  // after it started, without a stale closure.
+  const stageRef = useRef<Stage>("checking");
+  stageRef.current = stage;
 
   useEffect(() => {
     // Holding a session is not enough to prove someone owns this account — an
@@ -99,8 +103,13 @@ function ResetPasswordPage() {
   // the parent dashboard gets pushed through parent onboarding by AuthGate,
   // which is not their account to set up. Used after a successful reset and by
   // the signed-in panel's way out, so neither path can drift from the other.
-  async function goHome() {
+  async function goHome({ yieldToRecovery = false } = {}) {
     const info = await fetchRoleInfo().catch(() => null);
+    // A recovery that landed while the role lookup was in flight has opened
+    // the form. Leaving now would spend the one-time session with no password
+    // set — the exact loss this page is meant to prevent. After a successful
+    // save there is nothing left to protect, so that exit never yields.
+    if (yieldToRecovery && stageRef.current === "ok") return;
     await nav({ to: info?.role === "caregiver" ? "/caregiver/shift-dashboard" : "/dashboard" });
   }
 
@@ -198,7 +207,7 @@ function ResetPasswordPage() {
               variant="ghost"
               size="lg"
               className="min-h-11 w-full rounded-full"
-              onClick={() => void goHome()}
+              onClick={() => void goHome({ yieldToRecovery: true })}
             >
               Back to Vela
             </Button>
