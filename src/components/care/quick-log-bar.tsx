@@ -240,6 +240,12 @@ export function QuickLogBar({
         duration_minutes: sleepMins,
         ...(soothing ? { soothing_technique: soothing } : {}),
       } satisfies SleepPayload;
+    } else if (open === "pump") {
+      payload = {
+        amount_oz: pumpOz,
+        duration_minutes: pumpMins,
+        side: pumpSide,
+      } satisfies PumpPayload;
     } else {
       payload = { category, note: note ?? presetNotes[category][0] } satisfies ObservationPayload;
     }
