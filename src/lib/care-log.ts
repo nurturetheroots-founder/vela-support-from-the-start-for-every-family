@@ -216,9 +216,21 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
 function toCareLog(row: Record<string, unknown>): CareLog {
   return {
     ...(row as unknown as CareLog),
-    operational_metrics: row['payload'] as CarePayload,
+    operational_metrics: row['operational_metrics'] as CarePayload,
   };
 }
+
+/** care_logs.family_id is required, so every write resolves the baby's family. */
+async function familyIdForBaby(babyId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from("babies")
+    .select("parent_id")
+    .eq("id", babyId)
+    .single();
+  if (error) throw error;
+  return (data as { parent_id: string }).parent_id;
+}
+
 
 export async function fetchCareLogs(babyId: string, sinceIso: string): Promise<CareLog[]> {
   const { data, error } = await supabase
