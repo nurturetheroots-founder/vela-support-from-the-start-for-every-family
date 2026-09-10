@@ -231,7 +231,12 @@ export async function fetchCareLogs(babyId: string, sinceIso: string): Promise<C
   return (data ?? []).map((row) => toCareLog(row as unknown as Record<string, unknown>));
 }
 
-export async function addCareLog(babyId: string, eventType: CareEventType, payload: CarePayload) {
+export async function addCareLog(
+  babyId: string,
+  eventType: CareEventType,
+  payload: CarePayload,
+  timestampIso?: string,
+) {
   const { data: auth } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from("care_logs")
@@ -240,7 +245,9 @@ export async function addCareLog(babyId: string, eventType: CareEventType, paylo
       event_type: eventType,
       payload: payload as never,
       logged_by: auth.user?.id as string,
+      ...(timestampIso ? { timestamp: timestampIso } : {}),
     })
+
     .select("*")
     .single();
   if (error) throw error;
