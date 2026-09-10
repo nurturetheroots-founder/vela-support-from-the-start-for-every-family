@@ -14,6 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { problem, cta } from "@/lib/microcopy";
 import { Analytics } from "@/lib/analytics";
+import { BetaFeedback } from "@/components/beta-feedback-dialog";
 
 
 function NotFoundComponent() {
@@ -153,6 +154,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Analytics />
+      <BetaFeedback />
       <Toaster position="top-center" />
     </QueryClientProvider>
 
