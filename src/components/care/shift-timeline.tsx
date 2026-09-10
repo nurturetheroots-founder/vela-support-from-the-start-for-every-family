@@ -56,8 +56,9 @@ export function ShiftTimeline({
   if (logs.length === 0) {
     return (
       <div className="rounded-[1.75rem] bg-night-soft/70 p-10 text-center text-night-muted">
-        The night is quiet so far. Tap a card below when something happens.
+        No entries yet. Tap a button below to log one.
       </div>
+
     );
   }
 
@@ -87,7 +88,7 @@ export function ShiftTimeline({
                 {editing ? null : (
                   <span className="block text-[15px] leading-relaxed text-night-text">{describeLog(log)}</span>
                 )}
-                <span className="block text-[11px] uppercase tracking-wide text-night-muted/70">{s.label}</span>
+                <span className="block text-[11px] uppercase tracking-wide text-night-muted">{s.label}</span>
               </span>
             </button>
 

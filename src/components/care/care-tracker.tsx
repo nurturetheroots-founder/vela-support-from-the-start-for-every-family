@@ -29,6 +29,11 @@ import { captureEvent } from "@/lib/analytics-utils";
 import { useAuth } from "@/hooks/use-auth";
 import { isGuest } from "@/lib/guest";
 import { NeedsAccount } from "@/components/needs-account";
+import { ShiftSummary } from "@/components/care/shift-summary";
+import { FamilySwitcher } from "@/components/care/family-switcher";
+import { NightDimToggle, useNightDim } from "@/components/care/night-mode";
+import { cn } from "@/lib/utils";
+
 
 function shiftStartIso() {
   // Current shift window: the last 14 hours of activity.
@@ -38,6 +43,8 @@ function shiftStartIso() {
 export function CareTracker({ showParentLink = true }: { showParentLink?: boolean } = {}) {
   const { session, loading: isAuthLoading } = useAuth();
   const [guest, setGuest] = useState(false);
+  const { dim, toggle } = useNightDim();
+
   const [baby, setBaby] = useState<{ id: string; name: string } | null>(null);
   const [logs, setLogs] = useState<CareLog[]>([]);
   const [since] = useState(shiftStartIso);
@@ -98,12 +105,15 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
     setHandover(latest);
   }
 
-  async function handleLog(type: CareEventType, payload: CarePayload) {
+  async function handleLog(type: CareEventType, payload: CarePayload, timestampIso?: string) {
     if (!baby) return;
     try {
-      const row = await addCareLog(baby.id, type, payload);
-      setLogs((prev) => [row, ...prev]);
+      const row = await addCareLog(baby.id, type, payload, timestampIso);
+      setLogs((prev) =>
+        [row, ...prev].sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1)),
+      );
       toast.success("Logged.");
+
 
       if (type === "feed") {
         captureEvent("logged_feed", { feed_type: (payload as FeedPayload).type });
@@ -165,25 +175,42 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
     );
   }
 
+  const totalSleepMins = logs.reduce(
+    (sum, l) =>
+      l.event_type === "sleep" ? sum + ((l.operational_metrics as SleepPayload).duration_minutes ?? 0) : sum,
+    0,
+  );
+
   return (
-    <div className="min-h-dvh bg-night text-night-text">
+    <div className={cn("min-h-dvh bg-night text-night-text", dim && "night-dim")}>
       <div className="mx-auto max-w-2xl px-5 pb-40 pt-6">
-        <header className="mb-5 flex items-start justify-between gap-3">
-          <div>
+        <header className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+          <div className="min-w-0">
             <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-night-muted">
               <Moon className="h-3.5 w-3.5" /> Active shift
             </p>
-            <h1 className="mt-1 font-serif text-2xl text-night-text">Shift &amp; care tracker</h1>
+            <h1 className="mt-1 truncate font-serif text-2xl text-night-text">Shift tracker</h1>
           </div>
-          {showParentLink && (
-            <Link
-              to="/care-summary"
-              className="mt-1 inline-flex items-center gap-1 text-sm text-night-muted underline-offset-4 hover:underline"
-            >
-              Parent view <ArrowRight className="h-4 w-4" />
-            </Link>
-          )}
+          <div className="flex items-center gap-2">
+            {!showParentLink && (
+              <FamilySwitcher
+                enabled={ready}
+                currentName={baby?.name ?? "Family"}
+                onSwitched={() => void shiftQuery.refetch()}
+              />
+            )}
+            <NightDimToggle dim={dim} onToggle={toggle} />
+          </div>
         </header>
+
+        {showParentLink && (
+          <Link
+            to="/care-summary"
+            className="mb-4 inline-flex min-h-11 items-center gap-1 text-sm text-night-muted underline-offset-4 hover:underline"
+          >
+            Parent view <ArrowRight className="h-4 w-4" />
+          </Link>
+        )}
 
         <CareTimers onLog={handleLog} />
 
@@ -193,6 +220,7 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
           </div>
         ) : (
           <>
+            <ShiftSummary metrics={metrics} totalSleepMins={totalSleepMins} startedAt={since} />
             {handover && <MorningHandoverCard handover={handover} />}
             {baby && (
               <div className="mb-6">
@@ -211,6 +239,7 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
       </div>
 
       <QuickLogBar onLog={handleLog} />
+
     </div>
   );
 }

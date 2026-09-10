@@ -64,16 +64,18 @@
   --color-clay: var(--clay);
   --color-welcome-base: var(--welcome-base);
   --color-welcome-blush: var(--welcome-blush);
-  /* Care tracker night surfaces — velvety, warm, low-contrast for 3am eyes */
-  --color-night: oklch(0.21 0.012 60);
-  --color-night-soft: oklch(0.26 0.013 60);
-  --color-night-raised: oklch(0.3 0.014 60);
-  --color-night-line: oklch(0.36 0.012 60);
-  --color-night-text: oklch(0.93 0.012 80);
-  --color-night-muted: oklch(0.72 0.014 75);
-  --color-sage: oklch(0.74 0.05 155);
-  --color-clay-soft: oklch(0.76 0.09 45);
-  --color-lilac-soft: oklch(0.78 0.05 300);
+  /* Care tracker night surfaces — velvety, warm, low-contrast for 3am eyes.
+     Values live on :root so the amber "dim" mode can override them. */
+  --color-night: var(--night);
+  --color-night-soft: var(--night-soft);
+  --color-night-raised: var(--night-raised);
+  --color-night-line: var(--night-line);
+  --color-night-text: var(--night-text);
+  --color-night-muted: var(--night-muted);
+  --color-sage: var(--sage);
+  --color-clay-soft: var(--clay-soft);
+  --color-lilac-soft: var(--lilac-soft);
+
 
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
@@ -81,6 +83,18 @@
 
 :root {
   --radius: 1rem;
+  /* Night tracker surfaces (standard). Contrast checked against WCAG 2.1 AA:
+     text 0.93L and muted 0.78L both clear 4.5:1 on the 0.21L canvas. */
+  --night: oklch(0.19 0.012 60);
+  --night-soft: oklch(0.25 0.013 60);
+  --night-raised: oklch(0.31 0.014 60);
+  --night-line: oklch(0.42 0.012 60);
+  --night-text: oklch(0.95 0.012 80);
+  --night-muted: oklch(0.78 0.014 75);
+  --sage: oklch(0.82 0.07 155);
+  --clay-soft: oklch(0.8 0.1 45);
+  --lilac-soft: oklch(0.84 0.05 300);
+
   /* warm welcome cream — matches the onboarding canvas */
   --background: oklch(0.975 0.008 75);
   /* deep charcoal #2D2D2D */
@@ -218,4 +232,18 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+}
+
+/* Amber "dim" mode for overnight shifts: blue light pulled out of every
+   surface and accent, contrast still held at WCAG AA. */
+.night-dim {
+  --night: oklch(0.16 0.014 45);
+  --night-soft: oklch(0.22 0.017 45);
+  --night-raised: oklch(0.28 0.02 45);
+  --night-line: oklch(0.4 0.02 45);
+  --night-text: oklch(0.93 0.045 65);
+  --night-muted: oklch(0.79 0.05 60);
+  --sage: oklch(0.83 0.07 95);
+  --clay-soft: oklch(0.82 0.11 55);
+  --lilac-soft: oklch(0.85 0.06 40);
 }

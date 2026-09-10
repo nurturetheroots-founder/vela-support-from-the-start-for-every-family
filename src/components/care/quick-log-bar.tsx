@@ -151,9 +151,12 @@ const quickActions: QuickAction[] = [
 export function QuickLogBar({
   onLog,
 }: {
-  onLog: (type: CareEventType, payload: CarePayload) => Promise<void> | void;
+  onLog: (type: CareEventType, payload: CarePayload, timestampIso?: string) => Promise<void> | void;
 }) {
   const [open, setOpen] = useState<CareEventType | null>(null);
+  /** Empty = "Just now". Otherwise an HH:MM value for a delayed entry. */
+  const [when, setWhen] = useState("");
+
   const held = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -171,7 +174,23 @@ export function QuickLogBar({
   const [category, setCategory] = useState<ObservationPayload["category"]>("soothing");
   const [note, setNote] = useState<string | undefined>(undefined);
 
-  const close = () => setOpen(null);
+  const close = () => {
+    setOpen(null);
+    setWhen("");
+  };
+
+  /** Turns the HH:MM override into today's (or last night's) ISO timestamp. */
+  function stamp(): string | undefined {
+    if (!when) return undefined;
+    const [h, m] = when.split(":").map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return undefined;
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    // A time later than now belongs to the previous evening of this shift.
+    if (d.getTime() > Date.now()) d.setDate(d.getDate() - 1);
+    return d.toISOString();
+  }
+
 
   function startHold(action: QuickAction) {
     held.current = false;
@@ -210,16 +229,17 @@ export function QuickLogBar({
     } else {
       payload = { category, note: note ?? presetNotes[category][0] } satisfies ObservationPayload;
     }
-    await onLog(open, payload);
+    await onLog(open, payload, stamp());
     close();
   }
 
   return (
     <>
       <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-night via-night/95 to-transparent pb-[env(safe-area-inset-bottom)] pt-6">
-        <p className="pb-2 text-center text-[11px] tracking-wide text-night-muted/70">
-          Tap to log now · hold for details
+        <p className="pb-2 text-center text-[11px] tracking-wide text-night-muted">
+          Tap to log · hold to add detail
         </p>
+
         <div className="mx-auto flex max-w-2xl gap-2 overflow-x-auto px-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {quickActions.map((a) => {
             const Icon = a.icon;
@@ -332,10 +352,37 @@ export function QuickLogBar({
               </>
             )}
 
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-night px-4 py-2">
+              <label htmlFor="log-time" className="text-sm text-night-muted">
+                Time
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setWhen("")}
+                  aria-pressed={when === ""}
+                  className={cn(
+                    "min-h-11 rounded-full px-4 text-sm font-medium",
+                    when === "" ? "bg-clay-soft text-night" : "bg-night-raised text-night-text",
+                  )}
+                >
+                  Just now
+                </button>
+                <input
+                  id="log-time"
+                  type="time"
+                  value={when}
+                  onChange={(e) => setWhen(e.target.value)}
+                  className="min-h-11 rounded-full bg-night-raised px-3 text-sm text-night-text outline-none focus:ring-2 focus:ring-clay-soft"
+                />
+              </div>
+            </div>
+
             <button
               type="button"
               onClick={submit}
               className="min-h-14 w-full rounded-full bg-clay-soft text-base font-semibold text-night active:opacity-90"
+
             >
               Save
             </button>
