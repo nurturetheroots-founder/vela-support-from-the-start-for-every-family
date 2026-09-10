@@ -229,7 +229,7 @@ export function QuickLogBar({
     } else {
       payload = { category, note: note ?? presetNotes[category][0] } satisfies ObservationPayload;
     }
-    await onLog(open, payload);
+    await onLog(open, payload, stamp());
     close();
   }
 
