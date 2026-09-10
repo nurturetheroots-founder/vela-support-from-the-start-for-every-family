@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Milk, Baby, Moon, NotebookPen, Pencil, Trash2, Check, X } from "lucide-react";
+import { Milk, Baby, Moon, NotebookPen, Pencil, Trash2, Check, X, Droplets } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
   CareLog,
   DiaperPayload,
   FeedPayload,
   ObservationPayload,
+  PumpPayload,
   SleepPayload,
 } from "@/lib/care-log";
 import { formatDuration } from "@/lib/care-log";
@@ -15,6 +16,7 @@ const styles = {
   feed: { icon: Milk, tint: "text-clay-soft", label: "Feed" },
   diaper: { icon: Baby, tint: "text-night-muted", label: "Diaper" },
   observation: { icon: NotebookPen, tint: "text-lilac-soft", label: "Note" },
+  pump: { icon: Droplets, tint: "text-sage", label: "Pump" },
 } as const;
 
 export function describeLog(log: CareLog): string {
@@ -31,6 +33,15 @@ export function describeLog(log: CareLog): string {
   if (log.event_type === "sleep") {
     const p = log.operational_metrics as SleepPayload;
     return `${formatDuration(p.duration_minutes ?? 0)}${p.soothing_technique ? ` · ${p.soothing_technique}` : ""}`;
+  }
+  if (log.event_type === "pump") {
+    const p = log.operational_metrics as PumpPayload;
+    const parts = [
+      p.amount_oz ? `${p.amount_oz} oz` : null,
+      p.duration_minutes ? `${p.duration_minutes} min` : null,
+      p.side && p.side !== "both" ? p.side : null,
+    ].filter(Boolean);
+    return parts.length ? parts.join(" · ") : "Pump session";
   }
   const p = log.operational_metrics as ObservationPayload;
   return p.note;

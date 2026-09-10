@@ -5,6 +5,7 @@ import { ArrowRight, Loader2, Lock, Plus, Users } from "lucide-react";
 import { listClientOverviews, relativeTime } from "@/lib/doula-clients";
 import { formatDuration, setSelectedFamilyId } from "@/lib/care-log";
 import { CaregiverInviteDialog } from "@/components/caregiver-invite-dialog";
+import { ClientInviteRequest } from "@/components/care/client-invite-request";
 import { useAuth } from "@/hooks/use-auth";
 import { useNightDim, NightDimToggle } from "@/components/care/night-mode";
 import { cn } from "@/lib/utils";
@@ -108,7 +109,11 @@ export function ClientList() {
           </button>
         )}
 
-        <div className="mt-8 flex items-start gap-3 rounded-3xl bg-night-soft p-5 ring-1 ring-night-line">
+        <div className="mt-8">
+          <ClientInviteRequest />
+        </div>
+
+        <div className="mt-5 flex items-start gap-3 rounded-3xl bg-night-soft p-5 ring-1 ring-night-line">
           <Lock className="mt-0.5 h-4 w-4 shrink-0 text-night-muted" />
           <p className="text-sm leading-relaxed text-night-muted">
             Parent check-ins and screenings stay private to the parent. If they want you to see how

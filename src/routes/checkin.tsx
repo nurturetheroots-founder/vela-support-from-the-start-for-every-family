@@ -111,9 +111,16 @@ function CheckinPage() {
       overall: over!,
       note: note.trim() || undefined,
     });
+    // The check-in is complete once it is recorded, whether or not the sync lands.
+    captureEvent("logged_mood");
+    captureEvent("daily_checkin_completed", {
+      date: today,
+      flagged: !!c.flagged,
+      has_note: !!c.note,
+      signed_in: !!user,
+    });
     try {
       if (user) await saveCheckin(user.id, c);
-      captureEvent("logged_mood");
     } catch {
       setSaveError("We saved today on this device, but couldn't reach your account just yet.");
     } finally {

@@ -822,7 +822,7 @@ export type Database = {
       }
     }
     Enums: {
-      care_event_type: "feed" | "diaper" | "sleep" | "observation"
+      care_event_type: "feed" | "diaper" | "sleep" | "observation" | "pump"
       member_role: "parent" | "caregiver"
       shift_handover_status: "draft" | "published"
     }
@@ -952,7 +952,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      care_event_type: ["feed", "diaper", "sleep", "observation"],
+      care_event_type: ["feed", "diaper", "sleep", "observation", "pump"],
       member_role: ["parent", "caregiver"],
       shift_handover_status: ["draft", "published"],
     },

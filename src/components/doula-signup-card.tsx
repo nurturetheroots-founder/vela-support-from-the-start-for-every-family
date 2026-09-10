@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { toast } from "sonner";
 import { HeartHandshake, Loader2 } from "lucide-react";
@@ -75,6 +76,12 @@ export function DoulaSignupCard() {
           Ashlee reviews every application personally and will be in touch by email. If you're
           accepted, you'll get an invite code that opens your client dashboard.
         </p>
+        <Link
+          to="/caregiver/onboarding"
+          className="mt-4 inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground"
+        >
+          Set up my provider dashboard
+        </Link>
       </div>
     );
   }

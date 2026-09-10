@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Milk, Baby, Moon, NotebookPen, Minus, Plus, Droplet } from "lucide-react";
+import { Milk, Baby, Moon, NotebookPen, Minus, Plus, Droplet, Droplets } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import type {
@@ -8,6 +8,7 @@ import type {
   DiaperPayload,
   FeedPayload,
   ObservationPayload,
+  PumpPayload,
   SleepPayload,
 } from "@/lib/care-log";
 
@@ -138,6 +139,15 @@ const quickActions: QuickAction[] = [
     },
   },
   {
+    key: "pump",
+    type: "pump",
+    label: "Pump",
+    hint: "3 oz",
+    icon: Droplets,
+    tint: "text-sage",
+    payload: () => ({ amount_oz: 3, side: "both" }) satisfies PumpPayload,
+  },
+  {
     key: "note",
     type: "observation",
     label: "Note",
@@ -170,6 +180,10 @@ export function QuickLogBar({
   // sleep
   const [sleepMins, setSleepMins] = useState(90);
   const [soothing, setSoothing] = useState<string | undefined>(undefined);
+  // pump
+  const [pumpOz, setPumpOz] = useState(3);
+  const [pumpMins, setPumpMins] = useState(20);
+  const [pumpSide, setPumpSide] = useState<NonNullable<PumpPayload["side"]>>("both");
   // observation
   const [category, setCategory] = useState<ObservationPayload["category"]>("soothing");
   const [note, setNote] = useState<string | undefined>(undefined);
@@ -226,6 +240,12 @@ export function QuickLogBar({
         duration_minutes: sleepMins,
         ...(soothing ? { soothing_technique: soothing } : {}),
       } satisfies SleepPayload;
+    } else if (open === "pump") {
+      payload = {
+        amount_oz: pumpOz,
+        duration_minutes: pumpMins,
+        side: pumpSide,
+      } satisfies PumpPayload;
     } else {
       payload = { category, note: note ?? presetNotes[category][0] } satisfies ObservationPayload;
     }
@@ -269,6 +289,7 @@ export function QuickLogBar({
               {open === "feed" && "Log a feed"}
               {open === "diaper" && "Log a diaper"}
               {open === "sleep" && "Log a sleep stretch"}
+              {open === "pump" && "Log a pump session"}
               {open === "observation" && "Add a note"}
             </SheetTitle>
           </SheetHeader>
@@ -315,6 +336,30 @@ export function QuickLogBar({
                 labels={(v) => (v === "wet" ? "Wet" : v === "dirty" ? "Dirty" : "Both")}
               />
             )}
+
+            {open === "pump" && (
+              <>
+                <p className="text-sm text-night-muted">How much was expressed?</p>
+                <Pills options={[1, 2, 3, 4, 5, 6]} value={pumpOz} onChange={setPumpOz} labels={(v) => `${v} oz`} />
+                <Stepper value={pumpOz} onChange={setPumpOz} suffix="oz" />
+                <p className="text-sm text-night-muted">Session length</p>
+                <Pills
+                  options={[10, 15, 20, 25, 30]}
+                  value={pumpMins}
+                  onChange={setPumpMins}
+                  labels={(v) => `${v} min`}
+                />
+                <p className="text-sm text-night-muted">Side</p>
+                <Pills
+                  options={["left", "right", "both"] as NonNullable<PumpPayload["side"]>[]}
+                  value={pumpSide}
+                  onChange={setPumpSide}
+                  labels={(v) => (v === "both" ? "Both" : v === "left" ? "Left" : "Right")}
+                />
+              </>
+            )}
+
+
 
             {open === "sleep" && (
               <>

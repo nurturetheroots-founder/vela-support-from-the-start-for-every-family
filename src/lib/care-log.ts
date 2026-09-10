@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type CareEventType = "feed" | "diaper" | "sleep" | "observation";
+export type CareEventType = "feed" | "diaper" | "sleep" | "observation" | "pump";
 
 export interface FeedPayload {
   type: "bottle" | "nursing";
@@ -23,8 +23,19 @@ export interface ObservationPayload {
   category: "developmental" | "soothing" | "maternal_check";
   note: string;
 }
+export interface PumpPayload {
+  amount_oz?: number;
+  duration_minutes?: number;
+  side?: "left" | "right" | "both";
+  notes?: string;
+}
 
-export type CarePayload = FeedPayload | DiaperPayload | SleepPayload | ObservationPayload;
+export type CarePayload =
+  | FeedPayload
+  | DiaperPayload
+  | SleepPayload
+  | ObservationPayload
+  | PumpPayload;
 
 export interface CareLog {
   id: string;
@@ -45,6 +56,8 @@ export interface ShiftMetrics {
   dirty_diapers: number;
   longest_sleep_stretch_mins: number;
   feed_count: number;
+  total_pumped_oz?: number;
+  pump_count?: number;
 }
 
 export interface ShiftHandover {
@@ -287,6 +300,8 @@ export function computeMetrics(logs: CareLog[]): ShiftMetrics {
     dirty_diapers: 0,
     longest_sleep_stretch_mins: 0,
     feed_count: 0,
+    total_pumped_oz: 0,
+    pump_count: 0,
   };
   for (const log of logs) {
     if (log.event_type === "feed") {
@@ -306,9 +321,14 @@ export function computeMetrics(logs: CareLog[]): ShiftMetrics {
           ? Math.round((new Date(p.end_time).getTime() - new Date(p.start_time).getTime()) / 60000)
           : 0);
       if (mins > metrics.longest_sleep_stretch_mins) metrics.longest_sleep_stretch_mins = mins;
+    } else if (log.event_type === "pump") {
+      const p = log.operational_metrics as PumpPayload;
+      metrics.pump_count = (metrics.pump_count ?? 0) + 1;
+      if (p.amount_oz) metrics.total_pumped_oz = (metrics.total_pumped_oz ?? 0) + p.amount_oz;
     }
   }
   metrics.total_oz = Math.round(metrics.total_oz * 10) / 10;
+  metrics.total_pumped_oz = Math.round((metrics.total_pumped_oz ?? 0) * 10) / 10;
   return metrics;
 }
 

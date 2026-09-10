@@ -48,6 +48,7 @@ export function ShiftSummary({
       </dl>
       <p className="mt-3 text-xs text-night-muted">
         Longest stretch {formatDuration(metrics.longest_sleep_stretch_mins)}
+        {metrics.pump_count ? ` · Pumped ${metrics.total_pumped_oz ?? 0} oz over ${metrics.pump_count} session${metrics.pump_count === 1 ? "" : "s"}` : ""}
       </p>
     </section>
   );
