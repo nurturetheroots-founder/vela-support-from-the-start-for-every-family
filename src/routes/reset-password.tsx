@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LegalFooter } from "@/components/legal-footer";
+
+type Stage = "checking" | "ok" | "expired" | "signed-in";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -22,40 +24,74 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const nav = useNavigate();
-  const [ready, setReady] = useState<"checking" | "ok" | "expired">("checking");
+  const [stage, setStage] = useState<Stage>("checking");
+  const [email, setEmail] = useState<string | null>(null);
+  const [linkSent, setLinkSent] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasSession = useRef(false);
 
   useEffect(() => {
-    // Arriving from the emailed link, supabase-js exchanges the token in the URL
-    // for a short-lived recovery session. That can land either before this
-    // mounts or just after, so check once and also listen for the event.
+    // Holding a session is not enough to prove someone owns this account — an
+    // unlocked phone carries one too, and whoever is holding it could set a new
+    // password and lock the owner out. So only a genuine recovery email opens
+    // the form.
+    //
+    // PASSWORD_RECOVERY is the only thing we trust for that. What the URL looks
+    // like is not evidence: anyone can append ?code=anything to the address bar,
+    // and a code that fails to exchange fires no event at all.
     let settled = false;
+    const finish = (next: Stage) => {
+      if (settled) return;
+      settled = true;
+      setStage(next);
+    };
 
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || session) {
-        settled = true;
-        setReady("ok");
-      }
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") finish("ok");
     });
 
     void supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        settled = true;
-        setReady("ok");
-        return;
+        hasSession.current = true;
+        setEmail(data.session.user.email ?? null);
       }
-      // No session and no event within a moment means the link was already
-      // used, or it expired.
-      window.setTimeout(() => {
-        if (!settled) setReady("expired");
-      }, 2500);
     });
 
-    return () => sub.subscription.unsubscribe();
+    // Give the code exchange time to land. If it never does, someone signed in
+    // gets a one-tap way to have a real link emailed to them, so a recovery we
+    // failed to recognise is an extra step rather than a dead end.
+    const timer = window.setTimeout(() => {
+      finish(hasSession.current ? "signed-in" : "expired");
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timer);
+      sub.subscription.unsubscribe();
+    };
   }, []);
+
+  async function emailMeALink() {
+    if (!email) {
+      await nav({ to: "/auth" });
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const { error: sendError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (sendError) throw sendError;
+      setLinkSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "That didn't send. Try again in a moment.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -95,13 +131,13 @@ function ResetPasswordPage() {
       <main className="mx-auto w-full max-w-md flex-1 px-6 py-14">
         <h1 className="font-serif text-3xl lowercase">set a new password.</h1>
 
-        {ready === "checking" && (
+        {stage === "checking" && (
           <p className="mt-6 flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Checking your link…
           </p>
         )}
 
-        {ready === "expired" && (
+        {stage === "expired" && (
           <div className="mt-6 space-y-4">
             <p className="leading-relaxed text-muted-foreground">
               That link has expired or was already used. Reset links are good for one hour, and only
@@ -113,7 +149,42 @@ function ResetPasswordPage() {
           </div>
         )}
 
-        {ready === "ok" && (
+        {stage === "signed-in" && (
+          <div className="mt-6 space-y-4">
+            <p className="leading-relaxed text-muted-foreground">
+              You're signed in{email ? ` as ${email}` : ""}. Changing your password always goes
+              through a link we email you — so that someone who picks up your phone while it's
+              unlocked can't quietly take your account. If you just opened a reset link, it had
+              already expired or been used.
+            </p>
+            {linkSent ? (
+              <p role="status" className="rounded-2xl bg-secondary/70 p-4 text-sm leading-relaxed">
+                Sent. The link is good for one hour — open it on any device to set a new password.
+              </p>
+            ) : (
+              <Button
+                type="button"
+                size="lg"
+                className="min-h-11 w-full rounded-full"
+                disabled={busy}
+                onClick={emailMeALink}
+              >
+                {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Email me a reset link
+              </Button>
+            )}
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
+            <Button asChild variant="ghost" size="lg" className="min-h-11 w-full rounded-full">
+              <Link to="/dashboard">Back to Vela</Link>
+            </Button>
+          </div>
+        )}
+
+        {stage === "ok" && (
           <>
             <p className="mt-3 leading-relaxed text-muted-foreground">
               Choose something you'll remember. You'll be signed in straight after.
