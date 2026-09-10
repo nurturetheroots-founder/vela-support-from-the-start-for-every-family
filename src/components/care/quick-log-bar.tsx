@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Milk, Baby, Moon, NotebookPen, Minus, Plus, Droplet } from "lucide-react";
+import { Milk, Baby, Moon, NotebookPen, Minus, Plus, Droplet, Droplets } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import type {
@@ -8,6 +8,7 @@ import type {
   DiaperPayload,
   FeedPayload,
   ObservationPayload,
+  PumpPayload,
   SleepPayload,
 } from "@/lib/care-log";
 
