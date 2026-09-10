@@ -321,9 +321,14 @@ export function computeMetrics(logs: CareLog[]): ShiftMetrics {
           ? Math.round((new Date(p.end_time).getTime() - new Date(p.start_time).getTime()) / 60000)
           : 0);
       if (mins > metrics.longest_sleep_stretch_mins) metrics.longest_sleep_stretch_mins = mins;
+    } else if (log.event_type === "pump") {
+      const p = log.operational_metrics as PumpPayload;
+      metrics.pump_count = (metrics.pump_count ?? 0) + 1;
+      if (p.amount_oz) metrics.total_pumped_oz = (metrics.total_pumped_oz ?? 0) + p.amount_oz;
     }
   }
   metrics.total_oz = Math.round(metrics.total_oz * 10) / 10;
+  metrics.total_pumped_oz = Math.round((metrics.total_pumped_oz ?? 0) * 10) / 10;
   return metrics;
 }
 
