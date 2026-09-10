@@ -13,7 +13,7 @@ export interface ClientOverview {
 function toCareLog(row: Record<string, unknown>): CareLog {
   return {
     ...(row as unknown as CareLog),
-    operational_metrics: row['payload'] as CareLog["operational_metrics"],
+    operational_metrics: row['operational_metrics'] as CareLog["operational_metrics"],
   };
 }
 
