@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Layer 2 regression suite — run against a database that has replayed every
--- migration up to and including 0008_layer2_secure_data_layer.sql.
+-- migration up to and including 0009_layer2_review_fixes.sql.
 --
 --   drizzle/tests/run_layer2_rls.sh
 --
@@ -100,6 +100,7 @@ SET request.jwt.claim.sub = '33333333-3333-3333-3333-333333333333';
 SELECT pg_temp.check('stranger sees no care_logs',       (SELECT count(*) FROM public.care_logs), 0::bigint);
 SELECT pg_temp.check('stranger sees no shift_handovers', (SELECT count(*) FROM public.shift_handovers), 0::bigint);
 SELECT pg_temp.check('stranger sees no private_checkins',(SELECT count(*) FROM public.private_checkins), 0::bigint);
+SELECT pg_temp.check('stranger sees no epds_screenings', (SELECT count(*) FROM public.epds_screenings), 0::bigint);
 RESET ROLE;
 
 \echo ''
@@ -133,6 +134,8 @@ RESET ROLE;
 SET ROLE anon;
 SELECT pg_temp.check_rejected('anon cannot read private_checkins',
   $q$ SELECT count(*) FROM public.private_checkins $q$);
+SELECT pg_temp.check_rejected('anon cannot read epds_screenings',
+  $q$ SELECT count(*) FROM public.epds_screenings $q$);
 SELECT pg_temp.check_rejected('anon cannot read care_logs',
   $q$ SELECT count(*) FROM public.care_logs $q$);
 SELECT pg_temp.check_rejected('anon cannot call redeem_family_invite',
