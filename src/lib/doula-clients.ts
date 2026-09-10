@@ -30,7 +30,7 @@ export async function listClientOverviews(): Promise<ClientOverview[]> {
   const { data: links, error: linkError } = await supabase
     .from("family_members")
     .select("family_id")
-    .eq("user_id", uid)
+    .eq("profile_id", uid)
     .eq("role", "caregiver");
   if (linkError) throw linkError;
 
