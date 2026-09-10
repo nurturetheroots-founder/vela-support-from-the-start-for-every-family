@@ -97,8 +97,45 @@ export async function findBaby(): Promise<{ id: string; name: string } | null> {
   return (data?.[0] as { id: string; name: string } | undefined) ?? null;
 }
 
+const FAMILY_KEY = "vela.care.family";
+
+/** The family a multi-client caregiver is currently working a shift for. */
+export function getSelectedFamilyId(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(FAMILY_KEY);
+}
+
+export function setSelectedFamilyId(id: string | null) {
+  if (typeof window === "undefined") return;
+  if (id) window.localStorage.setItem(FAMILY_KEY, id);
+  else window.localStorage.removeItem(FAMILY_KEY);
+  resetBabyCache();
+}
+
+/** Every family this caregiver has been invited into. */
+export async function listCaregiverFamilies(): Promise<{ id: string; name: string }[]> {
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return [];
+  const { data: links } = await supabase
+    .from("family_members")
+    .select("family_id")
+    .eq("user_id", uid)
+    .eq("role", "caregiver");
+  const ids = (links ?? []).map((l) => l.family_id as string);
+  if (ids.length === 0) return [];
+  const { data: babies } = await supabase.from("babies").select("id, name, parent_id").in("parent_id", ids);
+  return ids.map((id) => ({
+    id,
+    name:
+      (babies ?? []).find((b) => (b as { parent_id: string }).parent_id === id)?.name ??
+      `Family ${id.slice(0, 4).toUpperCase()}`,
+  }));
+}
+
 /**
- * For invited caregivers: the baby of the family they support.
+ * For invited caregivers: the baby of the family they support. Honours the
+ * family picked in the switcher when they support more than one.
  * Returns `undefined` when the signed-in person is not a caregiver.
  */
 async function familyBaby(): Promise<{ id: string; name: string } | null | undefined> {
@@ -106,24 +143,27 @@ async function familyBaby(): Promise<{ id: string; name: string } | null | undef
   const uid = auth.user?.id;
   if (!uid) return undefined;
 
-  const { data: link } = await supabase
+  const { data: links } = await supabase
     .from("family_members")
     .select("family_id")
     .eq("user_id", uid)
-    .eq("role", "caregiver")
-    .limit(1)
-    .maybeSingle();
-  if (!link?.family_id) return undefined;
+    .eq("role", "caregiver");
+
+  const ids = (links ?? []).map((l) => l.family_id as string);
+  if (ids.length === 0) return undefined;
+  const selected = getSelectedFamilyId();
+  const familyId = selected && ids.includes(selected) ? selected : ids[0];
 
   const { data, error } = await supabase
     .from("babies")
     .select("id, name")
-    .eq("parent_id", link.family_id as string)
+    .eq("parent_id", familyId as string)
     .order("created_at", { ascending: true })
     .limit(1);
   if (error) throw error;
   return (data?.[0] as { id: string; name: string } | undefined) ?? null;
 }
+
 
 async function resolveBaby(name: string): Promise<{ id: string; name: string }> {
   const { data: auth } = await supabase.auth.getUser();
