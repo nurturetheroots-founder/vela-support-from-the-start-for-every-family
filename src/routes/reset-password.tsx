@@ -43,6 +43,12 @@ function ResetPasswordPage() {
   const applyStage = useCallback((next: Stage) => {
     stageRef.current = next;
     setStage(next);
+    // busy and error belong to whichever flow the old stage was showing. Carried
+    // across, they strand the new one: a recovery arriving while "email me a
+    // link" is in flight would open the password form with its submit button
+    // disabled, and could paint a send failure over it.
+    setBusy(false);
+    setError(null);
   }, []);
 
   useEffect(() => {
@@ -97,11 +103,16 @@ function ResetPasswordPage() {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (sendError) throw sendError;
+      // A recovery may have opened the form while this was in flight. Reporting
+      // on it now would talk about the wrong screen, so the late result is
+      // dropped: the form in front of them is the better outcome anyway.
+      if (stageRef.current !== "signed-in") return;
       setLinkSent(true);
     } catch (err) {
+      if (stageRef.current !== "signed-in") return;
       setError(err instanceof Error ? err.message : "That didn't send. Try again in a moment.");
     } finally {
-      setBusy(false);
+      if (stageRef.current === "signed-in") setBusy(false);
     }
   }
 
