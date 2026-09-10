@@ -174,7 +174,23 @@ export function QuickLogBar({
   const [category, setCategory] = useState<ObservationPayload["category"]>("soothing");
   const [note, setNote] = useState<string | undefined>(undefined);
 
-  const close = () => setOpen(null);
+  const close = () => {
+    setOpen(null);
+    setWhen("");
+  };
+
+  /** Turns the HH:MM override into today's (or last night's) ISO timestamp. */
+  function stamp(): string | undefined {
+    if (!when) return undefined;
+    const [h, m] = when.split(":").map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return undefined;
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    // A time later than now belongs to the previous evening of this shift.
+    if (d.getTime() > Date.now()) d.setDate(d.getDate() - 1);
+    return d.toISOString();
+  }
+
 
   function startHold(action: QuickAction) {
     held.current = false;
