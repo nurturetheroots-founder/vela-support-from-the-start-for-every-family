@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight, Sprout, ExternalLink } from "lucide-react";
 import { legal } from "@/lib/microcopy";
 import { InviteCaregiverCard } from "@/components/invite-caregiver-card";
+import { DoulaSignupCard } from "@/components/doula-signup-card";
+
 
 export const Route = createFileRoute("/support")({
   head: () => ({
@@ -100,6 +102,11 @@ function SupportPage() {
       <div className="mt-7">
         <InviteCaregiverCard />
       </div>
+
+      <div className="mt-4">
+        <DoulaSignupCard />
+      </div>
+
 
       <section className="mt-12">
         <h2 className="font-serif text-2xl">In-person care, from our roots</h2>

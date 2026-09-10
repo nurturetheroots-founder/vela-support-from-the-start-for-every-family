@@ -13,7 +13,7 @@ export interface ClientOverview {
 function toCareLog(row: Record<string, unknown>): CareLog {
   return {
     ...(row as unknown as CareLog),
-    operational_metrics: row['payload'] as CareLog["operational_metrics"],
+    operational_metrics: row['operational_metrics'] as CareLog["operational_metrics"],
   };
 }
 
@@ -30,7 +30,7 @@ export async function listClientOverviews(): Promise<ClientOverview[]> {
   const { data: links, error: linkError } = await supabase
     .from("family_members")
     .select("family_id")
-    .eq("user_id", uid)
+    .eq("profile_id", uid)
     .eq("role", "caregiver");
   if (linkError) throw linkError;
 

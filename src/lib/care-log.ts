@@ -120,7 +120,7 @@ export async function listCaregiverFamilies(): Promise<{ id: string; name: strin
   const { data: links } = await supabase
     .from("family_members")
     .select("family_id")
-    .eq("user_id", uid)
+    .eq("profile_id", uid)
     .eq("role", "caregiver");
   const ids = (links ?? []).map((l) => l.family_id as string);
   if (ids.length === 0) return [];
@@ -146,7 +146,7 @@ async function familyBaby(): Promise<{ id: string; name: string } | null | undef
   const { data: links } = await supabase
     .from("family_members")
     .select("family_id")
-    .eq("user_id", uid)
+    .eq("profile_id", uid)
     .eq("role", "caregiver");
 
   const ids = (links ?? []).map((l) => l.family_id as string);
@@ -173,7 +173,7 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
     ? await supabase
         .from("family_members")
         .select("family_id")
-        .eq("user_id", uid)
+        .eq("profile_id", uid)
         .eq("role", "caregiver")
     : { data: null };
 
@@ -216,9 +216,21 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
 function toCareLog(row: Record<string, unknown>): CareLog {
   return {
     ...(row as unknown as CareLog),
-    operational_metrics: row['payload'] as CarePayload,
+    operational_metrics: row['operational_metrics'] as CarePayload,
   };
 }
+
+/** care_logs.family_id is required, so every write resolves the baby's family. */
+async function familyIdForBaby(babyId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from("babies")
+    .select("parent_id")
+    .eq("id", babyId)
+    .single();
+  if (error) throw error;
+  return (data as { parent_id: string }).parent_id;
+}
+
 
 export async function fetchCareLogs(babyId: string, sinceIso: string): Promise<CareLog[]> {
   const { data, error } = await supabase
@@ -237,17 +249,16 @@ export async function addCareLog(
   payload: CarePayload,
   timestampIso?: string,
 ) {
-  const { data: auth } = await supabase.auth.getUser();
+  const familyId = await familyIdForBaby(babyId);
   const { data, error } = await supabase
     .from("care_logs")
     .insert({
       baby_id: babyId,
+      family_id: familyId,
       event_type: eventType,
-      payload: payload as never,
-      logged_by: auth.user?.id as string,
+      operational_metrics: payload as never,
       ...(timestampIso ? { timestamp: timestampIso } : {}),
     })
-
     .select("*")
     .single();
   if (error) throw error;
@@ -257,10 +268,11 @@ export async function addCareLog(
 export async function updateCareLog(id: string, payload: CarePayload) {
   const { error } = await supabase
     .from("care_logs")
-    .update({ payload: payload as never })
+    .update({ operational_metrics: payload as never })
     .eq("id", id);
   if (error) throw error;
 }
+
 
 export async function deleteCareLog(id: string) {
   const { error } = await supabase.from("care_logs").delete().eq("id", id);
@@ -317,14 +329,16 @@ export async function saveHandover(input: {
   notes: string;
   status: "draft" | "published";
 }) {
+  const familyId = await familyIdForBaby(input.babyId);
   const { data, error } = await supabase
     .from("shift_handovers")
     .insert({
       baby_id: input.babyId,
+      family_id: familyId,
       shift_start: input.shiftStart,
       shift_end: input.shiftEnd,
       summary_metrics: input.metrics as never,
-      caregiver_notes: input.notes,
+      notes: input.notes,
       status: input.status,
     })
     .select("*")
@@ -336,9 +350,10 @@ export async function saveHandover(input: {
 function toHandover(row: Record<string, unknown>): ShiftHandover {
   return {
     ...(row as unknown as ShiftHandover),
-    notes: (row['caregiver_notes'] as string | null) ?? null,
+    notes: (row['notes'] as string | null) ?? null,
   };
 }
+
 
 export async function fetchLatestPublishedHandover(babyId: string): Promise<ShiftHandover | null> {
   const { data, error } = await supabase
