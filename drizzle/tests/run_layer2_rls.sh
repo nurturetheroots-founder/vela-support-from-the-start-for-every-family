@@ -6,14 +6,38 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PGBIN="${PGBIN:-$(dirname "$(command -v postgres || command -v pg_ctl)")}"
+
+# initdb refuses to run as root, and the error it gives is easy to misread as a
+# broken script rather than a wrong user.
+if [ "$(id -u)" = 0 ]; then
+  echo "run_layer2_rls.sh must not run as root (initdb refuses)." >&2
+  echo "Re-run as an unprivileged user, e.g.: su postgres -c '$0'" >&2
+  exit 1
+fi
+
+# Debian/Ubuntu — GitHub Actions runners included — keep the server binaries in
+# /usr/lib/postgresql/<version>/bin and off PATH, so PATH alone is not enough.
+if [ -z "${PGBIN:-}" ]; then
+  if command -v pg_ctl >/dev/null 2>&1; then
+    PGBIN="$(dirname "$(command -v pg_ctl)")"
+  else
+    PGBIN="$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)"
+  fi
+fi
+if [ -z "$PGBIN" ] || [ ! -x "$PGBIN/initdb" ]; then
+  echo "No PostgreSQL server binaries found. Install PostgreSQL 15+, or set PGBIN." >&2
+  exit 1
+fi
+
 PORT="${PGPORT:-55432}"
 WORK="$(mktemp -d)"
 trap '"$PGBIN/pg_ctl" -D "$WORK/data" stop -m immediate >/dev/null 2>&1 || true; rm -rf "$WORK"' EXIT
 
 "$PGBIN/initdb" -D "$WORK/data" -A trust -U postgres >/dev/null
 "$PGBIN/pg_ctl" -D "$WORK/data" -l "$WORK/pg.log" -o "-p $PORT -k $WORK" -w start >/dev/null
-psql() { command psql -h "$WORK" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 "$@"; }
+# Use the client that ships beside the server we just started, rather than
+# whatever psql happens to be on PATH (often nothing, on a CI runner).
+psql() { "$PGBIN/psql" -h "$WORK" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 "$@"; }
 
 # Stand-ins for the Supabase platform objects the migrations assume.
 psql -q -f - <<'SQL'
