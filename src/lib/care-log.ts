@@ -249,17 +249,16 @@ export async function addCareLog(
   payload: CarePayload,
   timestampIso?: string,
 ) {
-  const { data: auth } = await supabase.auth.getUser();
+  const familyId = await familyIdForBaby(babyId);
   const { data, error } = await supabase
     .from("care_logs")
     .insert({
       baby_id: babyId,
+      family_id: familyId,
       event_type: eventType,
-      payload: payload as never,
-      logged_by: auth.user?.id as string,
+      operational_metrics: payload as never,
       ...(timestampIso ? { timestamp: timestampIso } : {}),
     })
-
     .select("*")
     .single();
   if (error) throw error;
@@ -269,10 +268,11 @@ export async function addCareLog(
 export async function updateCareLog(id: string, payload: CarePayload) {
   const { error } = await supabase
     .from("care_logs")
-    .update({ payload: payload as never })
+    .update({ operational_metrics: payload as never })
     .eq("id", id);
   if (error) throw error;
 }
+
 
 export async function deleteCareLog(id: string) {
   const { error } = await supabase.from("care_logs").delete().eq("id", id);
