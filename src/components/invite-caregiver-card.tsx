@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Copy, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createInviteCode } from "@/lib/roles";
+import { isGuest } from "@/lib/guest";
+import { NeedsAccount } from "@/components/needs-account";
 
 /**
  * Parents create a short code here and share it with the doula or caregiver
@@ -11,6 +13,11 @@ import { createInviteCode } from "@/lib/roles";
 export function InviteCaregiverCard() {
   const [code, setCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [guest, setGuest] = useState(false);
+
+  useEffect(() => {
+    setGuest(isGuest());
+  }, []);
 
   async function generate() {
     setBusy(true);
@@ -21,6 +28,17 @@ export function InviteCaregiverCard() {
     } finally {
       setBusy(false);
     }
+  }
+
+  // An invite code is minted against the signed-in parent's account, so there
+  // is nothing to attach one to in demo mode.
+  if (guest) {
+    return (
+      <NeedsAccount
+        title="Invite your care team"
+        body="Invite codes are tied to your account, so this needs a real one. Create an account and you can share a code with your doula or night caregiver — they'll see only the shift tracker, never your check-ins or private notes."
+      />
+    );
   }
 
   return (
