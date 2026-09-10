@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState, type ReactNode } from "react";
-import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart, Bell, Moon } from "lucide-react";
+import { Home, ClipboardCheck, BookOpen, HeartHandshake, Heart, Bell, Moon, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { problem } from "@/lib/microcopy";
 import { LegalFooter } from "@/components/legal-footer";
@@ -10,7 +10,11 @@ import { cachedRole, fetchRoleInfo, type AppRole } from "@/lib/roles";
 import { BetaFeedbackDialog } from "@/components/beta-feedback-dialog";
 
 
-const caregiverNav = [{ to: "/caregiver/shift-dashboard", label: "Shift", icon: Moon }];
+const caregiverNav = [
+  { to: "/caregiver/clients", label: "Clients", icon: Users },
+  { to: "/caregiver/shift-dashboard", label: "Shift", icon: Moon },
+];
+
 
 const nav = [
   { to: "/dashboard", label: "Home", icon: Home },

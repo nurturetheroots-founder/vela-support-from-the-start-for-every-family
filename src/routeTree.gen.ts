@@ -30,6 +30,7 @@ import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsMcpRouteImport } from './routes/docs.mcp'
 import { Route as CaregiverShiftDashboardRouteImport } from './routes/caregiver/shift-dashboard'
+import { Route as CaregiverClientsRouteImport } from './routes/caregiver/clients'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as ApiPublicMcpDocsRouteImport } from './routes/api/public/mcp-docs'
@@ -141,6 +142,11 @@ const CaregiverShiftDashboardRoute = CaregiverShiftDashboardRouteImport.update({
   path: '/caregiver/shift-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaregiverClientsRoute = CaregiverClientsRouteImport.update({
+  id: '/caregiver/clients',
+  path: '/caregiver/clients',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/caregiver/clients': typeof CaregiverClientsRoute
   '/caregiver/shift-dashboard': typeof CaregiverShiftDashboardRoute
   '/docs/mcp': typeof DocsMcpRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/caregiver/clients': typeof CaregiverClientsRoute
   '/caregiver/shift-dashboard': typeof CaregiverShiftDashboardRoute
   '/docs/mcp': typeof DocsMcpRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -249,6 +257,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/caregiver/clients': typeof CaregiverClientsRoute
   '/caregiver/shift-dashboard': typeof CaregiverShiftDashboardRoute
   '/docs/mcp': typeof DocsMcpRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/caregiver/clients'
     | '/caregiver/shift-dashboard'
     | '/docs/mcp'
     | '/.lovable/oauth/consent'
@@ -307,6 +317,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/caregiver/clients'
     | '/caregiver/shift-dashboard'
     | '/docs/mcp'
     | '/.lovable/oauth/consent'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/caregiver/clients'
     | '/caregiver/shift-dashboard'
     | '/docs/mcp'
     | '/.lovable/oauth/consent'
@@ -364,6 +376,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  CaregiverClientsRoute: typeof CaregiverClientsRoute
   CaregiverShiftDashboardRoute: typeof CaregiverShiftDashboardRoute
   DocsMcpRoute: typeof DocsMcpRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -520,6 +533,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaregiverShiftDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/caregiver/clients': {
+      id: '/caregiver/clients'
+      path: '/caregiver/clients'
+      fullPath: '/caregiver/clients'
+      preLoaderRoute: typeof CaregiverClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
@@ -581,6 +601,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  CaregiverClientsRoute: CaregiverClientsRoute,
   CaregiverShiftDashboardRoute: CaregiverShiftDashboardRoute,
   DocsMcpRoute: DocsMcpRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
