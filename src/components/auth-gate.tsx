@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { fetchCheckins, fetchParent, rowToCheckin, rowToProfile } from "@/lib/vela-db";
 import { getState, hydrateFromRemote } from "@/lib/store";
+import { fetchScreenings } from "@/lib/screenings";
 import { isGuest } from "@/lib/guest";
 import { cachedRole } from "@/lib/roles";
 
@@ -41,9 +42,13 @@ export function AuthGate({
     let cancelled = false;
     (async () => {
       try {
-        const [parent, rows] = await Promise.all([fetchParent(user.id), fetchCheckins(user.id)]);
+        const [parent, rows, screenings] = await Promise.all([
+          fetchParent(user.id),
+          fetchCheckins(user.id),
+          fetchScreenings(),
+        ]);
         if (cancelled) return;
-        hydrateFromRemote(parent ? rowToProfile(parent) : {}, rows.map(rowToCheckin));
+        hydrateFromRemote(parent ? rowToProfile(parent) : {}, rows.map(rowToCheckin), screenings);
       } catch {
         // Offline or slow connection — the local copy still works.
       } finally {

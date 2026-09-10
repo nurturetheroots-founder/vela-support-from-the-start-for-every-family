@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ShieldCheck, Phone, LifeBuoy } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { legal } from "@/lib/microcopy";
+import { buildScores, saveScreening } from "@/lib/screenings";
 
 export const Route = createFileRoute("/screening")({
   head: () => ({
@@ -66,9 +67,16 @@ function ScreeningPage() {
 
   function submit() {
     if (!allAnswered) return;
-    const scored = answers.map((a, i) => (QUESTIONS[i].reverse ? a! : 3 - a!));
+    // `reverse` says which order a question lists its options in: false means
+    // healthiest first (the index is the score), true means most severe first
+    // (the score counts back from 3). Inverted, the whole instrument inverts —
+    // the most severe answer to all ten totals 0 and reads as a steady week.
+    const scored = answers.map((a, i) => (QUESTIONS[i].reverse ? 3 - a! : a!));
     const score = scored.reduce((sum, n) => sum + n, 0);
     addScreening({ date: todayStr(), score, triggerWeek, responses: answers as number[] });
+    // Show the result first. The save is deliberately not awaited: a slow
+    // connection must never sit between her and the crisis screen.
+    void saveScreening(buildScores(scored, triggerWeek));
     setResult({ score });
   }
 
