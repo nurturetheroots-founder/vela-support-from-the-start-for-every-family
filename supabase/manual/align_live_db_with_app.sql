@@ -422,13 +422,31 @@ CREATE OR REPLACE FUNCTION public.care_logs_before_write()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public, pg_temp AS $$
 BEGIN
+  -- Authorship is fixed at insert. An RLS WITH CHECK cannot see OLD, so
+  -- without this a caregiver with write access could update their own row and
+  -- reassign created_by to someone else — falsifying who logged a care event.
+  IF TG_OP = 'UPDATE' THEN
+    NEW.created_by := OLD.created_by;
+  END IF;
+
   SELECT b.parent_id INTO NEW.family_id FROM public.babies b WHERE b.id = NEW.baby_id;
   IF NEW.family_id IS NULL THEN
     RAISE EXCEPTION 'care_logs.baby_id % does not resolve to a family', NEW.baby_id;
   END IF;
-  NEW.content := COALESCE(NEW.content,
-                          NEW.operational_metrics ->> 'note',
-                          NEW.operational_metrics ->> 'notes');
+
+  -- content mirrors the note on operational_metrics. updateCareLog() patches
+  -- only operational_metrics, so COALESCE onto the existing content would pin
+  -- it to the first note ever written; re-derive unless content was set
+  -- explicitly in this same statement.
+  IF TG_OP = 'UPDATE' AND NEW.content IS NOT DISTINCT FROM OLD.content THEN
+    NEW.content := COALESCE(NEW.operational_metrics ->> 'note',
+                            NEW.operational_metrics ->> 'notes');
+  ELSE
+    NEW.content := COALESCE(NEW.content,
+                            NEW.operational_metrics ->> 'note',
+                            NEW.operational_metrics ->> 'notes');
+  END IF;
+
   RETURN NEW;
 END; $$;
 
@@ -482,6 +500,11 @@ CREATE OR REPLACE FUNCTION public.shift_handovers_before_write()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public, pg_temp AS $$
 BEGIN
+  -- Same reasoning as care_logs: an update must not reassign the caregiver.
+  IF TG_OP = 'UPDATE' THEN
+    NEW.caregiver_id := OLD.caregiver_id;
+  END IF;
+
   SELECT b.parent_id INTO NEW.family_id FROM public.babies b WHERE b.id = NEW.baby_id;
   IF NEW.family_id IS NULL THEN
     RAISE EXCEPTION 'shift_handovers.baby_id % does not resolve to a family', NEW.baby_id;
@@ -680,17 +703,43 @@ COMMENT ON COLUMN public.epds_screenings.q10_emergency_state IS
 CREATE OR REPLACE FUNCTION public.epds_screenings_before_write()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public, pg_temp AS $$
-DECLARE answered integer; summed integer; item10 integer;
+DECLARE
+  answered integer := 0;
+  summed   integer := 0;
+  item10   integer;
+  parsed   integer;
+  item     text;
 BEGIN
-  SELECT count(*), COALESCE(sum((NEW.scores ->> item)::integer),0)
-  INTO answered, summed
-  FROM unnest(ARRAY['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10']) AS item
-  WHERE jsonb_typeof(NEW.scores -> item) = 'number';
-  IF answered = 10 THEN
-    item10 := (NEW.scores ->> 'q10')::integer;
-    NEW.total_score := summed;
-    NEW.q10_emergency_state := item10 > 0;
+  -- Accept an item whether it arrives as a JSON number or a numeric string;
+  -- anything else (null, 2.5, "n/a") parses to NULL and is simply not counted.
+  FOREACH item IN ARRAY ARRAY['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'] LOOP
+    parsed := CASE
+      WHEN jsonb_typeof(NEW.scores -> item) IN ('number','string')
+           AND btrim(NEW.scores ->> item) ~ '^-?\d+$'
+      THEN btrim(NEW.scores ->> item)::integer
+      ELSE NULL
+    END;
+    IF parsed IS NOT NULL THEN
+      answered := answered + 1;
+      summed   := summed + parsed;
+      IF item = 'q10' THEN item10 := parsed; END IF;
+    END IF;
+  END LOOP;
+
+  -- Item 10 is self-harm ideation, so its flag is derived whenever the item is
+  -- present at all — NOT only when the whole instrument parses. Requiring all
+  -- ten let a client suppress the flag by omitting one other item, or by
+  -- sending the scores as strings. The flag is also never downgraded: a client
+  -- that sets it true keeps it true.
+  IF item10 IS NOT NULL THEN
+    NEW.q10_emergency_state := (item10 > 0) OR COALESCE(NEW.q10_emergency_state, false);
   END IF;
+
+  -- The total is only meaningful once every item has parsed.
+  IF answered = 10 THEN
+    NEW.total_score := summed;
+  END IF;
+
   RETURN NEW;
 END; $$;
 

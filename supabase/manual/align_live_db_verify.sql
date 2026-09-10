@@ -85,3 +85,48 @@ SELECT pg_temp.chk('checkins columns unchanged by the lockdown',
   'date,energy,id,mood,user_id'::text);
 SELECT pg_temp.chk('checkins is FORCE row level security',
   (SELECT relforcerowsecurity FROM pg_class WHERE oid='public.checkins'::regclass), true);
+
+\echo ''
+\echo '--- Bugbot #7 regressions: q10 suppression (High) ---'
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+INSERT INTO public.epds_screenings (parent_id,scores,total_score,q10_emergency_state) VALUES
+ ('11111111-1111-1111-1111-111111111111','{"q1":0,"q2":0,"q3":0,"q4":0,"q5":0,"q6":0,"q7":0,"q8":0,"q10":3}',0,false);
+SELECT pg_temp.chk('incomplete instrument still raises q10',
+  (SELECT q10_emergency_state FROM public.epds_screenings WHERE scores->>'q9' IS NULL), true);
+INSERT INTO public.epds_screenings (parent_id,scores,total_score,q10_emergency_state) VALUES
+ ('11111111-1111-1111-1111-111111111111','{"q1":"0","q2":"0","q3":"0","q4":"0","q5":"0","q6":"0","q7":"0","q8":"0","q9":"0","q10":"3"}',0,false);
+SELECT pg_temp.chk('string-encoded scores still raise q10',
+  (SELECT q10_emergency_state FROM public.epds_screenings WHERE jsonb_typeof(scores->'q10')='string'), true);
+INSERT INTO public.epds_screenings (parent_id,scores,total_score,q10_emergency_state) VALUES
+ ('11111111-1111-1111-1111-111111111111','{"q1":1,"q2":1,"q3":1,"q4":0,"q5":0,"q6":0,"q7":0,"q8":0,"q9":0,"q10":0}',0,false);
+SELECT pg_temp.chk('a genuine clean screen stays false',
+  (SELECT q10_emergency_state FROM public.epds_screenings WHERE scores->>'q10'='0' AND scores->>'q1'='1'), false);
+
+\echo ''
+\echo '--- Bugbot #7 regressions: authorship and content ---'
+-- The caregiver files their OWN log first: the earlier one in this suite
+-- belongs to the parent, and the caregiver cannot update that at all.
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '22222222-2222-2222-2222-222222222222';
+INSERT INTO public.care_logs (baby_id, event_type, operational_metrics)
+SELECT b.id, 'observation', '{"note":"first note"}'
+FROM public.babies b LIMIT 1;
+
+UPDATE public.care_logs SET created_by = '11111111-1111-1111-1111-111111111111'
+ WHERE event_type = 'observation';
+SELECT pg_temp.chk('created_by cannot be reassigned on update',
+  (SELECT created_by FROM public.care_logs WHERE event_type = 'observation'),
+  '22222222-2222-2222-2222-222222222222'::uuid);
+
+SELECT pg_temp.chk('content derived on insert',
+  (SELECT content FROM public.care_logs WHERE event_type = 'observation'), 'first note'::text);
+
+UPDATE public.care_logs SET operational_metrics = '{"note":"second note"}'
+ WHERE event_type = 'observation';
+SELECT pg_temp.chk('content tracks an edited note',
+  (SELECT content FROM public.care_logs WHERE event_type = 'observation'), 'second note'::text);
+
+UPDATE public.care_logs SET content = 'explicit override' WHERE event_type = 'observation';
+SELECT pg_temp.chk('an explicit content edit is respected',
+  (SELECT content FROM public.care_logs WHERE event_type = 'observation'), 'explicit override'::text);
+RESET ROLE;

@@ -145,3 +145,17 @@ SELECT pg_temp.check('functions executable by anon',
   (SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
     WHERE n.nspname = 'public' AND p.prokind = 'f'
       AND has_function_privilege('anon', p.oid, 'EXECUTE')), 0::bigint);
+
+\echo ''
+\echo '--- 0009: the q10 flag cannot be suppressed by an incomplete or string payload ---'
+SET request.jwt.claim.sub = '11111111-1111-1111-1111-111111111111';
+INSERT INTO public.epds_screenings (parent_id, scores, total_score, q10_emergency_state)
+VALUES ('11111111-1111-1111-1111-111111111111',
+        '{"q1":0,"q2":0,"q3":0,"q4":0,"q5":0,"q6":0,"q7":0,"q8":0,"q10":3}', 0, false);
+SELECT pg_temp.check('incomplete instrument still raises q10',
+  (SELECT q10_emergency_state FROM public.epds_screenings WHERE scores->>'q9' IS NULL), true);
+INSERT INTO public.epds_screenings (parent_id, scores, total_score, q10_emergency_state)
+VALUES ('11111111-1111-1111-1111-111111111111',
+        '{"q1":"0","q2":"0","q3":"0","q4":"0","q5":"0","q6":"0","q7":"0","q8":"0","q9":"0","q10":"3"}', 0, false);
+SELECT pg_temp.check('string-encoded scores still raise q10',
+  (SELECT q10_emergency_state FROM public.epds_screenings WHERE jsonb_typeof(scores->'q10')='string'), true);
