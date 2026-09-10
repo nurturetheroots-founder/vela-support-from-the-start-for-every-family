@@ -26,6 +26,31 @@ BEGIN
   IF to_regclass('public.profiles') IS NULL THEN
     RAISE EXCEPTION 'public.profiles not found — wrong database.';
   END IF;
+
+  IF to_regclass('public.checkins') IS NULL THEN
+    RAISE EXCEPTION
+      'public.checkins not found. Section 11 locks it down; if it is absent '
+      'here, this is not the database you inspected.';
+  END IF;
+END $$;
+
+-- Checked here, before a single object is created, so the refusal is genuinely
+-- free of side effects even when this file is not run inside a transaction.
+-- Section 11 puts checkins under FORCE row level security, which applies to the
+-- table owner too: a row with no user_id would become unreadable by everyone,
+-- permanently and silently.
+DO $$
+DECLARE orphaned bigint;
+BEGIN
+  SELECT count(*) INTO orphaned FROM public.checkins WHERE user_id IS NULL;
+  IF orphaned > 0 THEN
+    RAISE EXCEPTION
+      'checkins holds % row(s) with a NULL user_id. Locking the table down '
+      'would make them unreadable by everyone, the table owner included. '
+      'Inspect them with:  SELECT * FROM public.checkins WHERE user_id IS '
+      'NULL;  then assign an owner or delete them, and re-run. Nothing has '
+      'been created or altered.', orphaned;
+  END IF;
 END $$;
 
 DO $$ BEGIN CREATE TYPE public.member_role AS ENUM ('parent','caregiver');
@@ -665,7 +690,81 @@ CREATE POLICY epds_screenings_isolation ON public.epds_screenings
 
 
 -- =============================================================================
--- 11. Function lockdown — scoped to this script's own functions
+-- 11. checkins — absolute isolation for wellness data that already exists
+-- =============================================================================
+-- Columns: id (uuid), user_id (uuid), date (text), mood (integer), energy (integer).
+-- Mood and energy per person per day is maternal wellness data, so it gets the
+-- same treatment as private_checkins.
+--
+-- This table differs from every other one here in one way that matters: it is
+-- already live and already holds rows. Two consequences, stated plainly:
+--
+--   * FORCE row level security applies to the table owner as well. Any row
+--     whose user_id is NULL becomes unreadable by everyone, permanently and
+--     silently. The guard below refuses to run rather than orphan such rows.
+--   * Revoking service_role is the point of the exercise, but it takes effect
+--     immediately. If any server-side job, Edge Function, or admin script
+--     writes to checkins with the service_role key, it stops working the
+--     moment this runs.
+--
+-- Existing policies are left alone rather than dropped, because another
+-- application owns this table and its policies may be load-bearing. They do
+-- not weaken the guarantee: the RESTRICTIVE policy at the end of this section
+-- is ANDed with every permissive policy, so even a pre-existing USING (true)
+-- cannot grant access to someone else's row.
+
+CREATE INDEX IF NOT EXISTS checkins_user_date_idx ON public.checkins (user_id, date DESC);
+
+COMMENT ON TABLE public.checkins IS
+  'Maternal wellness (mood, energy). Readable and writable by the owning user '
+  'alone. No caregiver role, permissions grant, or family membership reaches '
+  'this table, and service_role is revoked because it carries BYPASSRLS.';
+
+-- service_role carries BYPASSRLS, so the policies below are invisible to it.
+-- Table privileges are checked separately from RLS, so the grant is revoked.
+REVOKE ALL ON public.checkins FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.checkins TO authenticated;
+
+ALTER TABLE public.checkins ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.checkins FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS checkins_layer2_select    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_insert    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_update    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_delete    ON public.checkins;
+DROP POLICY IF EXISTS checkins_layer2_isolation ON public.checkins;
+
+-- One permissive policy per verb, each with the identical owner test, written
+-- out separately so a future migration cannot widen one verb without the
+-- change being visible in the diff.
+CREATE POLICY checkins_layer2_select ON public.checkins
+  FOR SELECT TO authenticated
+  USING (user_id = (SELECT auth.uid()));
+
+CREATE POLICY checkins_layer2_insert ON public.checkins
+  FOR INSERT TO authenticated
+  WITH CHECK (user_id = (SELECT auth.uid()));
+
+CREATE POLICY checkins_layer2_update ON public.checkins
+  FOR UPDATE TO authenticated
+  USING (user_id = (SELECT auth.uid()))
+  WITH CHECK (user_id = (SELECT auth.uid()));
+
+CREATE POLICY checkins_layer2_delete ON public.checkins
+  FOR DELETE TO authenticated
+  USING (user_id = (SELECT auth.uid()));
+
+-- The isolation block. RESTRICTIVE policies are ANDed with the OR-ed set of
+-- permissive ones, so this cannot be satisfied by adding another policy later,
+-- and it clamps any permissive policy that already exists on this table.
+CREATE POLICY checkins_layer2_isolation ON public.checkins
+  AS RESTRICTIVE FOR ALL TO public
+  USING (user_id = (SELECT auth.uid()))
+  WITH CHECK (user_id = (SELECT auth.uid()));
+
+
+-- =============================================================================
+-- 12. Function lockdown — scoped to this script's own functions
 -- =============================================================================
 -- Not a schema-wide sweep: another application's functions live in this public
 -- schema and a blanket revoke would strip their anon EXECUTE too.

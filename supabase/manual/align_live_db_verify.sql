@@ -79,5 +79,9 @@ RESET ROLE;
 SET ROLE anon;
 SELECT pg_temp.chk('foreign app function still works for anon', (SELECT public.other_app_ping()), 'pong'::text);
 RESET ROLE;
-SELECT pg_temp.chk('existing checkins table untouched',
-  (SELECT count(*) FROM information_schema.columns WHERE table_name='checkins'), 3::bigint);
+SELECT pg_temp.chk('checkins columns unchanged by the lockdown',
+  (SELECT string_agg(column_name,',' ORDER BY column_name)
+     FROM information_schema.columns WHERE table_schema='public' AND table_name='checkins'),
+  'date,energy,id,mood,user_id'::text);
+SELECT pg_temp.chk('checkins is FORCE row level security',
+  (SELECT relforcerowsecurity FROM pg_class WHERE oid='public.checkins'::regclass), true);
