@@ -337,6 +337,30 @@ export function QuickLogBar({
               />
             )}
 
+            {open === "pump" && (
+              <>
+                <p className="text-sm text-night-muted">How much was expressed?</p>
+                <Pills options={[1, 2, 3, 4, 5, 6]} value={pumpOz} onChange={setPumpOz} labels={(v) => `${v} oz`} />
+                <Stepper value={pumpOz} onChange={setPumpOz} suffix="oz" />
+                <p className="text-sm text-night-muted">Session length</p>
+                <Pills
+                  options={[10, 15, 20, 25, 30]}
+                  value={pumpMins}
+                  onChange={setPumpMins}
+                  labels={(v) => `${v} min`}
+                />
+                <p className="text-sm text-night-muted">Side</p>
+                <Pills
+                  options={["left", "right", "both"] as NonNullable<PumpPayload["side"]>[]}
+                  value={pumpSide}
+                  onChange={setPumpSide}
+                  labels={(v) => (v === "both" ? "Both" : v === "left" ? "Left" : "Right")}
+                />
+              </>
+            )}
+
+
+
             {open === "sleep" && (
               <>
                 <p className="text-sm text-night-muted">How long did this stretch last?</p>
