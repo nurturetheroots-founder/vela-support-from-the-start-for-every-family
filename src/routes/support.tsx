@@ -103,6 +103,11 @@ function SupportPage() {
         <InviteCaregiverCard />
       </div>
 
+      <div className="mt-4">
+        <DoulaSignupCard />
+      </div>
+
+
       <section className="mt-12">
         <h2 className="font-serif text-2xl">In-person care, from our roots</h2>
         <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
