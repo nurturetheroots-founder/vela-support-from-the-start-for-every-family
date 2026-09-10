@@ -138,6 +138,15 @@ const quickActions: QuickAction[] = [
     },
   },
   {
+    key: "pump",
+    type: "pump",
+    label: "Pump",
+    hint: "3 oz",
+    icon: Droplets,
+    tint: "text-sage",
+    payload: () => ({ amount_oz: 3, side: "both" }) satisfies PumpPayload,
+  },
+  {
     key: "note",
     type: "observation",
     label: "Note",
