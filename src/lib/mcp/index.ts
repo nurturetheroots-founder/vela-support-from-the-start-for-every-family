@@ -9,7 +9,7 @@ import listEducation from "./tools/list-education";
 const projectRef = import.meta.env['VITE_SUPABASE_PROJECT_ID'] ?? "project-ref-unset";
 
 export default defineMcp({
-  name: "vela-support-from-the-start-for-every-family",
+  name: "vela-app",
   title: "Vela; Support from the Start for Every Family",
   version: "0.1.0",
   instructions:
