@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,10 +33,17 @@ function ResetPasswordPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasSession = useRef(false);
-  // Mirrors `stage` so an in-flight async exit can see a change that happened
-  // after it started, without a stale closure.
+  // The stage is tracked in a ref as well as state, and the ref is the one an
+  // in-flight async exit consults. Mirroring it during render was not enough:
+  // setStage only schedules a re-render, so between a recovery arriving and
+  // that render committing the ref still read stale, and the exit could
+  // navigate away from a form that had already opened. Writing it here, at the
+  // moment the stage changes, makes it true immediately.
   const stageRef = useRef<Stage>("checking");
-  stageRef.current = stage;
+  const applyStage = useCallback((next: Stage) => {
+    stageRef.current = next;
+    setStage(next);
+  }, []);
 
   useEffect(() => {
     // Holding a session is not enough to prove someone owns this account — an
@@ -53,7 +60,7 @@ function ResetPasswordPage() {
     // timer — an ordinary phone connection — showed "expired", swallowed the
     // event that followed, and burned a one-time link.
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") setStage("ok");
+      if (event === "PASSWORD_RECOVERY") applyStage("ok");
     });
 
     void supabase.auth.getSession().then(({ data }) => {
@@ -68,16 +75,15 @@ function ResetPasswordPage() {
     // emailed. Never overwrite an "ok" — the exchange may have completed while
     // this was pending.
     const timer = window.setTimeout(() => {
-      setStage((current) =>
-        current === "ok" ? current : hasSession.current ? "signed-in" : "expired",
-      );
+      if (stageRef.current === "ok") return;
+      applyStage(hasSession.current ? "signed-in" : "expired");
     }, 8000);
 
     return () => {
       window.clearTimeout(timer);
       sub.subscription.unsubscribe();
     };
-  }, []);
+  }, [applyStage]);
 
   async function emailMeALink() {
     if (!email) {
