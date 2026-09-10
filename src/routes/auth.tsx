@@ -23,9 +23,15 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Vela" },
-      { name: "description", content: "Sign in to Vela to keep your check-ins, learning, and support in one warm place." },
+      {
+        name: "description",
+        content: "Sign in to Vela to keep your check-ins, learning, and support in one warm place.",
+      },
       { property: "og:title", content: "Sign in — Vela" },
-      { property: "og:description", content: "Sign in to Vela to keep your check-ins, learning, and support in one warm place." },
+      {
+        property: "og:description",
+        content: "Sign in to Vela to keep your check-ins, learning, and support in one warm place.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -37,7 +43,8 @@ function AuthPage() {
   const nav = useNavigate();
   const { next } = Route.useSearch();
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signup");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signup");
+  const [sent, setSent] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,6 +68,18 @@ function AuthPage() {
     setBusy(true);
     setError(null);
     try {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        // Deliberately not saying whether that address has an account: the
+        // confirmation is identical either way, so this screen cannot be used
+        // to find out who has signed up.
+        setSent(true);
+        return;
+      }
+
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
@@ -82,7 +101,9 @@ function AuthPage() {
         await nav({ to: info.role === "caregiver" ? "/caregiver/shift-dashboard" : "/onboarding" });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something didn't go through. Try again in a moment.");
+      setError(
+        err instanceof Error ? err.message : "Something didn't go through. Try again in a moment.",
+      );
     } finally {
       setBusy(false);
     }
@@ -95,19 +116,31 @@ function AuthPage() {
     >
       <main className="flex-1 w-full max-w-md mx-auto px-6 py-14">
         <h1 className="text-3xl font-serif lowercase">
-          {mode === "signup" ? "let's make you a space." : "welcome back."}
+          {mode === "signup"
+            ? "let's make you a space."
+            : mode === "forgot"
+              ? "let's get you back in."
+              : "welcome back."}
         </h1>
         <p className="mt-3 text-muted-foreground leading-relaxed">
           {mode === "signup"
             ? "Your check-ins and notes stay private to you, saved so you never have to start over."
-            : "Sign in to pick up right where you left off."}
+            : mode === "forgot"
+              ? "Enter your email and we'll send you a link to set a new password."
+              : "Sign in to pick up right where you left off."}
         </p>
 
         <form onSubmit={submit} className="mt-8 space-y-5">
           {mode === "signup" && (
             <div>
               <Label htmlFor="name">What should we call you?</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="mt-2 rounded-2xl bg-card/70" placeholder="First name" />
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-2 rounded-2xl bg-card/70"
+                placeholder="First name"
+              />
             </div>
           )}
           <div>
@@ -122,19 +155,28 @@ function AuthPage() {
               className="mt-2 rounded-2xl bg-card/70"
             />
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={6}
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 rounded-2xl bg-card/70"
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                minLength={6}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-2 rounded-2xl bg-card/70"
+              />
+            </div>
+          )}
+
+          {sent && (
+            <p role="status" className="rounded-2xl bg-secondary/70 p-4 text-sm leading-relaxed">
+              If that email has a Vela account, a reset link is on its way. It's good for one hour.
+              Check your spam folder if it doesn't appear.
+            </p>
+          )}
 
           {error && (
             <p role="alert" className="text-sm text-destructive">
@@ -144,7 +186,11 @@ function AuthPage() {
 
           <Button type="submit" size="lg" className="rounded-full w-full" disabled={busy}>
             {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {mode === "signup" ? "Create my space" : "Sign in"}
+            {mode === "signup"
+              ? "Create my space"
+              : mode === "forgot"
+                ? "Send reset link"
+                : "Sign in"}
           </Button>
         </form>
 
@@ -154,11 +200,26 @@ function AuthPage() {
             onClick={() => {
               setMode(mode === "signup" ? "signin" : "signup");
               setError(null);
+              setSent(false);
             }}
-            className="text-sm text-primary underline underline-offset-4"
+            className="min-h-11 text-sm text-primary underline underline-offset-4"
           >
             {mode === "signup" ? "I already have an account" : "I'm new here — create an account"}
           </button>
+
+          {mode !== "signup" && (
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "forgot" ? "signin" : "forgot");
+                setError(null);
+                setSent(false);
+              }}
+              className="min-h-11 text-sm text-muted-foreground underline underline-offset-4"
+            >
+              {mode === "forgot" ? "Back to sign in" : "Forgot your password?"}
+            </button>
+          )}
 
           <div className="w-full pt-4 border-t border-border/60">
             <Button
@@ -174,7 +235,8 @@ function AuthPage() {
               View demo — continue as guest
             </Button>
             <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-              Explore the whole app without an account. Anything you enter stays on this device and isn't saved to a profile.
+              Explore the whole app without an account. Anything you enter stays on this device and
+              isn't saved to a profile.
             </p>
           </div>
         </div>

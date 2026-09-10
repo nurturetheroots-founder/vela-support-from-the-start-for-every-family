@@ -28,6 +28,7 @@ import {
 import { captureEvent } from "@/lib/analytics-utils";
 import { useAuth } from "@/hooks/use-auth";
 import { isGuest } from "@/lib/guest";
+import { NeedsAccount } from "@/components/needs-account";
 
 function shiftStartIso() {
   // Current shift window: the last 14 hours of activity.
@@ -49,7 +50,10 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
   // Wait for the Supabase session to finish hydrating before fetching, so a
   // not-yet-authorized request never surfaces a false "check your connection"
   // toast. Works for parents, invited caregivers, and guest/demo sessions.
-  const ready = !isAuthLoading && (!!session || guest);
+  // Demo mode has no Supabase session, so every call the tracker makes is
+  // refused. Running the query anyway surfaced "check your connection", which
+  // reads as a network fault rather than a missing account.
+  const ready = !isAuthLoading && !!session;
 
   const shiftQuery = useQuery({
     queryKey: ["shift-tracker", session?.user?.id ?? "guest", since],
@@ -143,6 +147,21 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
   }
 
   const metrics = computeMetrics(logs);
+
+  if (guest) {
+    return (
+      <div className="min-h-dvh bg-night px-5 py-10 text-night-text">
+        <div className="mx-auto max-w-2xl">
+          <h1 className="mb-5 font-serif text-2xl text-night-text">Shift &amp; care tracker</h1>
+          <NeedsAccount
+            tone="night"
+            title="This one needs an account"
+            body="Care logs are saved against your family so the parent and the night caregiver see the same shift. The demo keeps everything on this device, so there is nothing to save them to yet."
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-night text-night-text">
