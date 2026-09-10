@@ -151,9 +151,12 @@ const quickActions: QuickAction[] = [
 export function QuickLogBar({
   onLog,
 }: {
-  onLog: (type: CareEventType, payload: CarePayload) => Promise<void> | void;
+  onLog: (type: CareEventType, payload: CarePayload, timestampIso?: string) => Promise<void> | void;
 }) {
   const [open, setOpen] = useState<CareEventType | null>(null);
+  /** Empty = "Just now". Otherwise an HH:MM value for a delayed entry. */
+  const [when, setWhen] = useState("");
+
   const held = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
