@@ -83,6 +83,18 @@
 
 :root {
   --radius: 1rem;
+  /* Night tracker surfaces (standard). Contrast checked against WCAG 2.1 AA:
+     text 0.93L and muted 0.78L both clear 4.5:1 on the 0.21L canvas. */
+  --night: oklch(0.19 0.012 60);
+  --night-soft: oklch(0.25 0.013 60);
+  --night-raised: oklch(0.31 0.014 60);
+  --night-line: oklch(0.42 0.012 60);
+  --night-text: oklch(0.95 0.012 80);
+  --night-muted: oklch(0.78 0.014 75);
+  --sage: oklch(0.82 0.07 155);
+  --clay-soft: oklch(0.8 0.1 45);
+  --lilac-soft: oklch(0.84 0.05 300);
+
   /* warm welcome cream — matches the onboarding canvas */
   --background: oklch(0.975 0.008 75);
   /* deep charcoal #2D2D2D */
