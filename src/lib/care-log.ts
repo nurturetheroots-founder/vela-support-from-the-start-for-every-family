@@ -109,7 +109,7 @@ async function familyBaby(): Promise<{ id: string; name: string } | null | undef
   const { data: link } = await supabase
     .from("family_members")
     .select("family_id")
-    .eq("profile_id", uid)
+    .eq("user_id", uid)
     .eq("role", "caregiver")
     .limit(1)
     .maybeSingle();
@@ -133,7 +133,7 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
     ? await supabase
         .from("family_members")
         .select("family_id")
-        .eq("profile_id", uid)
+        .eq("user_id", uid)
         .eq("role", "caregiver")
         .limit(1)
         .maybeSingle()
