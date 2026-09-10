@@ -300,6 +300,8 @@ export function computeMetrics(logs: CareLog[]): ShiftMetrics {
     dirty_diapers: 0,
     longest_sleep_stretch_mins: 0,
     feed_count: 0,
+    total_pumped_oz: 0,
+    pump_count: 0,
   };
   for (const log of logs) {
     if (log.event_type === "feed") {
