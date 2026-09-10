@@ -43,15 +43,13 @@ function ResetPasswordPage() {
     // PASSWORD_RECOVERY is the only thing we trust for that. What the URL looks
     // like is not evidence: anyone can append ?code=anything to the address bar,
     // and a code that fails to exchange fires no event at all.
-    let settled = false;
-    const finish = (next: Stage) => {
-      if (settled) return;
-      settled = true;
-      setStage(next);
-    };
-
+    // The recovery event always wins, whenever it arrives. The timer below is
+    // only a fallback for the case where it never does. An earlier version
+    // latched on whichever came first, so a code exchange slower than the
+    // timer — an ordinary phone connection — showed "expired", swallowed the
+    // event that followed, and burned a one-time link.
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") finish("ok");
+      if (event === "PASSWORD_RECOVERY") setStage("ok");
     });
 
     void supabase.auth.getSession().then(({ data }) => {
@@ -61,12 +59,15 @@ function ResetPasswordPage() {
       }
     });
 
-    // Give the code exchange time to land. If it never does, someone signed in
-    // gets a one-tap way to have a real link emailed to them, so a recovery we
-    // failed to recognise is an extra step rather than a dead end.
+    // If no recovery has landed by now, settle on a fallback that still leaves
+    // a way forward: someone signed in gets a one-tap way to have a real link
+    // emailed. Never overwrite an "ok" — the exchange may have completed while
+    // this was pending.
     const timer = window.setTimeout(() => {
-      finish(hasSession.current ? "signed-in" : "expired");
-    }, 2500);
+      setStage((current) =>
+        current === "ok" ? current : hasSession.current ? "signed-in" : "expired",
+      );
+    }, 8000);
 
     return () => {
       window.clearTimeout(timer);
@@ -94,6 +95,15 @@ function ResetPasswordPage() {
     }
   }
 
+  // Send people where signing in would have sent them. A caregiver dropped on
+  // the parent dashboard gets pushed through parent onboarding by AuthGate,
+  // which is not their account to set up. Used after a successful reset and by
+  // the signed-in panel's way out, so neither path can drift from the other.
+  async function goHome() {
+    const info = await fetchRoleInfo().catch(() => null);
+    await nav({ to: info?.role === "caregiver" ? "/caregiver/shift-dashboard" : "/dashboard" });
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -112,11 +122,7 @@ function ResetPasswordPage() {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       toast.success("Your new password is saved.");
-      // Send people where signing in would have sent them. A caregiver dropped
-      // on the parent dashboard gets pushed through parent onboarding by
-      // AuthGate, which is not their account to set up.
-      const info = await fetchRoleInfo().catch(() => null);
-      await nav({ to: info?.role === "caregiver" ? "/caregiver/shift-dashboard" : "/dashboard" });
+      await goHome();
     } catch (err) {
       setError(
         err instanceof Error
@@ -187,8 +193,14 @@ function ResetPasswordPage() {
                 {error}
               </p>
             )}
-            <Button asChild variant="ghost" size="lg" className="min-h-11 w-full rounded-full">
-              <Link to="/dashboard">Back to Vela</Link>
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              className="min-h-11 w-full rounded-full"
+              onClick={() => void goHome()}
+            >
+              Back to Vela
             </Button>
           </div>
         )}
