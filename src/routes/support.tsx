@@ -2,7 +2,15 @@ import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { getState } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight } from "lucide-react";
+import {
+  Users,
+  MessageCircleHeart,
+  Stethoscope,
+  Globe2,
+  ChevronRight,
+  Sprout,
+  ExternalLink,
+} from "lucide-react";
 import { legal } from "@/lib/microcopy";
 import { InviteCaregiverCard } from "@/components/invite-caregiver-card";
 
@@ -102,6 +110,36 @@ function SupportPage() {
       </div>
 
       <section className="mt-12">
+        <h2 className="font-serif text-2xl">In-person care, from our roots</h2>
+        <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+          <div className="flex items-start gap-3">
+            <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary shrink-0">
+              <Sprout className="h-5 w-5" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase tracking-wider text-primary">
+                San Francisco Bay Area · In person
+              </p>
+              <h3 className="font-serif text-xl mt-1">Nurture The Roots</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                Postpartum doula support, newborn care specialist services, and fourth trimester
+                coaching with Ashlee McKenzie — evidence-based newborn communication, cues and
+                states, and responsive care, in your home.
+              </p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <Button asChild className="rounded-full">
+              <a href="https://nurturetheroots.co" target="_blank" rel="noopener noreferrer">
+                Visit nurturetheroots.co
+                <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+              </a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-10">
         <h2 className="font-serif text-2xl">Meet a few of our doulas</h2>
         <div className="mt-4 grid sm:grid-cols-3 gap-3">
           {doulas.map((d) => (
