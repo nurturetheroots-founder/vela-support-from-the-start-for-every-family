@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Runner images ship PostgreSQL, but which version — and whether it is
       # present at all — is not contractual, so install it if it is missing.
