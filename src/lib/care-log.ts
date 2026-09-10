@@ -170,6 +170,13 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
 }
 
 
+function toCareLog(row: Record<string, unknown>): CareLog {
+  return {
+    ...(row as unknown as CareLog),
+    operational_metrics: row['payload'] as CarePayload,
+  };
+}
+
 export async function fetchCareLogs(babyId: string, sinceIso: string): Promise<CareLog[]> {
   const { data, error } = await supabase
     .from("care_logs")
@@ -178,23 +185,29 @@ export async function fetchCareLogs(babyId: string, sinceIso: string): Promise<C
     .gte("timestamp", sinceIso)
     .order("timestamp", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as unknown as CareLog[];
+  return (data ?? []).map((row) => toCareLog(row as unknown as Record<string, unknown>));
 }
 
 export async function addCareLog(babyId: string, eventType: CareEventType, payload: CarePayload) {
+  const { data: auth } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from("care_logs")
-    .insert({ baby_id: babyId, event_type: eventType, operational_metrics: payload as never })
+    .insert({
+      baby_id: babyId,
+      event_type: eventType,
+      payload: payload as never,
+      logged_by: auth.user?.id as string,
+    })
     .select("*")
     .single();
   if (error) throw error;
-  return data as unknown as CareLog;
+  return toCareLog(data as unknown as Record<string, unknown>);
 }
 
 export async function updateCareLog(id: string, payload: CarePayload) {
   const { error } = await supabase
     .from("care_logs")
-    .update({ operational_metrics: payload as never })
+    .update({ payload: payload as never })
     .eq("id", id);
   if (error) throw error;
 }
@@ -261,7 +274,7 @@ export async function saveHandover(input: {
       shift_start: input.shiftStart,
       shift_end: input.shiftEnd,
       summary_metrics: input.metrics as never,
-      notes: input.notes,
+      caregiver_notes: input.notes,
       status: input.status,
     })
     .select("*")
