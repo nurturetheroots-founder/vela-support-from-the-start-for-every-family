@@ -114,6 +114,12 @@ function CheckinPage() {
     try {
       if (user) await saveCheckin(user.id, c);
       captureEvent("logged_mood");
+      captureEvent("daily_checkin_completed", {
+        date: today,
+        flagged: !!c.flagged,
+        has_note: !!c.note,
+        signed_in: !!user,
+      });
     } catch {
       setSaveError("We saved today on this device, but couldn't reach your account just yet.");
     } finally {
