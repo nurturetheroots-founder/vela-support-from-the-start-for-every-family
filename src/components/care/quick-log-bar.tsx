@@ -289,6 +289,7 @@ export function QuickLogBar({
               {open === "feed" && "Log a feed"}
               {open === "diaper" && "Log a diaper"}
               {open === "sleep" && "Log a sleep stretch"}
+              {open === "pump" && "Log a pump session"}
               {open === "observation" && "Add a note"}
             </SheetTitle>
           </SheetHeader>
