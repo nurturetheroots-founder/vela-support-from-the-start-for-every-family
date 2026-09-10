@@ -19,20 +19,20 @@ const styles = {
 
 export function describeLog(log: CareLog): string {
   if (log.event_type === "feed") {
-    const p = log.payload as FeedPayload;
+    const p = log.operational_metrics as FeedPayload;
     return p.type === "bottle"
       ? `Bottle · ${p.amount_oz ?? 0} oz`
       : `Nursing · ${p.duration_minutes ?? 0} min${p.side ? ` · ${p.side}` : ""}`;
   }
   if (log.event_type === "diaper") {
-    const p = log.payload as DiaperPayload;
+    const p = log.operational_metrics as DiaperPayload;
     return p.condition === "wet" ? "Wet" : p.condition === "dirty" ? "Dirty" : "Wet + dirty";
   }
   if (log.event_type === "sleep") {
-    const p = log.payload as SleepPayload;
+    const p = log.operational_metrics as SleepPayload;
     return `${formatDuration(p.duration_minutes ?? 0)}${p.soothing_technique ? ` · ${p.soothing_technique}` : ""}`;
   }
-  const p = log.payload as ObservationPayload;
+  const p = log.operational_metrics as ObservationPayload;
   return p.note;
 }
 

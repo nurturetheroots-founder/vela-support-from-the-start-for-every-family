@@ -29,9 +29,9 @@ export function MorningHandoverCard({ handover }: { handover: ShiftHandover }) {
 
       {open && (
         <div className="space-y-4 px-5 pb-5">
-          {handover.caregiver_notes?.trim() && (
+          {handover.notes?.trim() && (
             <p className="whitespace-pre-line rounded-2xl bg-night-raised/60 p-4 text-sm leading-relaxed text-night-text">
-              {handover.caregiver_notes}
+              {handover.notes}
             </p>
           )}
           <dl className="grid grid-cols-2 gap-3 text-sm">

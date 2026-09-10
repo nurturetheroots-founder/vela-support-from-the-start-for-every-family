@@ -29,10 +29,13 @@ export type CarePayload = FeedPayload | DiaperPayload | SleepPayload | Observati
 export interface CareLog {
   id: string;
   baby_id: string;
-  logged_by: string;
+  family_id: string;
+  created_by: string;
   timestamp: string;
   event_type: CareEventType;
-  payload: CarePayload;
+  /** Shift-floor detail only. Maternal wellness data never belongs here. */
+  operational_metrics: CarePayload;
+  content: string | null;
 }
 
 export interface ShiftMetrics {
@@ -50,8 +53,9 @@ export interface ShiftHandover {
   caregiver_id: string;
   shift_start: string;
   shift_end: string;
+  family_id: string;
   summary_metrics: ShiftMetrics;
-  caregiver_notes: string | null;
+  notes: string | null;
   status: "draft" | "published";
   created_at: string;
 }
@@ -105,7 +109,7 @@ async function familyBaby(): Promise<{ id: string; name: string } | null | undef
   const { data: link } = await supabase
     .from("family_members")
     .select("family_id")
-    .eq("user_id", uid)
+    .eq("profile_id", uid)
     .eq("role", "caregiver")
     .limit(1)
     .maybeSingle();
@@ -129,7 +133,7 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
     ? await supabase
         .from("family_members")
         .select("family_id")
-        .eq("user_id", uid)
+        .eq("profile_id", uid)
         .eq("role", "caregiver")
         .limit(1)
         .maybeSingle()
@@ -180,7 +184,7 @@ export async function fetchCareLogs(babyId: string, sinceIso: string): Promise<C
 export async function addCareLog(babyId: string, eventType: CareEventType, payload: CarePayload) {
   const { data, error } = await supabase
     .from("care_logs")
-    .insert({ baby_id: babyId, event_type: eventType, payload: payload as never })
+    .insert({ baby_id: babyId, event_type: eventType, operational_metrics: payload as never })
     .select("*")
     .single();
   if (error) throw error;
@@ -190,7 +194,7 @@ export async function addCareLog(babyId: string, eventType: CareEventType, paylo
 export async function updateCareLog(id: string, payload: CarePayload) {
   const { error } = await supabase
     .from("care_logs")
-    .update({ payload: payload as never })
+    .update({ operational_metrics: payload as never })
     .eq("id", id);
   if (error) throw error;
 }
@@ -211,16 +215,16 @@ export function computeMetrics(logs: CareLog[]): ShiftMetrics {
   };
   for (const log of logs) {
     if (log.event_type === "feed") {
-      const p = log.payload as FeedPayload;
+      const p = log.operational_metrics as FeedPayload;
       metrics.feed_count += 1;
       if (p.amount_oz) metrics.total_oz += p.amount_oz;
       if (p.duration_minutes) metrics.total_nursing_mins += p.duration_minutes;
     } else if (log.event_type === "diaper") {
-      const p = log.payload as DiaperPayload;
+      const p = log.operational_metrics as DiaperPayload;
       if (p.condition === "wet" || p.condition === "both") metrics.wet_diapers += 1;
       if (p.condition === "dirty" || p.condition === "both") metrics.dirty_diapers += 1;
     } else if (log.event_type === "sleep") {
-      const p = log.payload as SleepPayload;
+      const p = log.operational_metrics as SleepPayload;
       const mins =
         p.duration_minutes ??
         (p.end_time && p.start_time
@@ -257,7 +261,7 @@ export async function saveHandover(input: {
       shift_start: input.shiftStart,
       shift_end: input.shiftEnd,
       summary_metrics: input.metrics as never,
-      caregiver_notes: input.notes,
+      notes: input.notes,
       status: input.status,
     })
     .select("*")

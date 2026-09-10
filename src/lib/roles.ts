@@ -39,7 +39,7 @@ export async function fetchRoleInfo(): Promise<RoleInfo> {
   const { data: link } = await supabase
     .from("family_members")
     .select("family_id")
-    .eq("user_id", uid)
+    .eq("profile_id", uid)
     .eq("role", "caregiver")
     .limit(1)
     .maybeSingle();

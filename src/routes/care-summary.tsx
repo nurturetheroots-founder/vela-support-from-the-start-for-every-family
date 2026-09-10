@@ -83,13 +83,13 @@ function CareSummaryPage() {
         </div>
       ) : (
         <div className="mt-6 space-y-4">
-          {handover.caregiver_notes?.trim() && (
+          {handover.notes?.trim() && (
             <section className="rounded-3xl border border-border/60 bg-secondary/70 p-6">
               <p className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
                 <Heart className="h-3.5 w-3.5 text-primary" /> A note from your caregiver
               </p>
               <p className="mt-3 whitespace-pre-line font-serif text-lg leading-relaxed">
-                {handover.caregiver_notes}
+                {handover.notes}
               </p>
             </section>
           )}
