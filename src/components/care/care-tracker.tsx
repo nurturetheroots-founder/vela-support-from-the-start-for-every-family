@@ -29,6 +29,11 @@ import { captureEvent } from "@/lib/analytics-utils";
 import { useAuth } from "@/hooks/use-auth";
 import { isGuest } from "@/lib/guest";
 import { NeedsAccount } from "@/components/needs-account";
+import { ShiftSummary } from "@/components/care/shift-summary";
+import { FamilySwitcher } from "@/components/care/family-switcher";
+import { NightDimToggle, useNightDim } from "@/components/care/night-mode";
+import { cn } from "@/lib/utils";
+
 
 function shiftStartIso() {
   // Current shift window: the last 14 hours of activity.
@@ -38,6 +43,8 @@ function shiftStartIso() {
 export function CareTracker({ showParentLink = true }: { showParentLink?: boolean } = {}) {
   const { session, loading: isAuthLoading } = useAuth();
   const [guest, setGuest] = useState(false);
+  const { dim, toggle } = useNightDim();
+
   const [baby, setBaby] = useState<{ id: string; name: string } | null>(null);
   const [logs, setLogs] = useState<CareLog[]>([]);
   const [since] = useState(shiftStartIso);
