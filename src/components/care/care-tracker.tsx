@@ -118,9 +118,13 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
   async function handleEdit(log: CareLog, text: string) {
     const payload: CarePayload =
       log.event_type === "observation"
-        ? { ...(log.payload as ObservationPayload), note: text }
-        : ({ ...(log.payload as object), notes: text } as CarePayload);
-    setLogs((prev) => prev.map((l) => (l.id === log.id ? { ...l, payload } : l)));
+        ? { ...(log.operational_metrics as ObservationPayload), note: text }
+        : ({ ...(log.operational_metrics as object), notes: text } as CarePayload);
+    setLogs((prev) =>
+      prev.map((l) =>
+        l.id === log.id ? { ...l, operational_metrics: payload, content: text } : l,
+      ),
+    );
     try {
       await updateCareLog(log.id, payload);
     } catch {

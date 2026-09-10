@@ -101,29 +101,35 @@ export type Database = {
       care_logs: {
         Row: {
           baby_id: string
+          content: string | null
           created_at: string
+          created_by: string
           event_type: Database["public"]["Enums"]["care_event_type"]
+          family_id: string
           id: string
-          logged_by: string
-          payload: Json
+          operational_metrics: Json
           timestamp: string
         }
         Insert: {
           baby_id: string
+          content?: string | null
           created_at?: string
+          created_by?: string
           event_type: Database["public"]["Enums"]["care_event_type"]
+          family_id?: string
           id?: string
-          logged_by?: string
-          payload?: Json
+          operational_metrics?: Json
           timestamp?: string
         }
         Update: {
           baby_id?: string
+          content?: string | null
           created_at?: string
+          created_by?: string
           event_type?: Database["public"]["Enums"]["care_event_type"]
+          family_id?: string
           id?: string
-          logged_by?: string
-          payload?: Json
+          operational_metrics?: Json
           timestamp?: string
         }
         Relationships: [
@@ -364,6 +370,41 @@ export type Database = {
           },
         ]
       }
+      epds_screenings: {
+        Row: {
+          created_at: string
+          id: string
+          parent_id: string
+          q10_emergency_state: boolean
+          scores: Json
+          total_score: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          parent_id?: string
+          q10_emergency_state?: boolean
+          scores?: Json
+          total_score?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          parent_id?: string
+          q10_emergency_state?: boolean
+          scores?: Json
+          total_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epds_screenings_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       escalations: {
         Row: {
           family_id: string
@@ -459,26 +500,34 @@ export type Database = {
           family_id: string
           id: string
           permissions: Json
+          profile_id: string
           role: Database["public"]["Enums"]["member_role"]
-          user_id: string
         }
         Insert: {
           created_at?: string
           family_id: string
           id?: string
           permissions?: Json
+          profile_id: string
           role?: Database["public"]["Enums"]["member_role"]
-          user_id: string
         }
         Update: {
           created_at?: string
           family_id?: string
           id?: string
           permissions?: Json
+          profile_id?: string
           role?: Database["public"]["Enums"]["member_role"]
-          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "family_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       parent_daily_checkins: {
         Row: {
@@ -572,6 +621,56 @@ export type Database = {
         }
         Relationships: []
       }
+      private_checkins: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          parent_id: string
+          wellness_metrics: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          parent_id?: string
+          wellness_metrics?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          parent_id?: string
+          wellness_metrics?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "private_checkins_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["member_role"]
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          role?: Database["public"]["Enums"]["member_role"]
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       review_queue: {
         Row: {
           approved_at: string | null
@@ -623,9 +722,10 @@ export type Database = {
         Row: {
           baby_id: string
           caregiver_id: string
-          caregiver_notes: string | null
           created_at: string
+          family_id: string
           id: string
+          notes: string | null
           shift_end: string
           shift_start: string
           status: Database["public"]["Enums"]["shift_handover_status"]
@@ -634,9 +734,10 @@ export type Database = {
         Insert: {
           baby_id: string
           caregiver_id?: string
-          caregiver_notes?: string | null
           created_at?: string
+          family_id?: string
           id?: string
+          notes?: string | null
           shift_end: string
           shift_start: string
           status?: Database["public"]["Enums"]["shift_handover_status"]
@@ -645,9 +746,10 @@ export type Database = {
         Update: {
           baby_id?: string
           caregiver_id?: string
-          caregiver_notes?: string | null
           created_at?: string
+          family_id?: string
           id?: string
+          notes?: string | null
           shift_end?: string
           shift_start?: string
           status?: Database["public"]["Enums"]["shift_handover_status"]
@@ -669,7 +771,12 @@ export type Database = {
     }
     Functions: {
       generate_family_invite: { Args: never; Returns: string }
+      has_family_permission: {
+        Args: { _action: string; _family_id: string; _resource: string }
+        Returns: boolean
+      }
       is_family_caregiver: { Args: { _family_id: string }; Returns: boolean }
+      is_valid_member_permissions: { Args: { _permissions: Json }; Returns: boolean }
       redeem_family_invite: {
         Args: { _code: string; _display_name: string }
         Returns: string
