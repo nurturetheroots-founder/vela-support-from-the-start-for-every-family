@@ -280,7 +280,14 @@ export async function saveHandover(input: {
     .select("*")
     .single();
   if (error) throw error;
-  return data as unknown as ShiftHandover;
+  return toHandover(data as unknown as Record<string, unknown>);
+}
+
+function toHandover(row: Record<string, unknown>): ShiftHandover {
+  return {
+    ...(row as unknown as ShiftHandover),
+    notes: (row['caregiver_notes'] as string | null) ?? null,
+  };
 }
 
 export async function fetchLatestPublishedHandover(babyId: string): Promise<ShiftHandover | null> {
@@ -292,7 +299,8 @@ export async function fetchLatestPublishedHandover(babyId: string): Promise<Shif
     .order("shift_end", { ascending: false })
     .limit(1);
   if (error) throw error;
-  return ((data ?? [])[0] as unknown as ShiftHandover) ?? null;
+  const row = (data ?? [])[0];
+  return row ? toHandover(row as unknown as Record<string, unknown>) : null;
 }
 
 /** Warm, share-ready plain text version of a shift summary. */
