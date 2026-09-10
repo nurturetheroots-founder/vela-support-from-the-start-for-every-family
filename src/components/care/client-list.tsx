@@ -5,6 +5,7 @@ import { ArrowRight, Loader2, Lock, Plus, Users } from "lucide-react";
 import { listClientOverviews, relativeTime } from "@/lib/doula-clients";
 import { formatDuration, setSelectedFamilyId } from "@/lib/care-log";
 import { CaregiverInviteDialog } from "@/components/caregiver-invite-dialog";
+import { ClientInviteRequest } from "@/components/care/client-invite-request";
 import { useAuth } from "@/hooks/use-auth";
 import { useNightDim, NightDimToggle } from "@/components/care/night-mode";
 import { cn } from "@/lib/utils";
