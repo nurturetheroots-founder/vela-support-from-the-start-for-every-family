@@ -11,7 +11,7 @@
   },
   "mcp": {
     "server": {
-      "name": "vela-support-from-the-start-for-every-family",
+      "name": "vela-app",
       "version": "0.1.0",
       "title": "Vela; Support from the Start for Every Family"
     },
