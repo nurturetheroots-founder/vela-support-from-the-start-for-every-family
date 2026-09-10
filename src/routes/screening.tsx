@@ -69,6 +69,13 @@ function ScreeningPage() {
     const scored = answers.map((a, i) => (QUESTIONS[i].reverse ? a! : 3 - a!));
     const score = scored.reduce((sum, n) => sum + n, 0);
     addScreening({ date: todayStr(), score, triggerWeek, responses: answers as number[] });
+    captureEvent("epds_screening_completed", {
+      score,
+      band: score >= 13 ? "high" : score >= 9 ? "mid" : "low",
+      trigger_week: triggerWeek,
+      // No answer text leaves the device — only the banded result.
+      self_harm_flag: answers[9] !== 3,
+    });
     setResult({ score });
   }
 
