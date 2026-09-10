@@ -21,7 +21,17 @@ if [ -z "${PGBIN:-}" ]; then
   if command -v pg_ctl >/dev/null 2>&1; then
     PGBIN="$(dirname "$(command -v pg_ctl)")"
   else
-    PGBIN="$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)"
+    # nullglob so a pattern matching nothing yields an empty array rather than
+    # the literal pattern. Not `ls` in a pipeline: under `set -o pipefail` a
+    # failing `ls` fails the whole substitution, and `set -e` would then kill
+    # the script here — before the diagnostic below could ever print.
+    shopt -s nullglob
+    pgbin_candidates=(/usr/lib/postgresql/*/bin)
+    shopt -u nullglob
+    PGBIN=""
+    if [ ${#pgbin_candidates[@]} -gt 0 ]; then
+      PGBIN="$(printf '%s\n' "${pgbin_candidates[@]}" | sort -V | tail -1)"
+    fi
   fi
 fi
 if [ -z "$PGBIN" ] || [ ! -x "$PGBIN/initdb" ]; then
