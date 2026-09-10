@@ -329,14 +329,16 @@ export async function saveHandover(input: {
   notes: string;
   status: "draft" | "published";
 }) {
+  const familyId = await familyIdForBaby(input.babyId);
   const { data, error } = await supabase
     .from("shift_handovers")
     .insert({
       baby_id: input.babyId,
+      family_id: familyId,
       shift_start: input.shiftStart,
       shift_end: input.shiftEnd,
       summary_metrics: input.metrics as never,
-      caregiver_notes: input.notes,
+      notes: input.notes,
       status: input.status,
     })
     .select("*")
@@ -348,9 +350,10 @@ export async function saveHandover(input: {
 function toHandover(row: Record<string, unknown>): ShiftHandover {
   return {
     ...(row as unknown as ShiftHandover),
-    notes: (row['caregiver_notes'] as string | null) ?? null,
+    notes: (row['notes'] as string | null) ?? null,
   };
 }
+
 
 export async function fetchLatestPublishedHandover(babyId: string): Promise<ShiftHandover | null> {
   const { data, error } = await supabase
