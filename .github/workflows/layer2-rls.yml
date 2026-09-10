@@ -1,0 +1,57 @@
+# Turns the private-data isolation guarantee from a documented convention into
+# an enforced one. See docs/architecture/0001-private-data-isolation.md.
+#
+# Deliberately scoped to the RLS suite. Lint and typecheck are NOT run here:
+# the repo currently has ~1054 pre-existing eslint errors and one pre-existing
+# tsc error, so adding them would make this workflow permanently red and train
+# everyone to ignore it. Add them in a separate workflow once that backlog is
+# cleared.
+name: Layer 2 RLS
+
+on:
+  pull_request:
+    paths:
+      - "drizzle/**"
+      - "supabase/migrations/**"
+      - ".github/workflows/layer2-rls.yml"
+  push:
+    branches: [main]
+    paths:
+      - "drizzle/**"
+      - "supabase/migrations/**"
+      - ".github/workflows/layer2-rls.yml"
+  workflow_dispatch:
+
+# Superseded runs on the same branch are pointless once a new commit lands.
+concurrency:
+  group: layer2-rls-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  rls:
+    name: Private data isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Runner images ship PostgreSQL, but which version — and whether it is
+      # present at all — is not contractual, so install it if it is missing.
+      - name: Ensure PostgreSQL server binaries
+        run: |
+          if ! ls -d /usr/lib/postgresql/*/bin >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends postgresql
+          fi
+          ls -d /usr/lib/postgresql/*/bin
+          "$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)/postgres" --version
+
+      # Replays every migration into a throwaway cluster and asserts that a
+      # caregiver cannot reach private_checkins or epds_screenings. The runner
+      # user is unprivileged, which is what initdb needs.
+      - name: Replay migrations and assert isolation
+        run: ./drizzle/tests/run_layer2_rls.sh
