@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight, Sprout, ExternalLink } from "lucide-react";
 import { legal } from "@/lib/microcopy";
 import { InviteCaregiverCard } from "@/components/invite-caregiver-card";
+import { DoulaSignupCard } from "@/components/doula-signup-card";
+
 
 export const Route = createFileRoute("/support")({
   head: () => ({
