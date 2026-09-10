@@ -16,9 +16,12 @@ function safeNext(value: unknown): string | undefined {
 }
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>): { next?: string } => {
+  validateSearch: (s: Record<string, unknown>): { next?: string; mode?: "forgot" } => {
     const next = safeNext(s.next);
-    return next ? { next } : {};
+    // Only "forgot" is linkable. Sign-in and sign-up stay reachable through the
+    // toggles, so a link can't drop someone into a form they didn't ask for.
+    const mode = s.mode === "forgot" ? ("forgot" as const) : undefined;
+    return { ...(next ? { next } : {}), ...(mode ? { mode } : {}) };
   },
   head: () => ({
     meta: [
@@ -41,9 +44,9 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const nav = useNavigate();
-  const { next } = Route.useSearch();
+  const { next, mode: linkedMode } = Route.useSearch();
   const { user, loading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signup");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">(linkedMode ?? "signup");
   const [sent, setSent] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

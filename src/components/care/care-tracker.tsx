@@ -148,7 +148,9 @@ export function CareTracker({ showParentLink = true }: { showParentLink?: boolea
 
   const metrics = computeMetrics(logs);
 
-  if (guest) {
+  // A session outranks the flag: someone who signed up from inside the demo is
+  // not a guest any more, whether or not the flag has been cleared yet.
+  if (guest && !session) {
     return (
       <div className="min-h-dvh bg-night px-5 py-10 text-night-text">
         <div className="mx-auto max-w-2xl">
