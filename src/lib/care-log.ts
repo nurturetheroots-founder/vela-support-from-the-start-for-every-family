@@ -169,28 +169,31 @@ async function resolveBaby(name: string): Promise<{ id: string; name: string }> 
   const { data: auth } = await supabase.auth.getUser();
   const uid = auth.user?.id;
 
-  const { data: link } = uid
+  const { data: links } = uid
     ? await supabase
         .from("family_members")
         .select("family_id")
         .eq("user_id", uid)
         .eq("role", "caregiver")
-        .limit(1)
-        .maybeSingle()
     : { data: null };
 
-  // Invited caregivers always work inside the family that invited them.
-  if (link?.family_id) {
+  const ids = (links ?? []).map((l) => l.family_id as string);
+
+  // Invited caregivers always work inside a family that invited them.
+  if (ids.length > 0) {
     const family = await familyBaby();
     if (family) return family;
+    const selected = getSelectedFamilyId();
+    const familyId = selected && ids.includes(selected) ? selected : ids[0];
     const { data: madeForFamily, error: madeError } = await supabase
       .from("babies")
-      .insert({ name, parent_id: link.family_id as string })
+      .insert({ name, parent_id: familyId as string })
       .select("id, name")
       .single();
     if (madeError) throw madeError;
     return madeForFamily as { id: string; name: string };
   }
+
 
   const { data, error } = await supabase
     .from("babies")
