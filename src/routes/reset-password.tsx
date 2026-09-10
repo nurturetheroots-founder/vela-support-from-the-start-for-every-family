@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchRoleInfo } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -75,7 +76,7 @@ function ResetPasswordPage() {
 
   async function emailMeALink() {
     if (!email) {
-      await nav({ to: "/auth" });
+      await nav({ to: "/auth", search: { mode: "forgot" } });
       return;
     }
     setBusy(true);
@@ -111,7 +112,11 @@ function ResetPasswordPage() {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       toast.success("Your new password is saved.");
-      await nav({ to: "/dashboard" });
+      // Send people where signing in would have sent them. A caregiver dropped
+      // on the parent dashboard gets pushed through parent onboarding by
+      // AuthGate, which is not their account to set up.
+      const info = await fetchRoleInfo().catch(() => null);
+      await nav({ to: info?.role === "caregiver" ? "/caregiver/shift-dashboard" : "/dashboard" });
     } catch (err) {
       setError(
         err instanceof Error
@@ -144,7 +149,11 @@ function ResetPasswordPage() {
               once.
             </p>
             <Button asChild size="lg" className="min-h-11 w-full rounded-full">
-              <Link to="/auth">Ask for a new link</Link>
+              {/* Straight to the reset form. Landing on sign-up instead invites
+                  a second account under the same address. */}
+              <Link to="/auth" search={{ mode: "forgot" }}>
+                Ask for a new link
+              </Link>
             </Button>
           </div>
         )}

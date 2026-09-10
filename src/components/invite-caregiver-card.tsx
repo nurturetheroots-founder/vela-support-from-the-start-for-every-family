@@ -4,6 +4,7 @@ import { Loader2, Copy, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createInviteCode } from "@/lib/roles";
 import { isGuest } from "@/lib/guest";
+import { useAuth } from "@/hooks/use-auth";
 import { NeedsAccount } from "@/components/needs-account";
 
 /**
@@ -11,6 +12,7 @@ import { NeedsAccount } from "@/components/needs-account";
  * who will be logging shifts for their baby.
  */
 export function InviteCaregiverCard() {
+  const { session } = useAuth();
   const [code, setCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [guest, setGuest] = useState(false);
@@ -31,8 +33,9 @@ export function InviteCaregiverCard() {
   }
 
   // An invite code is minted against the signed-in parent's account, so there
-  // is nothing to attach one to in demo mode.
-  if (guest) {
+  // is nothing to attach one to in demo mode. A session outranks the flag —
+  // someone who signed up from inside the demo has an account to attach to.
+  if (guest && !session) {
     return (
       <NeedsAccount
         title="Invite your care team"
