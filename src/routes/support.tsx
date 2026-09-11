@@ -2,32 +2,11 @@ import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { getState } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight, Sprout, ExternalLink } from "lucide-react";
+import { Users, MessageCircleHeart, Stethoscope, Globe2, ChevronRight } from "lucide-react";
 import { legal } from "@/lib/microcopy";
-import { InviteCaregiverCard } from "@/components/invite-caregiver-card";
-import { DoulaSignupCard } from "@/components/doula-signup-card";
-
 
 export const Route = createFileRoute("/support")({
-  head: () => ({
-    meta: [
-      { title: "Doula, Therapist & Peer Support — Vela" },
-      {
-        name: "description",
-        content:
-          "Three ways to be held: a moderated peer community, sliding-scale doula sessions, and warm referrals to perinatal therapists.",
-      },
-      { property: "og:title", content: "Doula, Therapist & Peer Support — Vela" },
-      {
-        property: "og:description",
-        content: "Peer community, sliding-scale doula sessions, and warm therapist referrals.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://app.nurturetheroots.co/support" },
-      { name: "twitter:card", content: "summary" },
-    ],
-    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/support" }],
-  }),
+  head: () => ({ meta: [{ title: "Support — Vela" }] }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
       throw redirect({ to: "/onboarding" });
@@ -37,16 +16,33 @@ export const Route = createFileRoute("/support")({
 });
 
 const doulas = [
-  { name: "Maya R.", lang: "English · Spanish", specialty: "Postpartum mood, breastfeeding", initial: "M" },
-  { name: "Aisha O.", lang: "English · Yoruba", specialty: "Black maternal health, sleep", initial: "A" },
-  { name: "Linh T.", lang: "English · Vietnamese", specialty: "NICU graduates, feeding", initial: "L" },
+  {
+    name: "Maya R.",
+    lang: "English · Spanish",
+    specialty: "Postpartum mood, breastfeeding",
+    initial: "M",
+  },
+  {
+    name: "Aisha O.",
+    lang: "English · Yoruba",
+    specialty: "Black maternal health, sleep",
+    initial: "A",
+  },
+  {
+    name: "Linh T.",
+    lang: "English · Vietnamese",
+    specialty: "NICU graduates, feeding",
+    initial: "L",
+  },
 ];
 
 function SupportPage() {
   return (
     <AppShell>
       <h1 className="font-serif text-3xl">Support</h1>
-      <p className="mt-2 text-muted-foreground">Three ways to be held. Use one, use all — at whatever pace feels right.</p>
+      <p className="mt-2 text-muted-foreground">
+        Three ways to be held. Use one, use all — at whatever pace feels right.
+      </p>
 
       <Link
         to="/providers"
@@ -67,7 +63,9 @@ function SupportPage() {
       >
         <div>
           <div className="text-sm font-medium">{legal.termsLink}</div>
-          <p className="text-xs text-muted-foreground mt-0.5">What Vela is, what it isn't, and where to turn in a crisis.</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            What Vela is, what it isn't, and where to turn in a crisis.
+          </p>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
       </Link>
@@ -99,44 +97,7 @@ function SupportPage() {
         />
       </div>
 
-      <div className="mt-7">
-        <InviteCaregiverCard />
-      </div>
-
-      <div className="mt-4">
-        <DoulaSignupCard />
-      </div>
-
-
       <section className="mt-12">
-        <h2 className="font-serif text-2xl">In-person care, from our roots</h2>
-        <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-          <div className="flex items-start gap-3">
-            <span className="grid place-items-center h-10 w-10 rounded-full bg-primary/10 text-primary shrink-0">
-              <Sprout className="h-5 w-5" />
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase tracking-wider text-primary">San Francisco Bay Area · In person</p>
-              <h3 className="font-serif text-xl mt-1">Nurture The Roots</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                Postpartum doula support, newborn care specialist services, and fourth trimester
-                coaching with Ashlee McKenzie — evidence-based newborn communication, cues and
-                states, and responsive care, in your home.
-              </p>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Button asChild className="rounded-full">
-              <a href="https://nurturetheroots.co" target="_blank" rel="noopener noreferrer">
-                Visit nurturetheroots.co
-                <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-              </a>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-10">
         <h2 className="font-serif text-2xl">Meet a few of our doulas</h2>
         <div className="mt-4 grid sm:grid-cols-3 gap-3">
           {doulas.map((d) => (
@@ -152,17 +113,27 @@ function SupportPage() {
             </div>
           ))}
         </div>
-        <p className="mt-4 text-xs text-muted-foreground">Live booking opens soon — for now, sessions are scheduled by message after onboarding.</p>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Live booking opens soon — for now, sessions are scheduled by message after onboarding.
+        </p>
       </section>
     </AppShell>
   );
 }
 
 function TierCard({
-  icon: Icon, eyebrow, title, body, cta, tone,
+  icon: Icon,
+  eyebrow,
+  title,
+  body,
+  cta,
+  tone,
 }: {
   icon: React.ComponentType<{ className?: string }>;
-  eyebrow: string; title: string; body: string; cta: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  cta: string;
   tone: "default" | "primary";
 }) {
   return (

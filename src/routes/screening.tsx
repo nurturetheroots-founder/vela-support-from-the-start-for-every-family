@@ -2,33 +2,20 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
-import { addScreening, getState, nextScreeningDue, todayStr, useStore, weekNumber } from "@/lib/store";
+import {
+  addScreening,
+  getState,
+  nextScreeningDue,
+  todayStr,
+  useStore,
+  weekNumber,
+} from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { ShieldCheck, Phone, LifeBuoy } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { legal } from "@/lib/microcopy";
-import { captureEvent } from "@/lib/analytics-utils";
 
 export const Route = createFileRoute("/screening")({
-  head: () => ({
-    meta: [
-      { title: "EPDS Mood Screening — Vela" },
-      {
-        name: "description",
-        content:
-          "A gentle ten-question mood screening used after birth, with a clear explanation of your result and where to turn next.",
-      },
-      { property: "og:title", content: "EPDS Mood Screening — Vela" },
-      {
-        property: "og:description",
-        content: "Ten gentle questions, a clear result, and warm next steps if something needs attention.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://app.nurturetheroots.co/screening" },
-      { name: "twitter:card", content: "summary" },
-    ],
-    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/screening" }],
-  }),
+  head: () => ({ meta: [{ title: "EPDS screening — Vela" }] }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
       throw redirect({ to: "/onboarding" });
@@ -39,18 +26,77 @@ export const Route = createFileRoute("/screening")({
 
 // EPDS: 10 questions, each 0-3. Items 3, 5–10 reverse-scored (3..0).
 // Simplified labels here — real EPDS wording is licensed.
-interface Q { prompt: string; options: string[]; reverse: boolean; }
+interface Q {
+  prompt: string;
+  options: string[];
+  reverse: boolean;
+}
 const QUESTIONS: Q[] = [
-  { prompt: "I have been able to laugh and see the funny side of things.", options: ["As much as I always could", "Not quite so much now", "Definitely not so much now", "Not at all"], reverse: false },
-  { prompt: "I have looked forward with enjoyment to things.", options: ["As much as I ever did", "Rather less than I used to", "Definitely less than I used to", "Hardly at all"], reverse: false },
-  { prompt: "I have blamed myself unnecessarily when things went wrong.", options: ["Yes, most of the time", "Yes, some of the time", "Not very often", "No, never"], reverse: true },
-  { prompt: "I have been anxious or worried for no good reason.", options: ["No, not at all", "Hardly ever", "Yes, sometimes", "Yes, very often"], reverse: false },
-  { prompt: "I have felt scared or panicky for no very good reason.", options: ["Yes, quite a lot", "Yes, sometimes", "No, not much", "No, not at all"], reverse: true },
-  { prompt: "Things have been getting on top of me.", options: ["Yes, most of the time I haven't been coping at all", "Yes, sometimes I haven't been coping as well as usual", "No, most of the time I have coped quite well", "No, I have been coping as well as ever"], reverse: true },
-  { prompt: "I have been so unhappy that I have had difficulty sleeping.", options: ["Yes, most of the time", "Yes, sometimes", "Not very often", "No, not at all"], reverse: true },
-  { prompt: "I have felt sad or miserable.", options: ["Yes, most of the time", "Yes, quite often", "Not very often", "No, not at all"], reverse: true },
-  { prompt: "I have been so unhappy that I have been crying.", options: ["Yes, most of the time", "Yes, quite often", "Only occasionally", "No, never"], reverse: true },
-  { prompt: "The thought of harming myself has occurred to me.", options: ["Yes, quite often", "Sometimes", "Hardly ever", "Never"], reverse: true },
+  {
+    prompt: "I have been able to laugh and see the funny side of things.",
+    options: [
+      "As much as I always could",
+      "Not quite so much now",
+      "Definitely not so much now",
+      "Not at all",
+    ],
+    reverse: false,
+  },
+  {
+    prompt: "I have looked forward with enjoyment to things.",
+    options: [
+      "As much as I ever did",
+      "Rather less than I used to",
+      "Definitely less than I used to",
+      "Hardly at all",
+    ],
+    reverse: false,
+  },
+  {
+    prompt: "I have blamed myself unnecessarily when things went wrong.",
+    options: ["Yes, most of the time", "Yes, some of the time", "Not very often", "No, never"],
+    reverse: true,
+  },
+  {
+    prompt: "I have been anxious or worried for no good reason.",
+    options: ["No, not at all", "Hardly ever", "Yes, sometimes", "Yes, very often"],
+    reverse: false,
+  },
+  {
+    prompt: "I have felt scared or panicky for no very good reason.",
+    options: ["Yes, quite a lot", "Yes, sometimes", "No, not much", "No, not at all"],
+    reverse: true,
+  },
+  {
+    prompt: "Things have been getting on top of me.",
+    options: [
+      "Yes, most of the time I haven't been coping at all",
+      "Yes, sometimes I haven't been coping as well as usual",
+      "No, most of the time I have coped quite well",
+      "No, I have been coping as well as ever",
+    ],
+    reverse: true,
+  },
+  {
+    prompt: "I have been so unhappy that I have had difficulty sleeping.",
+    options: ["Yes, most of the time", "Yes, sometimes", "Not very often", "No, not at all"],
+    reverse: true,
+  },
+  {
+    prompt: "I have felt sad or miserable.",
+    options: ["Yes, most of the time", "Yes, quite often", "Not very often", "No, not at all"],
+    reverse: true,
+  },
+  {
+    prompt: "I have been so unhappy that I have been crying.",
+    options: ["Yes, most of the time", "Yes, quite often", "Only occasionally", "No, never"],
+    reverse: true,
+  },
+  {
+    prompt: "The thought of harming myself has occurred to me.",
+    options: ["Yes, quite often", "Sometimes", "Hardly ever", "Never"],
+    reverse: true,
+  },
 ];
 
 function ScreeningPage() {
@@ -61,7 +107,6 @@ function ScreeningPage() {
 
   const [answers, setAnswers] = useState<(number | null)[]>(Array(10).fill(null));
   const [result, setResult] = useState<{ score: number } | null>(null);
-  const [crisisAck, setCrisisAck] = useState(false);
 
   const allAnswered = answers.every((a) => a !== null);
 
@@ -70,13 +115,6 @@ function ScreeningPage() {
     const scored = answers.map((a, i) => (QUESTIONS[i].reverse ? a! : 3 - a!));
     const score = scored.reduce((sum, n) => sum + n, 0);
     addScreening({ date: todayStr(), score, triggerWeek, responses: answers as number[] });
-    captureEvent("epds_screening_completed", {
-      score,
-      band: score >= 13 ? "high" : score >= 9 ? "mid" : "low",
-      trigger_week: triggerWeek,
-      // No answer text leaves the device — only the banded result.
-      self_harm_flag: answers[9] !== 3,
-    });
     setResult({ score });
   }
 
@@ -84,16 +122,8 @@ function ScreeningPage() {
     const q10 = answers[9]!;
     // reverse-scored: anything other than "Never" is a positive self-harm answer
     const selfHarm = q10 !== 3;
-    return (
-      <>
-        {result.score >= 10 || selfHarm ? (
-          <CrisisSupport score={result.score} />
-        ) : (
-          <Result score={result.score} q10={q10} />
-        )}
-        <CrisisInterceptDialog open={selfHarm && !crisisAck} onAcknowledge={() => setCrisisAck(true)} />
-      </>
-    );
+    if (result.score >= 10 || selfHarm) return <CrisisSupport score={result.score} />;
+    return <Result score={result.score} q10={q10} />;
   }
 
   return (
@@ -103,12 +133,15 @@ function ScreeningPage() {
           <ShieldCheck className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-xs text-primary uppercase tracking-wider">EPDS · Week {triggerWeek} milestone</p>
+          <p className="text-xs text-primary uppercase tracking-wider">
+            EPDS · Week {triggerWeek} milestone
+          </p>
           <h1 className="text-2xl font-serif">How have you been feeling, this past week?</h1>
         </div>
       </div>
       <p className="text-sm text-muted-foreground">
-        There are no right answers. Pick whatever feels closest to your last seven days, and we'll talk through what it means together at the end.
+        There are no right answers. Pick whatever feels closest to your last seven days, and we'll
+        talk through what it means together at the end.
       </p>
 
       <ol className="mt-8 space-y-7">
@@ -125,7 +158,9 @@ function ScreeningPage() {
                   onClick={() => setAnswers(answers.map((a, k) => (k === i ? j : a)))}
                   className={cn(
                     "text-left rounded-2xl border p-3 px-4 text-sm transition-colors min-h-12",
-                    answers[i] === j ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30",
+                    answers[i] === j
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-foreground/30",
                   )}
                 >
                   {opt}
@@ -152,60 +187,16 @@ function ScreeningPage() {
             </a>
           </div>
         </div>
-        <Button size="lg" className="rounded-full w-full mt-5" disabled={!allAnswered} onClick={submit}>
+        <Button
+          size="lg"
+          className="rounded-full w-full mt-5"
+          disabled={!allAnswered}
+          onClick={submit}
+        >
           See my result
         </Button>
       </div>
     </AppShell>
-  );
-}
-
-function CrisisInterceptDialog({ open, onAcknowledge }: { open: boolean; onAcknowledge: () => void }) {
-  return (
-    <Dialog open={open}>
-      <DialogContent
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
-        className="max-w-md rounded-3xl border-clay/40 bg-card p-6 [&>button:last-child]:hidden"
-      >
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-clay/15 text-clay">
-          <LifeBuoy className="h-6 w-6" />
-        </span>
-        <DialogTitle className="font-serif text-2xl leading-snug">
-          You don't have to sit with this alone.
-        </DialogTitle>
-        <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
-          Thoughts like these can come with the exhaustion of these weeks, and they are more common than
-          most parents are ever told. Someone warm is available right now, any hour.
-        </DialogDescription>
-
-        <div className="mt-2 grid gap-2">
-          <a href="tel:988">
-            <Button size="lg" className="h-14 w-full rounded-2xl bg-clay text-base text-primary-foreground hover:bg-clay/90">
-              <Phone className="mr-2 h-4 w-4" /> Call or text 988 Lifeline
-            </Button>
-          </a>
-          <a href="tel:18339435746">
-            <Button size="lg" variant="outline" className="h-14 w-full rounded-2xl border-clay/50 text-base">
-              <Phone className="mr-2 h-4 w-4" /> Maternal Mental Health Hotline
-            </Button>
-          </a>
-          <a href="tel:18009444773">
-            <Button size="lg" variant="outline" className="h-14 w-full rounded-2xl border-clay/50 text-base">
-              <Phone className="mr-2 h-4 w-4" /> PSI Helpline
-            </Button>
-          </a>
-        </div>
-
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          If you feel unsafe right now, please call 911 or go to your nearest emergency department.
-        </p>
-
-        <Button variant="ghost" className="w-full rounded-full" onClick={onAcknowledge}>
-          I am safe with my support team right now
-        </Button>
-      </DialogContent>
-    </Dialog>
   );
 }
 
@@ -221,12 +212,19 @@ function CrisisSupport({ score }: { score: number }) {
 
         <div className="mt-6 grid gap-3">
           <a href="tel:988">
-            <Button size="lg" className="h-14 w-full rounded-2xl bg-clay text-base text-primary-foreground hover:bg-clay/90">
+            <Button
+              size="lg"
+              className="h-14 w-full rounded-2xl bg-clay text-base text-primary-foreground hover:bg-clay/90"
+            >
               <Phone className="mr-2 h-4 w-4" /> Call or text 988 — Suicide &amp; Crisis Lifeline
             </Button>
           </a>
           <a href="tel:18338526262">
-            <Button size="lg" variant="outline" className="h-14 w-full rounded-2xl border-clay text-base">
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-14 w-full rounded-2xl border-clay text-base"
+            >
               <Phone className="mr-2 h-4 w-4" /> Call 1-833-TLC-MAMA — Maternal Mental Health
             </Button>
           </a>
@@ -239,16 +237,20 @@ function CrisisSupport({ score }: { score: number }) {
       </div>
 
       <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-        Your score was {score} of 30. A screening score isn't a diagnosis — but it is a good reason to be seen by a
-        clinician soon. Please contact your healthcare provider as well.
+        Your score was {score} of 30. A screening score isn't a diagnosis — but it is a good reason
+        to be seen by a clinician soon. Please contact your healthcare provider as well.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link to="/support">
-          <Button variant="secondary" size="lg" className="rounded-full">Talk with a doula</Button>
+          <Button variant="secondary" size="lg" className="rounded-full">
+            Talk with a doula
+          </Button>
         </Link>
         <Link to="/dashboard">
-          <Button variant="ghost" size="lg" className="rounded-full">Home</Button>
+          <Button variant="ghost" size="lg" className="rounded-full">
+            Home
+          </Button>
         </Link>
       </div>
     </AppShell>
@@ -293,13 +295,25 @@ function Result({ score, q10 }: { score: number; q10: number }) {
       <p className="mt-3 text-muted-foreground leading-relaxed">{copy.body}</p>
       {selfHarmFlag && (
         <div className="mt-5 rounded-2xl bg-clay/10 border border-clay/30 p-4 text-sm">
-          <div className="font-medium">If you're in crisis right now, please call or text 988 (US).</div>
-          <p className="mt-1 text-muted-foreground">Trained counselors are available 24/7. You deserve to be answered.</p>
+          <div className="font-medium">
+            If you're in crisis right now, please call or text 988 (US).
+          </div>
+          <p className="mt-1 text-muted-foreground">
+            Trained counselors are available 24/7. You deserve to be answered.
+          </p>
         </div>
       )}
       <div className="mt-7 flex flex-wrap gap-3">
-        <Link to={copy.cta.to}><Button size="lg" className="rounded-full">{copy.cta.label}</Button></Link>
-        <Link to="/dashboard"><Button variant="ghost" size="lg" className="rounded-full">Home</Button></Link>
+        <Link to={copy.cta.to}>
+          <Button size="lg" className="rounded-full">
+            {copy.cta.label}
+          </Button>
+        </Link>
+        <Link to="/dashboard">
+          <Button variant="ghost" size="lg" className="rounded-full">
+            Home
+          </Button>
+        </Link>
       </div>
     </AppShell>
   );

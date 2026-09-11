@@ -1,1 +1,0 @@
-ALTER TABLE public.review_queue ADD COLUMN IF NOT EXISTS approved_at timestamptz;

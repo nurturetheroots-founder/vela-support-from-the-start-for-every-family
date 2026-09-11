@@ -7,28 +7,16 @@ import { Bookmark, BookmarkCheck, Check, Search, ArrowUpDown } from "lucide-reac
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/education")({
-  head: () => ({
-    meta: [
-      { title: "Weekly Postpartum Learning — Vela" },
-      {
-        name: "description",
-        content:
-          "Short, week-by-week postpartum lessons on feeding, sleep, healing, and mood — written to be read one-handed at 3am.",
-      },
-      { property: "og:title", content: "Weekly Postpartum Learning — Vela" },
-      {
-        property: "og:description",
-        content: "Week-by-week lessons on feeding, sleep, healing, and mood — short enough to read one-handed.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://app.nurturetheroots.co/education" },
-      { name: "twitter:card", content: "summary" },
-    ],
-    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/education" }],
-  }),
+  head: () => ({ meta: [{ title: "Learning — Vela" }] }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && !getState().profile.onboarded) {
       throw redirect({ to: "/onboarding" });
@@ -77,10 +65,7 @@ function scoreRelevance(module: EducationModule, query: string): number {
     if (inBody) score += 1;
 
     // Word-boundary bonus: keyword appears as a whole word
-    const boundary = new RegExp(
-      "\\b" + kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b",
-      "i"
-    );
+    const boundary = new RegExp("\\b" + kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
     if (boundary.test(module.title)) score += 2;
     if (boundary.test(module.excerpt)) score += 1;
   }
@@ -88,10 +73,7 @@ function scoreRelevance(module: EducationModule, query: string): number {
   // Coverage bonus: more distinct keywords matched = higher relevance
   const matched = keywords.filter(
     (kw) =>
-      title.includes(kw) ||
-      excerpt.includes(kw) ||
-      tagText.includes(kw) ||
-      bodyText.includes(kw)
+      title.includes(kw) || excerpt.includes(kw) || tagText.includes(kw) || bodyText.includes(kw),
   ).length;
   score += matched * 2;
 
@@ -120,7 +102,8 @@ function EducationPage() {
       const keywords = tokenize(searchQuery);
       if (keywords.length > 0) {
         result = result.filter((m) => {
-          const hay = `${m.title} ${m.excerpt} ${m.tags.join(" ")} ${m.body.join(" ")}`.toLowerCase();
+          const hay =
+            `${m.title} ${m.excerpt} ${m.tags.join(" ")} ${m.body.join(" ")}`.toLowerCase();
           return keywords.some((kw) => hay.includes(kw));
         });
       }
@@ -166,16 +149,30 @@ function EducationPage() {
     const isComplete = profile.completedModules.includes(open.week);
     return (
       <AppShell>
-        <button onClick={() => setOpenWeek(null)} className="text-sm text-muted-foreground hover:text-foreground">← Back to all guides</button>
-        <p className="text-xs uppercase tracking-wider text-primary mt-5">Week {open.week} · {open.readTime} min read</p>
+        <button
+          onClick={() => setOpenWeek(null)}
+          className="text-sm text-muted-foreground hover:text-foreground"
+        >
+          ← Back to all guides
+        </button>
+        <p className="text-xs uppercase tracking-wider text-primary mt-5">
+          Week {open.week} · {open.readTime} min read
+        </p>
         <h1 className="font-serif text-3xl mt-2 leading-snug">{open.title}</h1>
         <div className="mt-3 flex flex-wrap gap-2">
           {open.tags.map((t) => (
-            <span key={t} className="text-xs rounded-full bg-secondary px-2.5 py-1 text-muted-foreground">{t}</span>
+            <span
+              key={t}
+              className="text-xs rounded-full bg-secondary px-2.5 py-1 text-muted-foreground"
+            >
+              {t}
+            </span>
           ))}
         </div>
         <div className="mt-8 space-y-5 text-[15px] leading-[1.8] max-w-prose">
-          {open.body.map((p, i) => <p key={i}>{p}</p>)}
+          {open.body.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
         </div>
         <div className="mt-10 flex flex-wrap gap-3">
           <Button
@@ -183,10 +180,28 @@ function EducationPage() {
             className="rounded-full"
             disabled={isComplete}
           >
-            {isComplete ? <><Check className="h-4 w-4" /> Completed</> : "Mark as read"}
+            {isComplete ? (
+              <>
+                <Check className="h-4 w-4" /> Completed
+              </>
+            ) : (
+              "Mark as read"
+            )}
           </Button>
-          <Button variant="outline" className="rounded-full" onClick={() => toggleBookmark(open.week)}>
-            {isBookmarked ? <><BookmarkCheck className="h-4 w-4" /> Saved</> : <><Bookmark className="h-4 w-4" /> Save</>}
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => toggleBookmark(open.week)}
+          >
+            {isBookmarked ? (
+              <>
+                <BookmarkCheck className="h-4 w-4" /> Saved
+              </>
+            ) : (
+              <>
+                <Bookmark className="h-4 w-4" /> Save
+              </>
+            )}
           </Button>
         </div>
       </AppShell>
@@ -196,24 +211,10 @@ function EducationPage() {
   return (
     <AppShell>
       <h1 className="font-serif text-3xl">Weekly guides</h1>
-      <p className="mt-2 text-muted-foreground">Short reads that meet you where your week is. Take them in any order, or skip one entirely — nothing here is homework.</p>
-
-      {(() => {
-        const current = mvpModules.find((m) => m.week === Math.min(Math.max(week, 1), 6)) ?? mvpModules[0];
-        if (!current) return null;
-        return (
-          <section className="mt-6 rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm">
-            <p className="text-xs uppercase tracking-wider text-primary">
-              This week's learning · {current.readTime} min read
-            </p>
-            <h2 className="mt-1.5 font-serif text-xl">{current.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{current.excerpt}</p>
-            <Button className="mt-4 h-12 w-full rounded-full" onClick={() => setOpenWeek(current.week)}>
-              Read this week's guide
-            </Button>
-          </section>
-        );
-      })()}
+      <p className="mt-2 text-muted-foreground">
+        Short reads that meet you where your week is. Take them in any order, or skip one entirely —
+        nothing here is homework.
+      </p>
       <div className="mt-5 text-sm text-muted-foreground">
         {completedInScope} of {mvpModules.length} weeks read
       </div>
@@ -291,13 +292,23 @@ function EducationPage() {
               >
                 <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-primary">
                   Week {m.week}
-                  {isCurrent && <span className="rounded-full bg-primary/10 px-2 py-0.5">This week</span>}
-                  {isComplete && <span className="rounded-full bg-secondary px-2 py-0.5 text-muted-foreground normal-case tracking-normal">Read</span>}
-                  {isBookmarked && <BookmarkCheck className="h-3.5 w-3.5 ml-auto text-muted-foreground" />}
+                  {isCurrent && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5">This week</span>
+                  )}
+                  {isComplete && (
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-muted-foreground normal-case tracking-normal">
+                      Read
+                    </span>
+                  )}
+                  {isBookmarked && (
+                    <BookmarkCheck className="h-3.5 w-3.5 ml-auto text-muted-foreground" />
+                  )}
                 </div>
                 <h2 className="font-serif text-lg mt-1.5">{m.title}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{m.excerpt}</p>
-                <p className="mt-3 text-xs text-muted-foreground">{m.readTime} min · {m.tags.join(" · ")}</p>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {m.readTime} min · {m.tags.join(" · ")}
+                </p>
               </button>
             </li>
           );

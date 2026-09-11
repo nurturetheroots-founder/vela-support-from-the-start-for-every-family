@@ -1,42 +1,20 @@
 import { affirm, cta } from "@/lib/microcopy";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { AuthGate } from "@/components/auth-gate";
-import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { addCheckin, todayStr, useStore } from "@/lib/store";
-import { saveCheckin } from "@/lib/vela-db";
+import { addCheckin, getState, todayStr, useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { Heart, Loader2 } from "lucide-react";
-import { ParentToolsDrawer } from "@/components/parent-tools";
-import { captureEvent } from "@/lib/analytics-utils";
+import { Heart } from "lucide-react";
 
 export const Route = createFileRoute("/checkin")({
-  head: () => ({
-    meta: [
-      { title: "Daily Check-In — Vela" },
-      {
-        name: "description",
-        content:
-          "A one-minute daily check-in on mood, sleep, and feeding, so patterns show up early and support arrives sooner.",
-      },
-      { property: "og:title", content: "Daily Check-In — Vela" },
-      {
-        property: "og:description",
-        content: "One minute on mood, sleep, and feeding — so patterns show up early.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://app.nurturetheroots.co/checkin" },
-      { name: "twitter:card", content: "summary" },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
-  component: () => (
-    <AuthGate requireOnboarded>
-      <CheckinPage />
-    </AuthGate>
-  ),
+  head: () => ({ meta: [{ title: "Daily check-in — Vela" }] }),
+  beforeLoad: () => {
+    if (typeof window !== "undefined" && !getState().profile.onboarded) {
+      throw redirect({ to: "/onboarding" });
+    }
+  },
+  component: CheckinPage,
 });
 
 const moods = ["😞", "😕", "😐", "🙂", "😊"];
@@ -44,7 +22,6 @@ const overall = ["Rough", "Hard", "Okay", "Good", "Steady"];
 
 function CheckinPage() {
   const nav = useNavigate();
-  const { user } = useAuth();
   const today = todayStr();
   const existing = useStore((s) => s.checkins.find((c) => c.date === today));
   const [mood, setMood] = useState<number | null>(null);
@@ -52,8 +29,6 @@ function CheckinPage() {
   const [feeding, setFeeding] = useState<"struggling" | "okay" | "going well" | null>(null);
   const [over, setOver] = useState<number | null>(null);
   const [note, setNote] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<null | { flagged: boolean }>(null);
 
   if (existing && !submitted) {
@@ -66,7 +41,6 @@ function CheckinPage() {
         <Link to="/dashboard" className="inline-block mt-6">
           <Button className="rounded-full">{cta.backHome}</Button>
         </Link>
-        <ParentToolsDrawer className="mt-8" />
       </AppShell>
     );
   }
@@ -99,10 +73,8 @@ function CheckinPage() {
 
   const canSubmit = mood !== null && sleep !== null && feeding !== null && over !== null;
 
-  async function submit() {
-    if (!canSubmit || saving) return;
-    setSaving(true);
-    setSaveError(null);
+  function submit() {
+    if (!canSubmit) return;
     const c = addCheckin({
       date: today,
       mood: mood!,
@@ -111,22 +83,7 @@ function CheckinPage() {
       overall: over!,
       note: note.trim() || undefined,
     });
-    // The check-in is complete once it is recorded, whether or not the sync lands.
-    captureEvent("logged_mood");
-    captureEvent("daily_checkin_completed", {
-      date: today,
-      flagged: !!c.flagged,
-      has_note: !!c.note,
-      signed_in: !!user,
-    });
-    try {
-      if (user) await saveCheckin(user.id, c);
-    } catch {
-      setSaveError("We saved today on this device, but couldn't reach your account just yet.");
-    } finally {
-      setSaving(false);
-      setSubmitted({ flagged: !!c.flagged });
-    }
+    setSubmitted({ flagged: !!c.flagged });
   }
 
   return (
@@ -204,28 +161,14 @@ function CheckinPage() {
       </section>
 
       <div className="mt-8">
-        <Button
-          size="lg"
-          className="rounded-full w-full"
-          disabled={!canSubmit || saving}
-          onClick={submit}
-        >
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button size="lg" className="rounded-full w-full" disabled={!canSubmit} onClick={submit}>
           Save today's check-in
         </Button>
       </div>
-      {saveError && (
-        <p role="alert" className="mt-3 text-xs text-destructive text-center">
-          {saveError}
-        </p>
-      )}
-
       <p className="mt-3 text-xs text-muted-foreground text-center">
         We hold your check-ins gently. If a few heavy days gather in a row, we'll quietly offer a
         hand — never a diagnosis.
       </p>
-
-      <ParentToolsDrawer className="mt-8" />
     </AppShell>
   );
 }

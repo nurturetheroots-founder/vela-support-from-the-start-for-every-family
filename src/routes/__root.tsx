@@ -13,8 +13,6 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { problem, cta } from "@/lib/microcopy";
-import { Analytics } from "@/lib/analytics";
-
 
 function NotFoundComponent() {
   return (
@@ -25,9 +23,7 @@ function NotFoundComponent() {
       <div className="max-w-md text-center">
         <p className="text-xs uppercase tracking-[0.28em] text-primary">Vela</p>
         <h1 className="mt-4 font-serif text-3xl text-foreground">{problem.notFoundTitle}</h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          {problem.notFound}
-        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{problem.notFound}</p>
         <div className="mt-6">
           <Link
             to="/"
@@ -54,12 +50,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
       style={{ backgroundImage: "var(--gradient-welcome)", backgroundAttachment: "fixed" }}
     >
       <div className="max-w-md text-center">
-        <h1 className="font-serif text-2xl text-foreground">
-          {problem.errorTitle}
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          {problem.error}
-        </p>
+        <h1 className="font-serif text-2xl text-foreground">{problem.errorTitle}</h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{problem.error}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -88,23 +80,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Vela — Fourth Trimester Care, Birth to 4 Months" },
-      { name: "description", content: "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it." },
+      {
+        name: "description",
+        content:
+          "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Vela — Fourth Trimester Care, Birth to 4 Months" },
-      { property: "og:description", content: "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it." },
+      {
+        property: "og:description",
+        content:
+          "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Vela — Fourth Trimester Care, Birth to 4 Months" },
-      { name: "twitter:description", content: "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/AQ2lCvbMjJa5vC9jf05TYfDbSXt2/social-images/social-1782279181753-Branding_photos-50.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/AQ2lCvbMjJa5vC9jf05TYfDbSXt2/social-images/social-1782279181753-Branding_photos-50.webp" },
-      { name: "theme-color", content: "#CE7951" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { name: "apple-mobile-web-app-title", content: "Vela" },
-      { name: "application-name", content: "Vela" },
+      {
+        name: "twitter:description",
+        content:
+          "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/AQ2lCvbMjJa5vC9jf05TYfDbSXt2/social-images/social-1782279181753-Branding_photos-50.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/AQ2lCvbMjJa5vC9jf05TYfDbSXt2/social-images/social-1782279181753-Branding_photos-50.webp",
+      },
     ],
     links: [
       {
@@ -112,12 +118,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://us.i.posthog.com" },
-      { rel: "preconnect", href: "https://eu.i.posthog.com" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
@@ -152,9 +153,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
-      <Analytics />
       <Toaster position="top-center" />
     </QueryClientProvider>
-
   );
 }

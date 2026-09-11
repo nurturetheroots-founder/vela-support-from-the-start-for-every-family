@@ -45,7 +45,8 @@ export const phases: TimelinePhase[] = [
     from: 6,
     to: 6,
     title: "The six-week mark",
-    summary: "Often a checkup week — and a moment to check in with yourself too, not just your body.",
+    summary:
+      "Often a checkup week — and a moment to check in with yourself too, not just your body.",
     points: [
       "A second mood screening, held privately with you.",
       "Guides on identity, relationships, and returning-to-work feelings.",
@@ -108,7 +109,9 @@ export function ExpectTimeline({ currentWeek }: { currentWeek?: number | null })
               aria-expanded={isOpen}
               className={cn(
                 "w-full text-left rounded-2xl border p-4 transition-colors",
-                isOpen ? "border-primary/40 bg-secondary" : "border-border/60 bg-card hover:border-foreground/20",
+                isOpen
+                  ? "border-primary/40 bg-secondary"
+                  : "border-border/60 bg-card hover:border-foreground/20",
               )}
             >
               <div className="flex items-center gap-2">
@@ -119,7 +122,10 @@ export function ExpectTimeline({ currentWeek }: { currentWeek?: number | null })
                   </span>
                 )}
                 <ChevronDown
-                  className={cn("ml-auto h-4 w-4 text-muted-foreground transition-transform", isOpen && "rotate-180")}
+                  className={cn(
+                    "ml-auto h-4 w-4 text-muted-foreground transition-transform",
+                    isOpen && "rotate-180",
+                  )}
                 />
               </div>
               <h3 className="font-serif text-lg mt-1">{p.title}</h3>
@@ -127,8 +133,14 @@ export function ExpectTimeline({ currentWeek }: { currentWeek?: number | null })
               {isOpen && (
                 <ul className="mt-3 space-y-2">
                   {p.points.map((pt) => (
-                    <li key={pt} className="flex gap-2 text-sm text-muted-foreground leading-relaxed">
-                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                    <li
+                      key={pt}
+                      className="flex gap-2 text-sm text-muted-foreground leading-relaxed"
+                    >
+                      <span
+                        className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary"
+                        aria-hidden="true"
+                      />
                       {pt}
                     </li>
                   ))}

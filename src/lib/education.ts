@@ -133,7 +133,7 @@ export const educationModules: EducationModule[] = [
     readTime: 4,
     tags: ["newborn care"],
     excerpt: "What changes at ten weeks — and what still counts as normal.",
-      body: [
+    body: [
       "Around ten weeks, some babies start stretching their first sleep stretch. Others don't. Both are well within the range of normal.",
       "You might be experimenting with swaddles, bassinet transitions, or sidecar setups. There's no single right answer — only what helps everyone rest a little more.",
       "Your sleep matters just as much as theirs. One longer stretch for you can shift your whole day. Protect it however you can.",

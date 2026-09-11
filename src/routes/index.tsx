@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, BookHeart, HeartHandshake, Sparkles, type LucideIcon } from "lucide-react";
 import { getState } from "@/lib/store";
 import { legal } from "@/lib/microcopy";
-import { startGuest } from "@/lib/guest";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,11 +20,7 @@ export const Route = createFileRoute("/")({
         content:
           "Vela companions you from birth to 4 months with daily check-ins, weekly learning, gentle mood screening, and real human support when you need it.",
       },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://app.nurturetheroots.co/" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://app.nurturetheroots.co/" }],
   }),
   beforeLoad: () => {
     if (typeof window !== "undefined" && getState().profile.onboarded) {
@@ -52,8 +47,7 @@ const slides: Slide[] = [
     eyebrow: "Welcome",
     headLead: "You are here,",
     headAccent: "and that matters.",
-    body:
-      "Whether you are expecting, just had your baby, or somewhere in the middle of the beautiful chaos — Vela is here to walk alongside you. Not to tell you what to do, but to make sure you never feel like you are doing it alone.",
+    body: "Whether you are expecting, just had your baby, or somewhere in the middle of the beautiful chaos — Vela is here to walk alongside you. Not to tell you what to do, but to make sure you never feel like you are doing it alone.",
     orb: true,
     cta: "Let us begin",
   },
@@ -88,8 +82,7 @@ const slides: Slide[] = [
     eyebrow: "What comes next",
     headLead: "From birth",
     headAccent: "through month four.",
-    body:
-      "We will ask a few gentle questions about you and your baby, then shape Vela around your days. You can change anything, anytime.",
+    body: "We will ask a few gentle questions about you and your baby, then shape Vela around your days. You can change anything, anytime.",
     orb: true,
     cta: "Begin with Vela",
   },
@@ -129,8 +122,7 @@ function Landing() {
       <main className="flex-1 px-7 pt-10 pb-6 max-w-xl w-full">
         <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">{slide.eyebrow}</p>
         <h1 className="mt-6 font-serif text-[2.6rem] sm:text-5xl leading-[1.1] font-normal">
-          {slide.headLead}{" "}
-          <span className="italic text-clay">{slide.headAccent}</span>
+          {slide.headLead} <span className="italic text-clay">{slide.headAccent}</span>
         </h1>
         <p className="mt-7 text-lg leading-[1.7] text-muted-foreground">{slide.body}</p>
 
@@ -153,7 +145,10 @@ function Landing() {
         {slide.cards ? (
           <div className="mt-8 space-y-4">
             {slide.cards.map(({ icon: Icon, title, body, tone }) => (
-              <div key={title} className="rounded-3xl bg-card/70 border border-border/60 p-5 flex gap-4">
+              <div
+                key={title}
+                className="rounded-3xl bg-card/70 border border-border/60 p-5 flex gap-4"
+              >
                 <span
                   className={`grid place-items-center h-12 w-12 shrink-0 rounded-2xl ${
                     tone === "clay" ? "bg-clay/12 text-clay" : "bg-primary/12 text-primary"
@@ -163,7 +158,9 @@ function Landing() {
                 </span>
                 <div>
                   <h2 className="font-sans text-lg font-medium">{title}</h2>
-                  <p className="mt-1 text-[0.95rem] leading-relaxed text-muted-foreground">{body}</p>
+                  <p className="mt-1 text-[0.95rem] leading-relaxed text-muted-foreground">
+                    {body}
+                  </p>
                 </div>
               </div>
             ))}
@@ -174,7 +171,10 @@ function Landing() {
       <footer className="px-7 pb-12 pt-2 max-w-xl w-full space-y-4">
         {last ? (
           <Link to="/onboarding" className="block">
-            <Button size="lg" className="w-full rounded-2xl h-14 text-base bg-clay text-primary-foreground hover:bg-clay/90">
+            <Button
+              size="lg"
+              className="w-full rounded-2xl h-14 text-base bg-clay text-primary-foreground hover:bg-clay/90"
+            >
               {slide.cta}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -189,18 +189,8 @@ function Landing() {
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         )}
-        <button
-          type="button"
-          onClick={() => {
-            startGuest();
-            window.location.href = "/onboarding";
-          }}
-          className="block w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          View demo — continue as guest
-        </button>
         <Link
-          to="/auth"
+          to="/onboarding"
           className="block text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
         >
           I already have an account

@@ -146,20 +146,10 @@ export function markModuleComplete(week: number) {
   setProfile({ completedModules: [...state.profile.completedModules, week] });
 }
 
-export function hydrateFromRemote(profile: Partial<Profile>, checkins: Checkin[]) {
-  state = {
-    ...state,
-    profile: { ...state.profile, ...profile },
-    checkins,
-  };
-  emit();
-}
-
 export function resetAll() {
   state = initial;
   emit();
 }
-
 
 export function useStore<T>(selector: (s: State) => T): T {
   return useSyncExternalStore(
@@ -188,7 +178,10 @@ export function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function nextScreeningDue(p: Profile, screenings: ScreeningResult[]): { week: number; daysAway: number } | null {
+export function nextScreeningDue(
+  p: Profile,
+  screenings: ScreeningResult[],
+): { week: number; daysAway: number } | null {
   if (!p.birthDate) return null;
   const milestones = [2, 6, 13, 17]; // weeks: 2wk, 6wk, 3mo (~13), 4mo (~17)
   const { week } = weekNumber(p);

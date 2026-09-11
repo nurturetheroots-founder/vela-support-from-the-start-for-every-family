@@ -64,37 +64,12 @@
   --color-clay: var(--clay);
   --color-welcome-base: var(--welcome-base);
   --color-welcome-blush: var(--welcome-blush);
-  /* Care tracker night surfaces — velvety, warm, low-contrast for 3am eyes.
-     Values live on :root so the amber "dim" mode can override them. */
-  --color-night: var(--night);
-  --color-night-soft: var(--night-soft);
-  --color-night-raised: var(--night-raised);
-  --color-night-line: var(--night-line);
-  --color-night-text: var(--night-text);
-  --color-night-muted: var(--night-muted);
-  --color-sage: var(--sage);
-  --color-clay-soft: var(--clay-soft);
-  --color-lilac-soft: var(--lilac-soft);
-
-
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
 :root {
   --radius: 1rem;
-  /* Night tracker surfaces (standard). Contrast checked against WCAG 2.1 AA:
-     text 0.93L and muted 0.78L both clear 4.5:1 on the 0.21L canvas. */
-  --night: oklch(0.19 0.012 60);
-  --night-soft: oklch(0.25 0.013 60);
-  --night-raised: oklch(0.31 0.014 60);
-  --night-line: oklch(0.42 0.012 60);
-  --night-text: oklch(0.95 0.012 80);
-  --night-muted: oklch(0.78 0.014 75);
-  --sage: oklch(0.82 0.07 155);
-  --clay-soft: oklch(0.8 0.1 45);
-  --lilac-soft: oklch(0.84 0.05 300);
-
   /* warm welcome cream — matches the onboarding canvas */
   --background: oklch(0.975 0.008 75);
   /* deep charcoal #2D2D2D */
@@ -125,7 +100,8 @@
   /* warm welcome canvas */
   --welcome-base: oklch(0.975 0.008 75);
   --welcome-blush: oklch(0.93 0.045 45);
-  --gradient-welcome: radial-gradient(
+  --gradient-welcome:
+    radial-gradient(
       120% 60% at 78% 0%,
       color-mix(in oklab, var(--welcome-blush) 70%, transparent) 0%,
       transparent 55%
@@ -198,52 +174,10 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-family: var(--font-serif);
     letter-spacing: -0.01em;
   }
-}
-
-/* Gentle, non-robotic loading motion */
-@keyframes gentle-pulse {
-  0%, 100% { opacity: 0.3; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.15); }
-}
-@keyframes gentle-fade {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-.animate-gentle-pulse { animation: gentle-pulse 2.4s ease-in-out infinite; }
-.animate-gentle-fade { animation: gentle-fade 3.2s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) {
-  .animate-gentle-pulse, .animate-gentle-fade { animation: none; opacity: 0.8; }
-}
-
-/* Printable clinical handover */
-@page {
-  size: portrait;
-  margin: 0.5in;
-}
-@media print {
-  html, body {
-    background: #fff !important;
-  }
-  body * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-}
-
-/* Amber "dim" mode for overnight shifts: blue light pulled out of every
-   surface and accent, contrast still held at WCAG AA. */
-.night-dim {
-  --night: oklch(0.16 0.014 45);
-  --night-soft: oklch(0.22 0.017 45);
-  --night-raised: oklch(0.28 0.02 45);
-  --night-line: oklch(0.4 0.02 45);
-  --night-text: oklch(0.93 0.045 65);
-  --night-muted: oklch(0.79 0.05 60);
-  --sage: oklch(0.83 0.07 95);
-  --clay-soft: oklch(0.82 0.11 55);
-  --lilac-soft: oklch(0.85 0.06 40);
 }

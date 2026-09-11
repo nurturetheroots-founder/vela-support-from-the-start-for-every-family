@@ -1,1 +1,0 @@
-ALTER TYPE public.care_event_type ADD VALUE IF NOT EXISTS 'pump';
